@@ -1,13 +1,15 @@
-# AGENTS.md — WP FastSpring for WooCommerce
+# AGENTS.md — VMS Elements Fastspring Woo Payment
 
 Project-level guidance for AI coding agents working in this repository.
 Read this end-to-end before making any non-trivial change.
+
+> **Maintenance rule:** After any non-trivial code, naming, schema, hook, or workflow change, **update this file** (`AGENTS.md`) in the same PR/commit so it stays accurate. Do not leave AGENTS.md stale.
 
 ---
 
 ## 1. What this plugin is
 
-**WP FastSpring for WooCommerce** is a WordPress plugin that:
+**VMS Elements Fastspring Woo Payment for WooCommerce** is a WordPress plugin that:
 
 1. Adds a **WooCommerce payment gateway** that creates a [FastSpring](https://fastspring.com) checkout session and redirects the customer to the FastSpring storefront.
 2. Listens for **FastSpring webhooks** (HMAC-SHA256 signed) and persists orders, subscriptions, refunds and events into custom DB tables.
@@ -15,67 +17,104 @@ Read this end-to-end before making any non-trivial change.
 4. Provides full-featured admin resource screens for FastSpring Orders, Subscriptions, Accounts, Products, Coupons, Invoices, Quotes, Returns, Sessions, Events, Reports and Webhooks.
 5. Supports **Live + Sandbox isolation** with independent credentials, storefronts and webhook secrets per mode.
 
-- **Plugin slug / text domain:** `wp-fastspring`
-- **Main file:** `wp-fastspring.php`
-- **Min PHP:** 7.4 • **Min WP:** 6.0 • **Min WC:** 7.0
-- **License:** GPL-2.0-or-later
-- **Version constant:** `WP_FASTSPRING_VERSION`
+On first load, `VMS_EFWP_Migrate::maybe_run()` performs a **one-time migration** from the legacy `wp-fastspring` plugin (options, tables, meta, WC payment method id). Do not add new backward-compat shims unless explicitly requested.
+
+| Item | Value |
+|------|--------|
+| **Plugin name** | VMS Elements Fastspring Woo Payment for WooCommerce |
+| **Directory slug** | `vms-elements-fastspring-woo-payment` (must match main file basename) |
+| **Main file** | `vms-elements-fastspring-woo-payment.php` |
+| **Text domain** | `vms-elements-fastspring-woo-payment` |
+| **Helper function** | `vms_efwp()` |
+| **Main class** | `VMS_EFWP` |
+| **Constants prefix** | `VMS_EFWP_*` |
+| **Min PHP / WP / WC** | 7.4 / 6.0 / 7.0 |
+| **License** | GPL-2.0-or-later |
+| **Version constant** | `VMS_EFWP_VERSION` |
+
+### Naming prefix cheat sheet
+
+| Layer | Prefix / id | Example |
+|-------|-------------|---------|
+| PHP classes | `VMS_EFWP_*` | `VMS_EFWP_Admin` |
+| Functions / hooks | `vms_efwp_*` | `vms_efwp_event` |
+| Options | `vms_efwp_*` | `vms_efwp_settings` |
+| DB tables | `{prefix}vms_efwp_*` | `wp_vms_efwp_orders` |
+| WC gateway id | `vms_efwp` | `woocommerce_vms_efwp_settings` |
+| Admin menu / pages | `vms-efwp`, `vms-efwp-*` | `vms-efwp-settings` |
+| Script/style handles | `vms-efwp-*` | `vms-efwp-admin` |
+| CSS classes / vars | `vefwp-*`, `--vefwp-*` | `.vefwp-wrap` |
+| JS global (localized) | `VMSEFWP` | `VMSEFWP.ajax_url` |
+| Product meta | `_vms_efwp_product_path` | |
+| Order meta | `_vms_efwp_session_id` | |
+| Webhook query arg | `vms-efwp-webhook` | `?vms-efwp-webhook=1` |
+| Class filenames | `class-vms-efwp-*.php` | `class-vms-efwp-api.php` |
+
+**Never** use `wp-`, `wp_`, or `WP_` in plugin slugs, prefixes, or branding — WordPress.org rejects that pattern.
 
 ---
 
 ## 2. File map
 
 ```
-wp-fastspring.php                              # Plugin bootstrap, constants, activation hooks
-uninstall.php                                  # Drops custom tables + options unless opted out
-readme.txt                                     # wp.org-style readme
-README.md                                      # GitHub-style readme
-AGENTS.md                                      # This file
-.gitignore                                     # WordPress-flavoured ignore list
-LICENSE                                        # GPL-2.0-or-later
+vms-elements-fastspring-woo-payment.php   # Bootstrap, constants, vms_efwp(), activation hooks
+uninstall.php                             # Drops custom tables + options unless opted out
+readme.txt                                # WordPress.org readme
+README.md                                 # GitHub readme
+AGENTS.md                                 # This file
+gitignore.example                         # Copy to .gitignore locally (.gitignore omitted from release ZIPs)
+LICENSE                                   # GPL-2.0-or-later
 
 includes/
-  class-wp-fastspring.php                      # Singleton loader; wires includes + WP hooks
-  class-wp-fastspring-install.php              # Creates 4 custom tables + default options
-  class-wp-fastspring-settings.php             # Wrapper over wp_fastspring_settings option (mode-aware)
-  class-wp-fastspring-api.php                  # FastSpring REST client (api.fastspring.com)
-  class-wp-fastspring-logger.php               # DB-backed logger (wp_fastspring_log)
-  class-wp-fastspring-webhook.php              # Webhook listener + HMAC verify + event dispatch
-  class-wp-fastspring-product-sync.php         # One-way WC -> FS product sync on save_post_product
-  class-wp-fastspring-data-store.php           # Persistence helpers (orders, subs, events)
-  class-wp-fastspring-stats.php                # Dashboard aggregations
-  class-wp-fastspring-wc-gateway-loader.php    # Conditionally registers the WC gateway + Blocks integration
-  class-wp-fastspring-wc-gateway.php           # WC_Payment_Gateway implementation
-  class-wp-fastspring-wc-blocks.php            # Cart/Checkout Block payment method type
+  class-vms-efwp.php                      # Singleton loader; wires includes + WP hooks
+  class-vms-efwp-install.php              # Creates 4 custom tables + default options
+  class-vms-efwp-migrate.php              # One-time migration from legacy wp-fastspring plugin
+  class-vms-efwp-settings.php             # Wrapper over vms_efwp_settings (mode-aware)
+  class-vms-efwp-api.php                  # FastSpring REST client (api.fastspring.com)
+  class-vms-efwp-logger.php               # DB-backed logger (vms_efwp_log)
+  class-vms-efwp-webhook-permissions.php  # Syncs subscribed webhook events from GET /webhooks
+  class-vms-efwp-webhook.php              # Webhook listener + HMAC verify + event dispatch
+  class-vms-efwp-product-sync.php         # One-way WC → FS product sync on save_post_product
+  class-vms-efwp-checkout-overlay.php     # REST + transients for popup checkout overlay
+  class-vms-efwp-data-store.php           # Persistence helpers (orders, subs, events)
+  class-vms-efwp-stats.php                # Dashboard aggregations
+  class-vms-efwp-wc-gateway-loader.php    # Registers WC gateway + Blocks integration
+  class-vms-efwp-wc-gateway.php           # WC_Payment_Gateway (id: vms_efwp)
+  class-vms-efwp-wc-blocks.php            # Cart/Checkout Block payment method type
   admin/
-    class-wp-fastspring-admin.php              # Menu, asset enqueue, AJAX endpoints
-    class-wp-fastspring-admin-resource-base.php
-    class-wp-fastspring-admin-dashboard.php
-    class-wp-fastspring-admin-orders.php
-    class-wp-fastspring-admin-subscriptions.php
-    class-wp-fastspring-admin-accounts.php
-    class-wp-fastspring-admin-products.php
-    class-wp-fastspring-admin-coupons.php
-    class-wp-fastspring-admin-invoices.php
-    class-wp-fastspring-admin-quotes.php
-    class-wp-fastspring-admin-returns.php
-    class-wp-fastspring-admin-sessions.php
-    class-wp-fastspring-admin-events.php
-    class-wp-fastspring-admin-reports.php
-    class-wp-fastspring-admin-webhooks.php
-    class-wp-fastspring-admin-tools.php
-    class-wp-fastspring-admin-settings.php
+    class-vms-efwp-admin.php              # Menu, assets, AJAX
+    class-vms-efwp-admin-resource-base.php
+    class-vms-efwp-admin-dashboard.php
+    class-vms-efwp-admin-orders.php
+    class-vms-efwp-admin-subscriptions.php
+    class-vms-efwp-admin-accounts.php
+    class-vms-efwp-admin-products.php
+    class-vms-efwp-admin-coupons.php
+    class-vms-efwp-admin-invoices.php
+    class-vms-efwp-admin-quotes.php
+    class-vms-efwp-admin-returns.php
+    class-vms-efwp-admin-sessions.php
+    class-vms-efwp-admin-events.php
+    class-vms-efwp-admin-reports.php
+    class-vms-efwp-admin-webhooks.php
+    class-vms-efwp-admin-tools.php
+    class-vms-efwp-admin-settings.php
 
 assets/
-  css/admin.css
-  js/admin.js                                  # Dashboard + AJAX + Chart.js charts
-  js/blocks/checkout-block.js                  # WC Blocks payment method UI
+  css/admin.css                           # Admin UI (vefwp-* classes)
+  css/checkout-popup.css                  # Popup overlay checkout styles
+  js/admin.js                             # Dashboard AJAX + Chart.js (uses VMSEFWP)
+  js/checkout-popup.js                    # FastSpring popup overlay checkout
+  js/blocks/checkout-block.js             # WC Blocks payment method UI
+
+docs/                                     # Local copies of official FastSpring OpenAPI docs (see §6.1)
+  Products.md, Orders.md, Subscriptions.md, Coupons.md, events.md, webhook.md, …
 
 languages/
-  wp-fastspring.pot
+  vms-elements-fastspring-woo-payment.pot
 ```
 
-> The `class-wp-fastspring-*` and `class-wp-fastspring-admin-*` naming convention is mandatory — `WP_FastSpring::includes()` and `WP_FastSpring_Admin` rely on these exact filenames.
+> The `class-vms-efwp-*` and `class-vms-efwp-admin-*` filename convention is **mandatory** — `VMS_EFWP::includes()` and `VMS_EFWP_Admin` rely on these exact paths.
 
 ---
 
@@ -84,38 +123,37 @@ languages/
 ### 3.1 Bootstrap order
 
 ```
-wp-fastspring.php
-  └── defines WP_FASTSPRING_VERSION / FILE / PATH / URL / BASENAME
-  └── requires includes/class-wp-fastspring.php
-  └── wp_fastspring() -> WP_FastSpring::instance()
+vms-elements-fastspring-woo-payment.php
+  └── defines VMS_EFWP_VERSION / FILE / PATH / URL / BASENAME
+  └── requires includes/class-vms-efwp.php
+  └── vms_efwp() → VMS_EFWP::instance()
         └── includes() requires all classes
         └── init_hooks():
-              - plugins_loaded(10)  -> on_plugins_loaded()
-              - init(5)             -> on_init()
-              - plugins_loaded      -> load_textdomain()
-              - admin_notices       -> maybe_render_woocommerce_notice()
-              - plugin_action_links -> add_action_links()
+              - plugins_loaded(10)  → on_plugins_loaded()
+              - init(5)             → on_init()
+              - plugins_loaded      → load_textdomain()
+              - admin_notices       → maybe_render_woocommerce_notice()
+              - plugin_action_links → add_action_links()
 
 on_plugins_loaded():
-  - new WP_FastSpring_Settings   (cached in wp_fastspring()->settings)
-  - new WP_FastSpring_API        (cached in wp_fastspring()->api)
-  - new WP_FastSpring_Webhook
-  - new WP_FastSpring_Product_Sync
-  - if WooCommerce active        -> new WP_FastSpring_WC_Gateway_Loader
-  - if is_admin()                -> new WP_FastSpring_Admin
+  - VMS_EFWP_Migrate::maybe_run()
+  - new VMS_EFWP_Settings   (cached in vms_efwp()->settings)
+  - new VMS_EFWP_API        (cached in vms_efwp()->api)
+  - new VMS_EFWP_Webhook          (internally uses VMS_EFWP_Webhook_Permissions)
+  - new VMS_EFWP_Product_Sync
+  - if WooCommerce active   → new VMS_EFWP_WC_Gateway_Loader
+  - if is_admin()           → new VMS_EFWP_Admin
 ```
 
 ### 3.2 Singleton access
 
-Always go through the helper:
-
 ```php
-$plugin   = wp_fastspring();        // WP_FastSpring instance
-$settings = $plugin->settings;      // WP_FastSpring_Settings
-$api      = $plugin->api;           // WP_FastSpring_API
+$plugin   = vms_efwp();       // VMS_EFWP instance
+$settings = $plugin->settings; // VMS_EFWP_Settings
+$api      = $plugin->api;      // VMS_EFWP_API
 ```
 
-`$settings` and `$api` are only available **after** `plugins_loaded` (priority 10). If you write code that may run earlier (cron, REST, early `init`), guard with `function_exists( 'wp_fastspring' )` and null checks.
+`$settings` and `$api` are only available **after** `plugins_loaded` (priority 10). Guard early-running code with `function_exists( 'vms_efwp' )` and null checks.
 
 ---
 
@@ -123,36 +161,37 @@ $api      = $plugin->api;           // WP_FastSpring_API
 
 ### 4.1 Custom tables (created on activation)
 
-| Table                                 | Purpose                                      |
-|--------------------------------------|----------------------------------------------|
-| `{prefix}fastspring_orders`          | One row per FastSpring order (unique `fs_order_id`) |
-| `{prefix}fastspring_subscriptions`   | One row per FastSpring subscription (unique `fs_subscription_id`) |
-| `{prefix}fastspring_events`          | Raw webhook events, processed flag, error_message |
-| `{prefix}fastspring_log`             | Internal log lines (level, channel, message, context) |
+| Table | Purpose |
+|-------|---------|
+| `{prefix}vms_efwp_orders` | One row per FastSpring order (unique `fs_order_id`) |
+| `{prefix}vms_efwp_subscriptions` | One row per FastSpring subscription (unique `fs_subscription_id`) |
+| `{prefix}vms_efwp_events` | Raw webhook events, processed flag, error_message |
+| `{prefix}vms_efwp_log` | Internal log lines (level, channel, message, context) |
 
-Schemas live in `includes/class-wp-fastspring-install.php`. **If you change a schema, bump `WP_FASTSPRING_VERSION` and run `dbDelta` from `WP_FastSpring_Install::install()` — do not write ad-hoc `ALTER TABLE` statements.**
+Schemas live in `includes/class-vms-efwp-install.php`. **If you change a schema, bump `VMS_EFWP_VERSION` and run `dbDelta` from `VMS_EFWP_Install::install()` — do not write ad-hoc `ALTER TABLE` statements.**
 
 ### 4.2 Options
 
-| Option key                                | Purpose                                |
-|-------------------------------------------|----------------------------------------|
-| `wp_fastspring_settings`                  | All plugin settings (see `Settings::defaults()`) |
-| `wp_fastspring_db_version`                | Tracks installed schema version        |
-| `wp_fastspring_keep_data_on_uninstall`    | If truthy, `uninstall.php` keeps tables/options |
-| `woocommerce_wp_fastspring_settings`      | Standard WC per-gateway option (enabled/title/description) |
+| Option key | Purpose |
+|------------|---------|
+| `vms_efwp_settings` | All plugin settings (see `VMS_EFWP_Settings::defaults()`) — includes `webhook_enabled_events_live/sandbox` + `_synced_at` |
+| `vms_efwp_db_version` | Tracks installed schema version |
+| `vms_efwp_keep_data_on_uninstall` | If truthy, `uninstall.php` keeps tables/options |
+| `woocommerce_vms_efwp_settings` | WC per-gateway option (enabled/title/description) |
+| `vms_efwp_migrated_from_wp_fastspring` | Set after one-time legacy migration completes |
 
 ### 4.3 Order / subscription persistence
 
 - Source of truth = **webhook events**, not the redirect return.
-- `WP_FastSpring_Data_Store::upsert_order()` is idempotent on `fs_order_id`.
-- `WP_FastSpring_Data_Store::upsert_subscription()` is idempotent on `fs_subscription_id`.
+- `VMS_EFWP_Data_Store::upsert_order()` is idempotent on `fs_order_id`.
+- `VMS_EFWP_Data_Store::upsert_subscription()` is idempotent on `fs_subscription_id`.
 - Test-mode events set `is_test = 1`; dashboard queries default to `is_test = 0`.
 
 ---
 
 ## 5. Modes, credentials, secrets
 
-`WP_FastSpring_Settings` is **mode-aware**. The same accessors return different values depending on `get_mode()` (`live` or `sandbox`):
+`VMS_EFWP_Settings` is **mode-aware** (`live` or `sandbox`):
 
 ```php
 $settings->api_username();   // sandbox_username  OR  live_username
@@ -161,32 +200,32 @@ $settings->storefront();     // sandbox_storefront OR live_storefront
 $settings->webhook_secret(); // webhook_secret_sandbox OR webhook_secret_live
 $settings->has_credentials();
 $settings->is_sandbox();
-$settings->webhook_url();    // home_url() + ?wp-fastspring-webhook=1
+$settings->webhook_url();    // home_url() + ?vms-efwp-webhook=1
 ```
 
-**Never** read raw credentials directly out of `wp_fastspring_settings`. Always go through these methods so the active mode is honoured.
+**Never** read raw credentials from `get_option( 'vms_efwp_settings' )`. Always use `VMS_EFWP_Settings` accessors.
 
 ---
 
 ## 6. FastSpring REST API client
 
-`WP_FastSpring_API` wraps `https://api.fastspring.com` using HTTP Basic Auth.
+`VMS_EFWP_API` wraps `https://api.fastspring.com` with HTTP Basic Auth.
 
-- All public methods return either a decoded `array` or `WP_Error` — **always** check with `is_wp_error()`.
-- `request()` logs every non-2xx response into `wp_fastspring_log` under the `api` channel.
+- Public methods return `array` or `WP_Error` — always `is_wp_error()`.
+- Non-2xx responses log to `vms_efwp_log` under channel `api`.
 - Sections grouped by resource: Accounts, Coupons, Products, Orders, Subscriptions, Invoices, Quotes, Returns, Sessions (V1 + V2), Events, Data/Reports, Webhooks.
-
-Example:
+- `User-Agent`: `VMS-Elements-Fastspring-Woo-Payment/{version}; {home_url}`.
+- FastSpring often returns **HTTP 200 with `"result":"error"`** in the JSON body. `detect_result_error()` converts these to `WP_Error`. Per-item errors in arrays like `products[]` are also detected.
 
 ```php
-$result = wp_fastspring()->api->get_order( 'ORDER_ID' );
+$result = vms_efwp()->api->get_order( 'ORDER_ID' );
 if ( is_wp_error( $result ) ) {
-    WP_FastSpring_Logger::error( $result->get_error_message(), 'api' );
+    VMS_EFWP_Logger::error( $result->get_error_message(), 'api' );
     return;
 }
 ```
 
-When extending the client, follow the existing pattern:
+When extending:
 
 ```php
 public function some_action( $id, $payload = array() ) {
@@ -194,219 +233,399 @@ public function some_action( $id, $payload = array() ) {
 }
 ```
 
-`User-Agent` is set to `WP-FastSpring/{version}; {home_url}`.
+### 6.1 Official API reference (`docs/`)
+
+The `docs/` folder contains **local copies** of FastSpring's official OpenAPI documentation (exported from [developer.fastspring.com](https://developer.fastspring.com)). **Always consult these files** before adding query params or POST body fields — the live API is stricter than some schema sections suggest.
+
+| File | Resource |
+|------|----------|
+| `docs/Products.md` | Products CRUD, pricing, offers |
+| `docs/Orders.md` | Orders list/search/get |
+| `docs/Subscriptions.md` | Subscriptions list/update |
+| `docs/Coupons.md` | Coupons |
+| `docs/events.md` | Events API |
+| `docs/webhook.md` | Webhook setup + event types |
+| `docs/FastSpring Accounts docs.md` | Accounts |
+| `docs/invoice.md` | Invoices |
+| `docs/Quotes.md` | Quotes |
+| `docs/Returns.md` | Returns |
+| `docs/Sessions.md` | Checkout sessions |
+| `docs/Data.md` | Reports / data jobs |
+
+**Rule:** If a field appears in a GET response schema but not in POST create/update examples, assume it is **read-only** until proven otherwise. Example: `visibility` on products (see §6.5).
+
+### 6.2 Query parameter filtering
+
+`VMS_EFWP_API::filter_query_params( $params, $allowed )` strips unknown or empty query keys before `request()`. **Never pass raw `$_GET` / admin filter arrays** to the API without filtering — FastSpring returns `"Pagination is not supported for this endpoint"` for unsupported `page` / `limit`.
+
+### 6.3 Endpoint pagination & allowed query params
+
+| Method | Endpoint | Pagination | Allowed query params |
+|--------|----------|------------|----------------------|
+| `list_products()` | `GET /products` | **None** — returns all paths in one response | *(none — `$params` ignored)* |
+| `get_coupons()` | `GET /coupons` | **None** | *(none — `$params` ignored)* |
+| `list_subscriptions()` | `GET /subscriptions` | **None** | `accountId`, `begin`, `end`, `event`, `products`, `scope`, `status` |
+| `list_events()` | `GET /events/{type}` | **None** (max ~25 events per call) | `days` (required, 1–30, default 7), `begin`, `end` |
+| `list_orders()` / `search_orders()` | `GET /orders` | **Yes** | `begin`, `end`, `days`, `limit`, `page`, `products`, `rebill`, `returns`, `scope` |
+| `list_product_prices()` | `GET /products/price` | **Yes** | `country`, `currency`, `page`, `limit` |
+| `get_accounts()` | `GET /accounts` | **Yes** | `email`, `begin`, `end`, `days`, `products`, `subscriptions`, `refunds`, `limit`, `page` |
+| `list_quotes()` | `GET /quotes` | Filter only | `createdEmail`, `onlyQuoteId` |
+
+**Important:** `search_orders()` delegates to `list_orders()` — there is **no** `/orders/search` endpoint. Do not reintroduce it.
+
+Admin screens that call non-paginated list endpoints use **client-side pagination** via `VMS_EFWP_API::paginate_items()`:
+
+- Products catalog (`class-vms-efwp-admin-products.php`) — fetches all paths, then pages locally.
+- Subscriptions catalog tab (`class-vms-efwp-admin-subscriptions.php`) — same pattern for product paths; subscription search uses API filters without `page`/`limit`.
+- Events admin — no `page` param; note in UI that FastSpring returns up to ~25 events per request.
+
+### 6.4 Product POST payload sanitization
+
+**Problem fixed (2025):** Editing a product and saving sent `visibility` from the GET response back to `POST /products`, causing:
+
+```json
+{"product":"my-product","action":"product.update","result":"error","error":{"visibility":"Field was not recognized"}}
+```
+
+**Root cause:** `visibility` (and `quotable`) appear in **GET** `/products/{path}` schemas in `docs/Products.md` but are **not accepted** on `POST /products`. Visibility must be changed in the FastSpring app.
+
+**Fix — always route product upserts through the sanitizer:**
+
+- `VMS_EFWP_API::sanitize_product_upsert_payload( $product )` — public; strips read-only fields.
+- `upsert_products()` / `upsert_product()` call the sanitizer before every `POST /products`.
+- Applies to admin saves, WooCommerce product sync, and `ensure_catch_all_product()`.
+
+**Allowed top-level POST fields** (whitelist):
+
+`product`, `display`, `pricing`, `description`, `fulfillment`, `attributes`, `image`, `format`, `sku`, `badge`, `rank`
+
+**Stripped / never send:** `visibility`, `quotable`, `offers` (use `upsert_product_offers()` on `/products/offers/{path}` instead), and any GET-only metadata (`action`, `result`, `created.id`, etc.).
+
+**Format enum** (product level): `digital`, `physical`, `digital-and-physical` — **not** `service`.
+
+**Admin UI (`class-vms-efwp-admin-products.php`):**
+
+- Removed editable Visibility field; shows read-only note + catalog table column from GET data.
+- Format `<select>` matches docs enum.
+- `assets/js/admin.js` `prefillProductForm()` no longer sets visibility; maps legacy `service` format to `digital`.
+
+**When adding new product fields:** verify against `docs/Products.md` POST examples first, then add to `sanitize_product_upsert_payload()` — do not pass through raw GET objects.
+
+### 6.5 Error message formatting
+
+`extract_error_message()` prefixes per-item errors with the resource id when present:
+
+- Products: `plejd-termostat: {"visibility":"Field was not recognized"}`
+- Coupons: `{coupon_path}: …`
+
+Nested `error` objects are JSON-encoded for display.
 
 ---
 
 ## 7. Webhook flow
 
-Endpoint: `https://<site>/?wp-fastspring-webhook=1`
+Endpoint: `https://<site>/?vms-efwp-webhook=1`
 
-`WP_FastSpring_Webhook::maybe_handle()` runs on `parse_request`:
+`VMS_EFWP_Webhook::maybe_handle()` on `parse_request`:
 
-1. Bails unless `?wp-fastspring-webhook=1` is set.
+1. Bails unless `?vms-efwp-webhook=1`.
 2. Returns 403 if `enable_webhook` is not `yes`.
 3. Reads `php://input`, verifies `X-FS-Signature` header against `base64( hmac_sha256( body, webhook_secret() ) )` via `hash_equals`.
-4. JSON-decodes; iterates `payload['events']`; for each event:
-   - Records raw event into `wp_fastspring_events` (idempotent on `event_id`).
-   - Dispatches by `type`:
-     - `order.*`        -> `upsert_order` (+ maybe complete/cancel linked WC order via `tags.wc_order_id` or numeric reference).
-     - `return.created` / `order.refund` -> `mark_order_refunded` + maybe refund WC order.
-     - `subscription.*` -> `upsert_subscription` (+ set status canceled when applicable).
-     - `account.*`, `mailingListEntry.updated` -> acknowledged only.
-   - Fires `do_action( 'wp_fastspring_event_' . $type, $data, $event )` and `do_action( 'wp_fastspring_event', $type, $data, $event )`.
-   - Marks event processed (or stores error_message on `Exception`).
+4. JSON-decodes; for each event in `payload['events']`:
+   - **Always** records into `vms_efwp_events` (idempotent on `event_id`) — regardless of permissions.
+   - Checks `VMS_EFWP_Webhook_Permissions::is_event_enabled( $type )`:
+     - If **enabled** → runs plugin business handlers via `apply_event_handlers()`.
+     - If **disabled** → skips handlers, logs info, still marks event processed.
+   - **Always** fires `do_action( 'vms_efwp_event_' . $type, … )` and `do_action( 'vms_efwp_event', … )` (extension hooks run even when handlers skipped).
+   - Marks processed or stores `error_message` on `Exception`.
 5. Returns `200 { "ok": true }`.
 
-**Linking back to WooCommerce orders** relies on `tags.wc_order_id` (set by the gateway when creating the FastSpring session) or, as a fallback, a numeric `reference`.
+WC order linking uses `tags.wc_order_id` (set in gateway session payload) or numeric `reference` fallback.
+
+### 7.1 Webhook event permissions
+
+Class: `VMS_EFWP_Webhook_Permissions` (instantiated inside `VMS_EFWP_Webhook`).
+
+FastSpring lets merchants choose which event types each webhook URL receives. The plugin mirrors that configuration so it does not run order/subscription logic for events the merchant disabled (e.g. `subscription.trial.reminder`).
+
+**Sync flow:**
+
+1. `GET /webhooks` via `VMS_EFWP_API::get_webhooks()`.
+2. `extract_webhook_event_permissions( $response, $settings->webhook_url() )` finds the hook whose URL matches this site's receiver URL.
+3. Enabled event types stored per mode in `vms_efwp_settings`:
+   - `webhook_enabled_events_live` / `webhook_enabled_events_sandbox`
+   - `webhook_enabled_events_*_synced_at` timestamps
+4. Cached in transients (`vms_efwp_webhook_events_{mode}`, TTL 600s).
+
+**Admin UI:** Webhooks screen (`class-vms-efwp-admin-webhooks.php`) — "Event permissions" table, **Refresh from FastSpring** button, highlights matching receiver URL. Badge styles in `assets/css/admin.css` (`.vefwp-badge--*`).
+
+**`is_event_enabled( $event_type )` logic:**
+
+| State | Behavior |
+|-------|----------|
+| Permissions never synced | **Permissive** — all events run handlers (backward compatible) |
+| Synced list contains `*` or `"all"` | All events enabled |
+| Synced list is explicit types | Only listed types run handlers |
+| Unknown / empty type | Handlers skipped |
+
+**Handler catalog:** `VMS_EFWP_Webhook_Permissions::handler_catalog()` documents every event type the plugin understands, with `required` flag for events critical to WooCommerce (e.g. `order.completed`, `return.created`).
+
+**Do not** bypass permissions in `process_event()` unless explicitly requested — merchants disable events in FastSpring for a reason.
 
 ---
 
 ## 8. WooCommerce gateway
 
-Class: `WP_FastSpring_WC_Gateway` (id: `wp_fastspring`, supports `products`, `refunds`).
+Class: `VMS_EFWP_WC_Gateway` — id **`vms_efwp`**, supports `products`, `refunds`.
 
-- Loaded only if WooCommerce is active (see `WP_FastSpring_WC_Gateway_Loader`).
+- Loaded only if WooCommerce is active (see `VMS_EFWP_WC_Gateway_Loader`).
 - Declares HPOS + Cart/Checkout Blocks compatibility on `before_woocommerce_init`.
-- Registers itself for **classic checkout** via `woocommerce_payment_gateways` and for **Blocks checkout** via `WP_FastSpring_WC_Blocks` (script handle `wp-fastspring-blocks`).
-- `process_payment()`:
-  1. Validates credentials + storefront.
-  2. Builds line items according to the active **pricing strategy**:
-     - `catalog`              — send slug + qty only; use FastSpring catalog price.
-     - `per_product_override` — send slug + qty + per-unit price (WC line total / qty).
-     - `single_custom_price`  — send a single configured "Custom Price" product path with the order subtotal − discount.
-  3. POSTs to `/sessions` with `tags.wc_order_id = order_id`.
-  4. Persists `_fastspring_session_id` on the WC order, sets order to `pending`, and redirects to `https://{storefront}/session/{session_id}`.
+- Classic checkout: `woocommerce_payment_gateways`.
+- Blocks checkout: `VMS_EFWP_WC_Blocks` (handle `vms-efwp-blocks`, setting key `vms_efwp_data`).
+
+`process_payment()`:
+
+1. Validates credentials + storefront.
+2. Builds line items according to the active **pricing strategy**:
+   - `catalog` — send slug + qty only; use FastSpring catalog price.
+   - `per_product_override` — send slug + qty + per-unit price (WC line total / qty).
+   - `single_custom_price` — send a single configured "Custom Price" product path with the order subtotal − discount.
+3. POSTs to `/sessions` with `tags.wc_order_id = order_id`.
+4. Persists `_vms_efwp_session_id` on the WC order, sets order to `pending`, and redirects to `https://{storefront}/session/{session_id}`.
+
 - Error messages are humanised by `humanize_fastspring_error()` (currency / product / price-override / auth diagnostics).
-- `process_refund()` calls `WP_FastSpring_API::create_return()` with the FastSpring order id stored on the WC order's transaction id.
+- `process_refund()` calls `VMS_EFWP_API::create_return()` with the FastSpring order id stored on the WC order's transaction id.
+- The FastSpring storefront host is whitelisted via `allowed_redirect_hosts` so `wp_safe_redirect` doesn't strip it.
+- Return URL hook: `woocommerce_api_vms_efwp_return`.
 
-The FastSpring storefront host is whitelisted via `allowed_redirect_hosts` so `wp_safe_redirect` doesn't strip it.
-
-**Product slug resolution** in the gateway:
+**Product path resolution:**
 
 ```php
-$slug = get_post_meta( $product->get_id(), '_fastspring_product_path', true );
+$slug = get_post_meta( $product->get_id(), '_vms_efwp_product_path', true );
 if ( ! $slug ) {
     $slug = sanitize_title( $product->get_slug() );
 }
 ```
 
-Always set `_fastspring_product_path` explicitly if the FastSpring product path differs from the WC slug.
+Always set `_vms_efwp_product_path` explicitly if the FastSpring product path differs from the WC slug.
 
 ---
 
 ## 9. Admin UI
 
-`WP_FastSpring_Admin` registers a top-level menu (`dashicons-chart-area`, position 56) with submenus for:
+`VMS_EFWP_Admin::MENU_SLUG` = **`vms-efwp`**. Subpages use `vms-efwp-{resource}` (e.g. `vms-efwp-settings`).
 
-`Dashboard, Orders, Subscriptions, Accounts, Products, Coupons, Invoices, Quotes, Returns, Sessions, Events, Reports, Webhooks, Tools, Settings`
+Top-level menu label: **FastSpring** (`dashicons-chart-area`, position 56).
 
-Each submenu page is rendered by a `WP_FastSpring_Admin_*::render()` static method. Resource screens extend `WP_FastSpring_Admin_Resource_Base`.
+Submenus: Dashboard, Orders, Subscriptions, Accounts, Products, Coupons, Invoices, Quotes, Returns, Sessions, Events, Reports, Webhooks, Tools, Settings.
+
+Each submenu page is rendered by a `VMS_EFWP_Admin_*::render()` static method. Resource screens extend `VMS_EFWP_Admin_Resource_Base`.
+
+**Product path (slug) UX:** Create forms put **Display name** first. Typing a name auto-generates the slug in the path field (`assets/js/admin.js` → `vefwpSlugify()`). Manual path edits are preserved until reset; blur always normalizes (e.g. `VMS Fastspring Plugin` → `vms-fastspring-plugin`). Server-side fallback: `VMS_EFWP_Admin_Resource_Base::sanitize_product_path()`. Forms use `data-vefwp-slug-form`, `data-vefwp-slug-source`, and `data-vefwp-slug-target`. On **edit**, the path field is readonly and slug auto-sync stops.
 
 ### 9.1 Assets
 
-`enqueue_assets( $hook )` only enqueues when `$hook` contains `wp-fastspring` or `fastspring`:
+`enqueue_assets()` runs when `$hook` contains `vms-efwp` or `fastspring`:
 
-- `assets/css/admin.css`
-- `assets/js/admin.js` (depends on `jquery`, `wp-fastspring-chartjs`)
-- Chart.js 4.4.4 from jsDelivr by default; override URL via the `wp_fastspring_chartjs_url` filter for self-hosting.
+| Handle | File |
+|--------|------|
+| `vms-efwp-admin` | `assets/css/admin.css` |
+| `vms-efwp-chartjs` | Chart.js 4.4.4 (CDN, filterable via `vms_efwp_chartjs_url`) |
+| `vms-efwp-admin` (JS) | `assets/js/admin.js` |
 
-The localized object is `WPFastSpring` containing `ajax_url`, `nonce`, `currency`, `i18n`.
+Localized object: **`VMSEFWP`** (`ajax_url`, `nonce`, `currency`, `i18n`).
 
-### 9.2 AJAX endpoints (admin)
+### 9.2 AJAX / admin_post
 
-All require `manage_options` and `wp_fastspring_admin` nonce:
+All AJAX requires `manage_options` + nonce `vms_efwp_admin`:
 
-| Action                                  | Purpose                          |
-|-----------------------------------------|----------------------------------|
-| `wp_fastspring_dashboard_data`          | KPIs + daily + top + subs + recent |
-| `wp_fastspring_test_connection`         | Calls `WP_FastSpring_API::test_connection()` |
-| `wp_fastspring_sync_subscription`       | Pulls a subscription from FS and upserts |
-| `wp_fastspring_cancel_subscription`     | Cancels at period end via API     |
+| Action | Purpose |
+|--------|---------|
+| `vms_efwp_dashboard_data` | KPIs, charts, recent orders |
+| `vms_efwp_test_connection` | API ping |
+| `vms_efwp_sync_subscription` | Pull + upsert subscription |
+| `vms_efwp_cancel_subscription` | Cancel at period end |
 
-`admin_post_wp_fastspring_save_settings` handles the settings form (nonce: `wp_fastspring_settings_save`).
-
----
-
-## 10. Filters and actions (public extension points)
-
-| Hook                                              | Type   | Args                                          |
-|---------------------------------------------------|--------|-----------------------------------------------|
-| `wp_fastspring_event`                             | action | `( string $type, array $data, array $event )` |
-| `wp_fastspring_event_{type}`                      | action | `( array $data, array $event )`               |
-| `wp_fastspring_session_payload`                   | filter | `( array $payload, WC_Order $order, $gateway, string $strategy )` |
-| `wp_fastspring_chartjs_url`                       | filter | `( string $url )`                             |
-| `plugin_action_links_{basename}`                  | filter | adds Dashboard + Settings links               |
-| `allowed_redirect_hosts`                          | filter | whitelists storefront + fastspring.com hosts  |
-
-When adding new extension points, prefix with `wp_fastspring_` and document them here.
+Settings save: `admin_post_vms_efwp_save_settings` (nonce `vms_efwp_settings_save`).
 
 ---
 
-## 11. Logging conventions
+## 10. Filters and actions (extension points)
+
+| Hook | Type | Args |
+|------|------|------|
+| `vms_efwp_event` | action | `( string $type, array $data, array $event )` |
+| `vms_efwp_event_{type}` | action | `( array $data, array $event )` |
+| `vms_efwp_session_payload` | filter | `( array $payload, WC_Order $order, $gateway, string $strategy )` |
+| `vms_efwp_chartjs_url` | filter | `( string $url )` |
+| `plugin_action_links_{basename}` | filter | Dashboard + Settings links |
+| `allowed_redirect_hosts` | filter | Storefront + fastspring.com hosts |
+
+Document new hooks here. Prefix with `vms_efwp_`.
+
+---
+
+## 11. Logging
 
 ```php
-WP_FastSpring_Logger::info(    $message, $channel, $context = array() );
-WP_FastSpring_Logger::warning( $message, $channel, $context = array() );
-WP_FastSpring_Logger::error(   $message, $channel, $context = array() ); // always logged, even if logging disabled
+VMS_EFWP_Logger::info( $message, $channel, $context = array() );
+VMS_EFWP_Logger::warning( $message, $channel, $context = array() );
+VMS_EFWP_Logger::error( $message, $channel, $context = array() ); // always logged
 ```
 
-Standard channels:
-
-- `api`      — API client transport / non-2xx responses
-- `webhook`  — signature failures, unknown events, processing errors
-- `gateway`  — payment gateway availability + session creation
-- `sync`     — product sync results
-- `general`  — fallback
-
-Context arrays must be JSON-encodable (don't pass objects — pass scalar id + relevant fields).
+Channels: `api`, `webhook`, `gateway`, `sync`, `general`. Context must be JSON-encodable.
 
 ---
 
 ## 12. Coding conventions
 
-- **WordPress Coding Standards** (PHPCS). Use tabs for PHP indentation, Yoda conditions are not required but `if ( ! $thing )` style spacing is.
-- Every class file starts with `defined( 'ABSPATH' ) || exit;`.
-- All user input must be sanitised; nonces are required for any state-changing AJAX or admin_post handler (`check_ajax_referer( 'wp_fastspring_admin', 'nonce' )`).
-- All translatable strings use the text domain `wp-fastspring`. Update `languages/wp-fastspring.pot` when adding new strings.
-- Use `wp_remote_request` / `wp_remote_get` / `wp_remote_post` — **never** `curl_*` directly.
-- Use `$wpdb->prepare()` for every dynamic SQL; table names are interpolated (and that's fine), values are not.
-- All DB writes go through `WP_FastSpring_Data_Store::*` or the install routine. Don't sprinkle `$wpdb->insert` calls throughout business logic.
-- Don't add comments that just narrate code. Comment only non-obvious intent / constraints (matching the existing style — see `class-wp-fastspring-wc-gateway.php`).
-- Avoid heavy dependencies. Chart.js is the only external runtime asset (CDN-loaded, filterable).
-- No composer, no build step. PHP files run as-is.
+- **WordPress Coding Standards** (PHPCS). Tabs for PHP indentation.
+- Every class file: `defined( 'ABSPATH' ) || exit;`
+- Sanitise all input; nonces on state-changing handlers.
+- Text domain **`vms-elements-fastspring-woo-payment`** on every i18n string; update `.pot` when adding strings.
+- Use `wp_remote_*`, never raw `curl_*`.
+- `$wpdb->prepare()` for dynamic SQL values; table names may be interpolated.
+- DB writes via `VMS_EFWP_Data_Store::*` or install routine only.
+- No composer, no build step. PHP + assets ship as-is.
+- Avoid narrating comments; explain non-obvious constraints only.
 
 ---
 
 ## 13. Common tasks — quick recipes
 
-### Add a new FastSpring API endpoint
+### Add a FastSpring API endpoint
 
-1. Add a method to `WP_FastSpring_API` in the matching section block.
-2. Use `rawurlencode()` on any path segments.
-3. Document the parameters + return type in the docblock.
-4. Add a tiny consumer in the admin resource screen if user-visible.
+1. Method on `VMS_EFWP_API` in the matching section.
+2. `rawurlencode()` path segments.
+3. Docblock + optional admin consumer.
 
-### Add a new admin page
+### Add an admin page
 
-1. Create `includes/admin/class-wp-fastspring-admin-{name}.php` extending `WP_FastSpring_Admin_Resource_Base`.
-2. `require_once` it in `WP_FastSpring::includes()` (inside the `is_admin()` block).
-3. Add an entry to the `$pages` array in `WP_FastSpring_Admin::register_menu()`.
+1. `includes/admin/class-vms-efwp-admin-{name}.php` extending `VMS_EFWP_Admin_Resource_Base`.
+2. `require_once` in `VMS_EFWP::includes()` (`is_admin()` block).
+3. Entry in `VMS_EFWP_Admin::register_menu()` `$pages` with slug `vms-efwp-{name}`.
 
 ### Handle a new webhook event
 
-1. Add a `case 'your.event':` branch in `WP_FastSpring_Webhook::process_event()`.
-2. Persist via `WP_FastSpring_Data_Store` (extend it if needed).
-3. The `do_action( 'wp_fastspring_event_your.event', ... )` will fire automatically.
+1. Add entry to `VMS_EFWP_Webhook_Permissions::handler_catalog()` (label, category, required, description).
+2. Add `case` in `VMS_EFWP_Webhook::apply_event_handlers()`.
+3. Persist via `VMS_EFWP_Data_Store` where applicable.
+4. `vms_efwp_event_{type}` fires automatically (even if handler skipped by permissions).
+5. Document in §7.1; merchant must enable the event in FastSpring webhook settings.
 
-### Add a new setting
+### Add or change a product POST field
 
-1. Extend `WP_FastSpring_Settings::defaults()` (and the install seed if it must be present on first install).
-2. Add the field to `class-wp-fastspring-admin-settings.php` form + `handle_save()`.
-3. Read via `$settings->get( 'your_key', 'fallback' )` — never `get_option()` directly.
+1. Confirm field is in `docs/Products.md` **POST** examples (not GET-only).
+2. Add to `sanitize_product_upsert_payload()` whitelist + nested sanitizer if needed.
+3. Update admin form in `class-vms-efwp-admin-products.php` and `admin.js` prefill if user-editable.
+4. Never round-trip GET-only fields like `visibility` or `quotable`.
 
-### Bump the schema
+### Add a paginated admin list
 
-1. Modify the `CREATE TABLE` in `WP_FastSpring_Install::create_tables()`.
-2. Bump `WP_FASTSPRING_VERSION` in `wp-fastspring.php` and the plugin header.
-3. Re-running `dbDelta` on activation will ALTER existing tables.
+1. Check `docs/` for whether the endpoint supports `page`/`limit`.
+2. If yes → pass only allowed keys via `filter_query_params()`.
+3. If no → fetch full list, paginate with `VMS_EFWP_API::paginate_items()`.
+4. Document allowed params in §6.3 table.
+
+### Add a setting
+
+1. `VMS_EFWP_Settings::defaults()` + install seed if needed.
+2. Form + `handle_save()` in `class-vms-efwp-admin-settings.php`.
+3. Read via `$settings->get()`.
+
+### Bump schema
+
+1. Edit `CREATE TABLE` in `VMS_EFWP_Install::create_tables()`.
+2. Bump version in main plugin file header + `VMS_EFWP_VERSION`.
+3. Reactivate to run `dbDelta`.
 
 ---
 
 ## 14. Gotchas
 
-- **Plugin instance availability**: `wp_fastspring()->settings` / `->api` are `null` until `plugins_loaded`. Code that runs earlier must null-check.
-- **WC gateway in Blocks checkout**: requires *both* `woocommerce_payment_gateways` filter (classic) *and* the `AbstractPaymentMethodType` integration (`WP_FastSpring_WC_Blocks`). The latter intentionally returns `true` in `is_active()` whenever `enabled === 'yes'`; per-cart gating happens in `WP_FastSpring_WC_Gateway::is_available()` — don't duplicate the logic.
-- **Storefront redirect host**: `allowed_redirect_hosts` is filtered to allow the configured storefront, `fastspring.com`, and `onfastspring.com`. If you change the redirect target, update this whitelist.
-- **Sandbox vs Live storefront hostnames**:
-  - Sandbox storefront looks like `yourcompany.test.onfastspring.com`.
-  - Live storefront looks like `yourcompany.onfastspring.com`.
-- **Signature verification**: if `webhook_secret()` returns empty, the listener accepts unsigned webhooks but emits a `warning` log. Do not change this default silently — users will lock themselves out.
-- **`order.completed` → WC order linking**: relies on `tags.wc_order_id`. The gateway sets this; any custom session-creation path **must** keep it.
-- **Refunds in WC** trigger `process_refund()`, which calls FastSpring's `/returns`. The webhook then sets the local WC order status to `refunded`. Don't fire both manually.
-- **Product paths**: FastSpring uses the slug as primary key. Don't let two WC products map to the same `_fastspring_product_path`.
-- **Test data isolation**: dashboard SQL defaults to `is_test = 0`. Pass `include_test=1` via the AJAX request (or set in the JS UI) to include sandbox data.
+### API & admin screens
+
+- **Do not send `page` / `limit`** to `GET /products`, `GET /subscriptions`, `GET /coupons`, or `GET /events/*` — FastSpring rejects them. Use `filter_query_params()` and/or client-side `paginate_items()`.
+- **Do not send `visibility` (or other GET-only product fields) on `POST /products`** — use `sanitize_product_upsert_payload()`; visibility is managed in the FastSpring app only.
+- **Product `format`** must be `digital`, `physical`, or `digital-and-physical` — not `service`.
+- **Offers** belong on `POST /products/offers/{path}` via `upsert_product_offers()`, not the main product upsert.
+- **`search_orders()`** is an alias for `list_orders()` — there is no `/orders/search` route.
+- **OpenAPI schemas in `docs/` can over-document GET fields** — trust POST examples and live API errors over response-only schema properties.
+
+### Webhooks
+
+- **Event recording ≠ handler execution** — all events are stored in `vms_efwp_events`; handlers run only when permissions allow.
+- **Refresh webhook permissions** after changing subscribed events in FastSpring Integrations → Webhooks.
+- **Permissive fallback** when permissions were never synced — do not assume an empty list means "all disabled".
+
+### General
+
+- **`vms_efwp()->settings` / `->api`** are null before `plugins_loaded` priority 10.
+- **Blocks + classic gateway** both required; Blocks `is_active()` is permissive — cart gating is in `VMS_EFWP_WC_Gateway::is_available()`.
+- **Plugin directory name** must be `vms-elements-fastspring-woo-payment` (matches text domain / main file for WordPress.org).
+- **Storefront redirect**: whitelist in `allowed_redirect_hosts` (`{storefront}`, `fastspring.com`, `onfastspring.com`).
+- **Sandbox storefront**: `*.test.onfastspring.com`. **Live**: `*.onfastspring.com`.
+- **Empty webhook secret** accepts unsigned webhooks with a warning log — do not change silently.
+- **`tags.wc_order_id`** is required for WC order completion linking.
+- **Refunds**: WC `process_refund()` → FastSpring `/returns` → webhook sets WC status; don't double-apply.
+- **Unique product paths** — one `_vms_efwp_product_path` per FastSpring slug.
+- **Dashboard** defaults to `is_test = 0`; pass `include_test=1` in AJAX for sandbox data.
 
 ---
 
-## 15. Manual QA checklist (no automated tests yet)
+## 15. Plugin Check (WordPress.org)
+
+Before shipping, run **Plugin Check** with **zero errors**:
+
+```bash
+wp plugin check vms-elements-fastspring-woo-payment --path=/path/to/wordpress
+```
+
+Notes:
+
+- **Text domain** must match the plugin folder slug.
+- **No `wp-` prefix** in slug, functions, or classes.
+- **`.gitignore`** is dev-only — use `gitignore.example`; dotfiles flag errors in production mode unless `WP_DEBUG` / non-production environment.
+- Fix **ERROR** level findings; **WARNING** on direct DB queries is expected for custom tables.
+
+---
+
+## 16. Manual QA checklist
 
 Before shipping a non-trivial change:
 
-- [ ] Activate/deactivate plugin without PHP notices; tables are created.
-- [ ] Switch between Sandbox and Live in **FastSpring → Settings**; **Test connection** succeeds for each mode.
-- [ ] Place a test order from the front-end via **classic** checkout and via the **block** checkout. Both should redirect to FastSpring.
-- [ ] Complete the test order on FastSpring; webhook flips WC order to **Completed**, row appears in `wp_fastspring_orders`, dashboard updates.
-- [ ] Trigger a refund from WC admin; FastSpring `/returns` is called; webhook flips order to **Refunded**.
-- [ ] Activate a subscription on FastSpring; subscription row appears, MRR card updates.
-- [ ] Cancel a subscription from the Subscriptions screen; status becomes `canceled` on FS and locally.
-- [ ] Re-deliver a webhook with a tampered body; signature verification fails (401).
-- [ ] Disable WooCommerce; the gateway disappears but the dashboard, settings, webhook listener and API client still load without fatal errors.
+- [ ] Activate/deactivate without PHP notices; tables created.
+- [ ] Sandbox + Live **Test connection** in Settings.
+- [ ] Classic + Blocks checkout redirect to FastSpring.
+- [ ] Webhook completes WC order; row in `vms_efwp_orders`; dashboard updates.
+- [ ] WC refund → FastSpring return → webhook sets **Refunded**.
+- [ ] Subscription appears; MRR updates; cancel from admin works.
+- [ ] Tampered webhook body → signature failure (401).
+- [ ] WooCommerce deactivated → no fatals; gateway hidden; dashboard still loads.
+- [ ] **Products admin:** catalog loads without pagination errors; create/update product succeeds (no `visibility` error).
+- [ ] **Subscriptions / Events admin:** list views load without `"Pagination is not supported"` errors.
+- [ ] **Webhooks admin:** Refresh permissions; disabled FastSpring events skip handlers but still appear in Events log.
 
 ---
 
-## 16. License & contribution
+## 17. Recent fixes log (for agent context)
 
-- Code is GPL-2.0-or-later. Anything you add must be compatible.
-- No external SaaS calls other than `api.fastspring.com` and the optional Chart.js CDN.
-- Don't introduce telemetry, auto-updaters or remote includes.
+Summary of non-trivial API/admin fixes — read before reworking these areas:
+
+| Date | Area | Issue | Fix |
+|------|------|-------|-----|
+| 2025 | Webhooks | Plugin ran handlers for all event types even when merchant disabled them in FastSpring | `VMS_EFWP_Webhook_Permissions` syncs from `GET /webhooks`; handlers gated by `is_event_enabled()` |
+| 2025 | API pagination | Admin sent `page`/`limit` to endpoints that reject pagination | `filter_query_params()` + endpoint-specific allowed keys; client-side `paginate_items()` for products/subscriptions |
+| 2025 | Orders search | Used non-existent `/orders/search` | `search_orders()` → `list_orders()` on `GET /orders` |
+| 2025 | Products POST | `visibility: Field was not recognized` on update | Removed from admin payload; `sanitize_product_upsert_payload()` strips GET-only fields before every upsert |
+| 2025 | Product format | Invalid `service` option in admin form | Replaced with `digital-and-physical` per `docs/Products.md` |
+
+**When changing API integration:** update this table and the relevant §6 / §7 sections in the same commit.
+
+---
+
+## 18. License & contribution
+
+- GPL-2.0-or-later only.
+- External calls: `api.fastspring.com` + optional Chart.js CDN (filterable).
+- No telemetry, auto-updaters, or remote includes.

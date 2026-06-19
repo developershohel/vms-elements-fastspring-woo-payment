@@ -1,0 +1,6 @@
+# Copy this file to .gitignore for local development.
+# .gitignore is omitted from WordPress.org plugin ZIPs (Plugin Check flags dotfiles in production mode).
+
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,431 @@
+<!--
+  VMS Elements Fastspring Woo Payment — Blog post (Rich Editor / Gutenberg)
+
+  HOW TO USE IN WORDPRESS:
+  1. Posts → Add New
+  2. ⋮ (top right) → Code editor
+  3. Paste everything BELOW this comment block
+  4. Switch back to Visual editor — blocks will render automatically
+
+  Also works in: Classic Editor (Text tab), Elementor HTML widget, Beaver Builder HTML module.
+-->
+
+<!-- wp:heading {"level":1} -->
+<h1 class="wp-block-heading">Sell Globally with FastSpring — Without Leaving WordPress</h1>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"fontSize":"medium"} -->
+<p class="has-medium-font-size"><strong>VMS Elements Fastspring Woo Payment</strong> brings FastSpring’s merchant-of-record checkout, subscriptions, and tax compliance into WooCommerce — and gives you a full FastSpring command center inside wp-admin. No juggling dashboards. No duct-taped integrations. Just a clean path from cart to payment to analytics.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If you sell software, digital products, or subscriptions internationally, you already know the trade-off: WooCommerce is brilliant for your storefront, but global payments, VAT, and recurring billing are a different beast. FastSpring solves that on the payment side. This plugin connects the two worlds properly.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">The Problem We Set Out to Solve</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Most store owners end up in one of these situations:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>They run WooCommerce for the site and FastSpring for payments — but orders live in two places.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>They rely on a basic redirect integration that breaks when subscriptions renew, refunds happen, or sandbox testing gets messy.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>They have no visibility into MRR, top countries, or subscription health without logging into another platform.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p><strong>VMS Elements Fastspring Woo Payment</strong> was built to fix all three. Checkout stays on-brand. Webhooks keep WordPress in sync. And your team gets real analytics where they already work — inside WordPress.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">What the Plugin Does</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>At its core, the plugin:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Adds FastSpring as a WooCommerce payment method</strong> — customers pay on FastSpring’s PCI-compliant checkout (redirect or popup overlay).</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Listens for signed webhooks</strong> — when FastSpring completes an order, activates a subscription, or issues a refund, WordPress knows about it immediately.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Stores everything locally</strong> — orders, subscriptions, and events land in dedicated database tables for fast reporting.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Surfaces a full admin hub</strong> — dashboard, orders, subscriptions, products, coupons, invoices, quotes, returns, sessions, events, reports, and webhooks — all under one <strong>FastSpring</strong> menu in WordPress.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>You get the power of FastSpring’s global infrastructure without giving up the WordPress workflow your team depends on.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Feature Highlights</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">WooCommerce Payment Gateway (Classic + Blocks)</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The gateway supports both the classic checkout and the WooCommerce Cart/Checkout blocks. When a customer clicks <strong>Place order</strong>, the plugin creates a FastSpring session and sends them to checkout — or opens a <strong>popup overlay</strong> if you prefer to keep shoppers on your page.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Three <strong>pricing strategies</strong> cover almost every catalog setup:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:table {"hasFixedLayout":true} -->
+<figure class="wp-block-table"><table class="has-fixed-layout"><thead><tr><th>Strategy</th><th>Best for</th></tr></thead><tbody><tr><td><strong>Single custom price</strong></td><td>WooCommerce is the source of truth — one catch-all FastSpring product carries the real order total (coupons, dynamic pricing, everything). No need to mirror your entire catalog.</td></tr><tr><td><strong>Per-product override</strong></td><td>You have FastSpring products but want WooCommerce to set the price per line item.</td></tr><tr><td><strong>Catalog</strong></td><td>FastSpring catalog prices are authoritative; WooCommerce sends product paths and quantities only.</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph -->
+<p>The catch-all product for custom pricing? The plugin can <strong>create it automatically</strong> on first checkout. You focus on selling; it handles the plumbing.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Popup Checkout Overlay</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>For a smoother UX, configure a <strong>Popup checkout path</strong> from FastSpring’s Store Builder Library. Shoppers stay on your site while FastSpring handles payment in a secure overlay — works with Gutenberg checkout and the classic <code>[woocommerce_checkout]</code> shortcode.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Webhooks You Can Trust</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Every webhook is verified with <strong>HMAC-SHA256</strong> before anything runs. The plugin records all incoming events and only executes business logic for event types <strong>enabled in your FastSpring webhook configuration</strong> — so you stay aligned with what you actually subscribed to in the FastSpring app.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Handled events include:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><code>order.completed</code>, <code>order.canceled</code>, and pending payment states</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><code>subscription.activated</code>, renewals, trial reminders, and cancellations</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><code>return.created</code> and refunds (synced back to WooCommerce orders)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Account and mailing-list events (acknowledged and logged)</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Linking WooCommerce orders to FastSpring is automatic when you tag sessions with the WC order ID — completion and refund flows just work.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Analytics Dashboard Inside WordPress</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Open <strong>FastSpring → Dashboard</strong> and see:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Revenue KPIs (today, 7 days, 30 days, all time)</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Daily revenue trend chart</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Subscription status breakdown</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>MRR estimate</strong></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Top products and top countries</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Recent orders at a glance</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Sandbox data can be included or excluded — handy when your team is testing without polluting live numbers.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Full FastSpring Admin Toolkit</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Beyond the dashboard, dedicated screens let you work with FastSpring resources without opening another tab:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:columns -->
+<div class="wp-block-columns"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Orders</strong> — search, filter, paginate, sync</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Subscriptions</strong> — status badges, cancel actions</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Products</strong> — create, edit, smart slug generation</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Coupons, Invoices, Quotes, Returns</strong></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Sessions</strong> — create and inspect checkout sessions</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Events</strong> — webhook/API event log</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Reports</strong> — generate FastSpring data reports</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Webhooks &amp; Tools</strong> — permissions sync, diagnostics</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:paragraph -->
+<p>Creating a product? Type <strong>“VMS Fastspring Plugin”</strong> as the display name and the slug becomes <code>vms-fastspring-plugin</code> automatically. Edit it if you want — the plugin normalizes it for FastSpring’s API either way.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Live + Sandbox Isolation</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Toggle between <strong>Live</strong> and <strong>Sandbox</strong> mode in settings. Each mode has its own API credentials, storefront ID, webhook secret, and event permissions cache. Test freely in sandbox, flip to live when you’re ready — no credential cross-contamination.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Optional Product Sync &amp; Refunds</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Enable one-way <strong>WooCommerce → FastSpring product sync</strong> on save, or issue refunds from the WooCommerce order screen — the plugin calls FastSpring’s <strong>Returns API</strong> and webhooks update order status automatically. One flow, two systems, zero double-entry.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Who Is This For?</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>SaaS and software vendors</strong> selling licenses or subscriptions through WooCommerce</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Digital product creators</strong> who need global tax and compliance handled by FastSpring</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Agencies</strong> managing WooCommerce stores for clients on FastSpring</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Teams that want WordPress as the operational hub</strong> — not just the storefront</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>The plugin works <strong>without WooCommerce</strong> for dashboard, webhooks, and API features. Only the payment gateway requires WooCommerce to be active.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Getting Started in Three Steps</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Step 1 — Create FastSpring API Credentials</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>In the FastSpring app, go to <strong>Integrations → API Credentials</strong> and create credentials for both <strong>Test</strong> and <strong>Live</strong> environments.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Step 2 — Configure Your Webhook</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Under <strong>Integrations → Webhooks</strong>, add a new endpoint pointing to the URL shown on <strong>FastSpring → Settings</strong> in WordPress:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code>https://yoursite.com/?vms-efwp-webhook=1</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>Copy the <strong>HMAC SHA256</strong> secret into the plugin settings. Enable at minimum <code>order.completed</code> and <code>return.created</code> for WooCommerce order completion and refunds. Then click <strong>Refresh from FastSpring</strong> on the Webhooks screen.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Step 3 — Connect and Test</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Paste credentials, storefront IDs, and secrets into <strong>FastSpring → Settings</strong>. Start in <strong>Sandbox</strong>, click <strong>Test connection</strong>, and run a test checkout. Built-in <strong>checkout diagnostics</strong> on the settings page will flag blocks, credentials, or popup configuration issues.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Built for Reliability</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Query parameters filtered per FastSpring endpoint — no “pagination not supported” errors.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Product payloads sanitized before every create/update — read-only API fields never sent by mistake.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Webhook permissions respect your FastSpring configuration.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>One-time migration from the legacy <code>wp-fastspring</code> plugin.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>GPL-licensed</strong> — no telemetry, no phone-home, no hidden dependencies.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Security &amp; Compliance</h2>
+<!-- /wp:heading -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|40","right":"var:preset|spacing|40"}},"border":{"radius":"8px"}},"backgroundColor":"cyan-bluish-gray","layout":{"type":"constrained"}} -->
+<div class="wp-block-group has-cyan-bluish-gray-background-color has-background" style="border-radius:8px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)"><!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>No card data touches your server.</strong> Payments run entirely on FastSpring’s infrastructure.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Webhook signatures are mandatory</strong> when a secret is configured — tampered payloads are rejected.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Credentials are stored securely</strong> in WordPress options via mode-aware settings helpers.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list --></div>
+<!-- /wp:group -->
+
+<!-- wp:paragraph -->
+<p>Your compliance story stays clean: WordPress runs the store; FastSpring runs payments.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Try It on Your Store</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p><strong>VMS Elements Fastspring Woo Payment</strong> is available for WordPress 6.0+, WooCommerce 7.0+, and PHP 7.4+.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Whether you’re launching a new digital product line or migrating an existing FastSpring setup into WooCommerce, this plugin gives you a production-ready bridge — with the dashboard and admin tools to run the business from WordPress.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
+<div class="wp-block-buttons"><!-- wp:button {"backgroundColor":"vivid-cyan-blue","textColor":"white","width":100,"style":{"border":{"radius":"6px"}}} -->
+<div class="wp-block-button has-custom-width wp-block-button__width-100"><a class="wp-block-button__link has-white-color has-vivid-cyan-blue-background-color has-text-color has-background wp-element-button" href="https://vmselements.com/product/vms-elements-fastspring-woo-payment" style="border-radius:6px" target="_blank" rel="noreferrer noopener">Get VMS Elements Fastspring Woo Payment →</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Quick Reference</h2>
+<!-- /wp:heading -->
+
+<!-- wp:table -->
+<figure class="wp-block-table"><table><tbody><tr><td><strong>Plugin name</strong></td><td>VMS Elements Fastspring Woo Payment for WooCommerce</td></tr><tr><td><strong>Text domain</strong></td><td><code>vms-elements-fastspring-woo-payment</code></td></tr><tr><td><strong>Gateway ID</strong></td><td><code>vms_efwp</code></td></tr><tr><td><strong>Webhook URL</strong></td><td><code>?vms-efwp-webhook=1</code></td></tr><tr><td><strong>Admin menu</strong></td><td>FastSpring (wp-admin)</td></tr><tr><td><strong>License</strong></td><td>GPL-2.0-or-later</td></tr></tbody></table></figure>
+<!-- /wp:table -->
+
+<!-- wp:paragraph {"align":"center","fontSize":"small"} -->
+<p class="has-text-align-center has-small-font-size"><em>Questions about setup, pricing strategies, or webhook configuration? Visit <a href="https://vmselements.com/product/vms-elements-fastspring-woo-payment">VMS Elements</a> for documentation and support.</em></p>
+<!-- /wp:paragraph -->

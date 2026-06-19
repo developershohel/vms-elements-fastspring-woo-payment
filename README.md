@@ -1,4 +1,4 @@
-# WP FastSpring for WooCommerce
+# VMS Elements Fastspring Woo Payment for WooCommerce
 
 A WordPress + WooCommerce integration for [FastSpring](https://fastspring.com), bundled with an advanced analytics dashboard inside `wp-admin`.
 
@@ -22,30 +22,30 @@ A WordPress + WooCommerce integration for [FastSpring](https://fastspring.com), 
 ## File map
 
 ```
-wp-fastspring.php                    # Plugin bootstrap
+vms-elements-fastspring-woo-payment.php                    # Plugin bootstrap
 includes/
-  class-wp-fastspring.php            # Main loader (singleton)
-  class-wp-fastspring-install.php    # Tables + default options
-  class-wp-fastspring-settings.php   # Settings store + mode-aware accessors
-  class-wp-fastspring-api.php        # FastSpring REST API client
-  class-wp-fastspring-logger.php     # DB-backed logger
-  class-wp-fastspring-webhook.php    # Webhook listener + HMAC verification
-  class-wp-fastspring-product-sync.php # WC -> FS product sync
-  class-wp-fastspring-data-store.php # Persistence helpers
-  class-wp-fastspring-stats.php      # Dashboard aggregations
-  class-wp-fastspring-wc-gateway-loader.php
-  class-wp-fastspring-wc-gateway.php # WC payment gateway
+  class-vms-efwp.php            # Main loader (singleton)
+  class-vms-efwp-install.php    # Tables + default options
+  class-vms-efwp-settings.php   # Settings store + mode-aware accessors
+  class-vms-efwp-api.php        # FastSpring REST API client
+  class-vms-efwp-logger.php     # DB-backed logger
+  class-vms-efwp-webhook.php    # Webhook listener + HMAC verification
+  class-vms-efwp-product-sync.php # WC -> FS product sync
+  class-vms-efwp-data-store.php # Persistence helpers
+  class-vms-efwp-stats.php      # Dashboard aggregations
+  class-vms-efwp-wc-gateway-loader.php
+  class-vms-efwp-wc-gateway.php # WC payment gateway
   admin/
-    class-wp-fastspring-admin.php
-    class-wp-fastspring-admin-dashboard.php
-    class-wp-fastspring-admin-orders.php
-    class-wp-fastspring-admin-subscriptions.php
-    class-wp-fastspring-admin-settings.php
-    class-wp-fastspring-admin-tools.php
+    class-vms-efwp-admin.php
+    class-vms-efwp-admin-dashboard.php
+    class-vms-efwp-admin-orders.php
+    class-vms-efwp-admin-subscriptions.php
+    class-vms-efwp-admin-settings.php
+    class-vms-efwp-admin-tools.php
 assets/
   css/admin.css
   js/admin.js
-languages/wp-fastspring.pot
+languages/vms-elements-fastspring-woo-payment.pot
 uninstall.php
 ```
 

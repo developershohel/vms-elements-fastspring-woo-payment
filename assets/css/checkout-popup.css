@@ -1,0 +1,14 @@
+/* FastSpring Store Builder overlay — keeps checkout visible under the popup (Paddle-style). */
+
+html.vefwp-checkout-active {
+	overflow: hidden;
+}
+
+html.vefwp-checkout-active body::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.45);
+	z-index: 99998;
+	pointer-events: none;
+}

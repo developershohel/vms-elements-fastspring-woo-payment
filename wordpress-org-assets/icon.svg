@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="VMS Elements FastSpring Woo Payment">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="url(#bg)"/>
+  <circle cx="108" cy="128" r="62" fill="#ffffff" opacity="0.95"/>
+  <path d="M78 148 L98 108 L118 128 L138 88 L158 148 Z" fill="#4f46e5"/>
+  <path d="M162 72 L188 128 L170 128 L182 184 L148 120 L166 120 Z" fill="url(#bolt)"/>
+</svg>

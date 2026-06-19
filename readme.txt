@@ -1,10 +1,10 @@
-=== WP FastSpring for WooCommerce ===
-Contributors: developershohel
+=== VMS Elements Fastspring Woo Payment ===
+Contributors: vmsuniverse
 Tags: woocommerce, fastspring, payments, subscriptions, dashboard
 Requires at least: 6.0
-Tested up to: 6.6
+Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Integrate FastSpring as a WooCommerce payment processor and unlock an advanced a
 
 == Description ==
 
-WP FastSpring connects WooCommerce to FastSpring's hosted checkout and subscription engine, then layers a polished analytics dashboard inside `wp-admin` so you can see how your business is doing without ever leaving WordPress.
+VMS Elements Fastspring Woo Payment connects WooCommerce to FastSpring's hosted checkout and subscription engine, then layers a polished analytics dashboard inside `wp-admin` so you can see how your business is doing without ever leaving WordPress.
 
 = Highlights =
 
@@ -33,7 +33,7 @@ WP FastSpring connects WooCommerce to FastSpring's hosted checkout and subscript
 
 == Installation ==
 
-1. Upload the plugin files to `/wp-content/plugins/wp-fastspring`.
+1. Upload the plugin files to `/wp-content/plugins/vms-elements-fastspring-woo-payment`.
 2. Activate the plugin in *Plugins > Installed Plugins*.
 3. Visit *FastSpring > Settings* and enter your live and sandbox credentials.
 
@@ -47,7 +47,18 @@ No. All payment processing happens on FastSpring's PCI compliant infrastructure.
 
 Yes. The dashboard, settings, webhook listener and API client all work without WooCommerce. Only the WC payment gateway requires it.
 
+== Screenshots ==
+
+1. Analytics dashboard with revenue KPIs, trend charts, top products and recent orders.
+2. Settings screen with live/sandbox mode toggle, API credentials and webhook configuration.
+3. FastSpring orders list with search, filters and sync actions.
+4. Subscriptions management with status badges, MRR and cancel actions.
+5. WooCommerce checkout with FastSpring as the selected payment method.
+
 == Changelog ==
+
+= 1.0.6 =
+* Current stable release.
 
 = 1.0.0 =
 * Initial release.

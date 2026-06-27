@@ -24,36 +24,36 @@ class VMS_EFWP_Admin_Settings {
 		$mode     = $settings->get_mode();
 
 		?>
-		<div class="wrap vefwp-wrap">
+		<div class="wrap vms-efwp-wrap">
 			<h1><?php esc_html_e( 'FastSpring Settings', 'vms-elements-fastspring-woo-payment' ); ?></h1>
 
 			<?php settings_errors( 'vms_efwp' ); ?>
 
 			<?php self::render_checkout_diagnostics(); ?>
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="vefwp-form">
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="vms-efwp-form">
 				<?php wp_nonce_field( 'vms_efwp_settings_save', 'vms_efwp_nonce' ); ?>
 				<input type="hidden" name="action" value="vms_efwp_save_settings" />
 
-				<div class="vefwp-card">
+				<div class="vms-efwp-card">
 					<h2><?php esc_html_e( 'Mode', 'vms-elements-fastspring-woo-payment' ); ?></h2>
 					<p class="description"><?php esc_html_e( 'Switch between your FastSpring sandbox (test) and live environment. Each mode uses its own API credentials, storefront and webhook secret below.', 'vms-elements-fastspring-woo-payment' ); ?></p>
-					<div class="vefwp-mode-switch">
-						<label class="vefwp-mode-option <?php echo 'sandbox' === $mode ? 'is-active' : ''; ?>">
+					<div class="vms-efwp-mode-switch">
+						<label class="vms-efwp-mode-option <?php echo 'sandbox' === $mode ? 'is-active' : ''; ?>">
 							<input type="radio" name="mode" value="sandbox" <?php checked( $mode, 'sandbox' ); ?> />
-							<span class="vefwp-mode-option__title"><?php esc_html_e( 'Sandbox / Test', 'vms-elements-fastspring-woo-payment' ); ?></span>
-							<span class="vefwp-mode-option__desc"><?php esc_html_e( 'Use test credentials and a *.test.onfastspring.com storefront. No real charges.', 'vms-elements-fastspring-woo-payment' ); ?></span>
+							<span class="vms-efwp-mode-option__title"><?php esc_html_e( 'Sandbox / Test', 'vms-elements-fastspring-woo-payment' ); ?></span>
+							<span class="vms-efwp-mode-option__desc"><?php esc_html_e( 'Use test credentials and a *.test.onfastspring.com storefront. No real charges.', 'vms-elements-fastspring-woo-payment' ); ?></span>
 						</label>
-						<label class="vefwp-mode-option <?php echo 'live' === $mode ? 'is-active' : ''; ?>">
+						<label class="vms-efwp-mode-option <?php echo 'live' === $mode ? 'is-active' : ''; ?>">
 							<input type="radio" name="mode" value="live" <?php checked( $mode, 'live' ); ?> />
-							<span class="vefwp-mode-option__title"><?php esc_html_e( 'Live / Production', 'vms-elements-fastspring-woo-payment' ); ?></span>
-							<span class="vefwp-mode-option__desc"><?php esc_html_e( 'Real customers, real charges, real revenue.', 'vms-elements-fastspring-woo-payment' ); ?></span>
+							<span class="vms-efwp-mode-option__title"><?php esc_html_e( 'Live / Production', 'vms-elements-fastspring-woo-payment' ); ?></span>
+							<span class="vms-efwp-mode-option__desc"><?php esc_html_e( 'Real customers, real charges, real revenue.', 'vms-elements-fastspring-woo-payment' ); ?></span>
 						</label>
 					</div>
 				</div>
 
-				<div class="vefwp-grid vefwp-grid--two">
-					<div class="vefwp-card">
+				<div class="vms-efwp-grid vms-efwp-grid--two">
+					<div class="vms-efwp-card">
 						<h2><?php esc_html_e( 'Sandbox credentials', 'vms-elements-fastspring-woo-payment' ); ?></h2>
 						<table class="form-table">
 							<tr>
@@ -71,10 +71,10 @@ class VMS_EFWP_Admin_Settings {
 							<tr>
 								<th><label for="webhook_secret_sandbox"><?php esc_html_e( 'Webhook secret', 'vms-elements-fastspring-woo-payment' ); ?></label></th>
 								<td>
-									<div class="vefwp-secret-field">
+									<div class="vms-efwp-secret-field">
 										<input type="text" id="webhook_secret_sandbox" name="webhook_secret_sandbox" class="regular-text" autocomplete="off" value="<?php echo esc_attr( $settings->get( 'webhook_secret_sandbox' ) ); ?>" />
-										<button type="button" class="button vefwp-generate-secret" data-target="webhook_secret_sandbox"><?php esc_html_e( 'Generate', 'vms-elements-fastspring-woo-payment' ); ?></button>
-										<button type="button" class="button vefwp-copy-secret" data-target="webhook_secret_sandbox"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
+										<button type="button" class="button vms-efwp-generate-secret" data-target="webhook_secret_sandbox"><?php esc_html_e( 'Generate', 'vms-elements-fastspring-woo-payment' ); ?></button>
+										<button type="button" class="button vms-efwp-copy-secret" data-target="webhook_secret_sandbox"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
 									</div>
 									<p class="description"><?php esc_html_e( 'Paste this same value into the HMAC SHA256 Secret box on FastSpring → Integrations → Webhooks.', 'vms-elements-fastspring-woo-payment' ); ?></p>
 								</td>
@@ -89,7 +89,7 @@ class VMS_EFWP_Admin_Settings {
 						</table>
 					</div>
 
-					<div class="vefwp-card">
+					<div class="vms-efwp-card">
 						<h2><?php esc_html_e( 'Live credentials', 'vms-elements-fastspring-woo-payment' ); ?></h2>
 						<table class="form-table">
 							<tr>
@@ -107,10 +107,10 @@ class VMS_EFWP_Admin_Settings {
 							<tr>
 								<th><label for="webhook_secret_live"><?php esc_html_e( 'Webhook secret', 'vms-elements-fastspring-woo-payment' ); ?></label></th>
 								<td>
-									<div class="vefwp-secret-field">
+									<div class="vms-efwp-secret-field">
 										<input type="text" id="webhook_secret_live" name="webhook_secret_live" class="regular-text" autocomplete="off" value="<?php echo esc_attr( $settings->get( 'webhook_secret_live' ) ); ?>" />
-										<button type="button" class="button vefwp-generate-secret" data-target="webhook_secret_live"><?php esc_html_e( 'Generate', 'vms-elements-fastspring-woo-payment' ); ?></button>
-										<button type="button" class="button vefwp-copy-secret" data-target="webhook_secret_live"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
+										<button type="button" class="button vms-efwp-generate-secret" data-target="webhook_secret_live"><?php esc_html_e( 'Generate', 'vms-elements-fastspring-woo-payment' ); ?></button>
+										<button type="button" class="button vms-efwp-copy-secret" data-target="webhook_secret_live"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
 									</div>
 									<p class="description"><?php esc_html_e( 'Paste this same value into the HMAC SHA256 Secret box on FastSpring → Integrations → Webhooks (Live).', 'vms-elements-fastspring-woo-payment' ); ?></p>
 								</td>
@@ -126,7 +126,7 @@ class VMS_EFWP_Admin_Settings {
 					</div>
 				</div>
 
-				<div class="vefwp-card">
+				<div class="vms-efwp-card">
 					<h2><?php esc_html_e( 'Webhook endpoint', 'vms-elements-fastspring-woo-payment' ); ?></h2>
 					<ol class="description" style="margin-top:0;">
 						<li><?php esc_html_e( 'Open FastSpring App → Integrations → Webhooks → Add Webhook.', 'vms-elements-fastspring-woo-payment' ); ?></li>
@@ -134,13 +134,13 @@ class VMS_EFWP_Admin_Settings {
 						<li><?php esc_html_e( 'In the HMAC SHA256 Secret box, paste the same secret you configured for the active mode above. FastSpring does not auto-generate one — use the Generate button next to the secret field if you don\'t have a value yet.', 'vms-elements-fastspring-woo-payment' ); ?></li>
 						<li><?php esc_html_e( 'Tick the events you want to listen to (or "All events"), then save in FastSpring and here.', 'vms-elements-fastspring-woo-payment' ); ?></li>
 					</ol>
-					<input type="text" readonly value="<?php echo esc_attr( $settings->webhook_url() ); ?>" class="large-text vefwp-readonly" onclick="this.select()" />
+					<input type="text" readonly value="<?php echo esc_attr( $settings->webhook_url() ); ?>" class="large-text vms-efwp-readonly" onclick="this.select()" />
 					<p>
 						<label><input type="checkbox" name="enable_webhook" value="yes" <?php checked( 'yes', $settings->get( 'enable_webhook', 'yes' ) ); ?> /> <?php esc_html_e( 'Enable webhook listener', 'vms-elements-fastspring-woo-payment' ); ?></label>
 					</p>
 				</div>
 
-				<div class="vefwp-card">
+				<div class="vms-efwp-card">
 					<h2><?php esc_html_e( 'Pricing strategy', 'vms-elements-fastspring-woo-payment' ); ?></h2>
 					<p class="description"><?php esc_html_e( 'Decides how WooCommerce sends prices to FastSpring at checkout. Pick the option that fits your catalog.', 'vms-elements-fastspring-woo-payment' ); ?></p>
 
@@ -148,37 +148,47 @@ class VMS_EFWP_Admin_Settings {
 					$strategy   = $settings->pricing_strategy();
 					$saved_path = (string) $settings->get( 'custom_price_product_path', '' );
 					?>
-					<div class="vefwp-pricing-strategy">
-						<label class="vefwp-mode-option <?php echo 'single_custom_price' === $strategy ? 'is-active' : ''; ?>">
+					<div class="vms-efwp-pricing-strategy">
+						<label class="vms-efwp-mode-option <?php echo 'single_custom_price' === $strategy ? 'is-active' : ''; ?>">
 							<input type="radio" name="pricing_strategy" value="single_custom_price" <?php checked( $strategy, 'single_custom_price' ); ?> />
-							<span class="vefwp-mode-option__title"><?php esc_html_e( 'Single Custom Price product (recommended — works with any product)', 'vms-elements-fastspring-woo-payment' ); ?></span>
-							<span class="vefwp-mode-option__desc">
+							<span class="vms-efwp-mode-option__title"><?php esc_html_e( 'Single Custom Price product (recommended — works with any product)', 'vms-elements-fastspring-woo-payment' ); ?></span>
+							<span class="vms-efwp-mode-option__desc">
 								<?php esc_html_e( 'Every WooCommerce order is charged through ONE catch-all product in FastSpring, using the exact WooCommerce total (after coupons, sales, dynamic pricing). You do NOT need to recreate your WooCommerce catalog in FastSpring — any product can be sold as-is. The plugin auto-creates the catch-all product for you on the first checkout.', 'vms-elements-fastspring-woo-payment' ); ?>
 							</span>
 						</label>
 
-						<label class="vefwp-mode-option <?php echo 'per_product_override' === $strategy ? 'is-active' : ''; ?>">
-							<input type="radio" name="pricing_strategy" value="per_product_override" <?php checked( $strategy, 'per_product_override' ); ?> />
-							<span class="vefwp-mode-option__title"><?php esc_html_e( 'Per-product price override', 'vms-elements-fastspring-woo-payment' ); ?></span>
-							<span class="vefwp-mode-option__desc">
-								<?php esc_html_e( 'Each WC product maps to its own FastSpring product (matched by slug). The actual WC line price is sent as an override. Use this only if you want each product tracked individually in FastSpring analytics — every product must already exist in your FastSpring catalog (enable product sync below to push them).', 'vms-elements-fastspring-woo-payment' ); ?>
+						<label class="vms-efwp-mode-option <?php echo 'per_product_override' === $strategy ? 'is-active' : ''; ?>">
+							<input type="radio" name="pricing_strategy" value="per_product_override" <?php checked( $strategy, 'per_product_override' ); ?> <?php disabled( ! vms_efwp_is_pro() ); ?> />
+							<span class="vms-efwp-mode-option__title">
+								<?php esc_html_e( 'Per-product price override', 'vms-elements-fastspring-woo-payment' ); ?>
+								<?php if ( ! vms_efwp_is_pro() ) : ?>
+									<span class="vms-efwp-badge vms-efwp-badge--pro"><?php esc_html_e( 'Pro', 'vms-elements-fastspring-woo-payment' ); ?></span>
+								<?php endif; ?>
+							</span>
+							<span class="vms-efwp-mode-option__desc">
+								<?php esc_html_e( 'Each WC product maps to its own FastSpring product (matched by slug). The actual WC line price is sent as an override. Missing products are created in FastSpring automatically at checkout — even when product sync is turned off. Enable "Allow Price Override" on each FastSpring product (or let the plugin create them on first checkout). Optional product sync below still pushes updates whenever you save a product in WooCommerce.', 'vms-elements-fastspring-woo-payment' ); ?>
 							</span>
 						</label>
 
-						<label class="vefwp-mode-option <?php echo 'catalog' === $strategy ? 'is-active' : ''; ?>">
-							<input type="radio" name="pricing_strategy" value="catalog" <?php checked( $strategy, 'catalog' ); ?> />
-							<span class="vefwp-mode-option__title"><?php esc_html_e( 'FastSpring catalog price', 'vms-elements-fastspring-woo-payment' ); ?></span>
-							<span class="vefwp-mode-option__desc">
+						<label class="vms-efwp-mode-option <?php echo 'catalog' === $strategy ? 'is-active' : ''; ?>">
+							<input type="radio" name="pricing_strategy" value="catalog" <?php checked( $strategy, 'catalog' ); ?> <?php disabled( ! vms_efwp_is_pro() ); ?> />
+							<span class="vms-efwp-mode-option__title">
+								<?php esc_html_e( 'FastSpring catalog price', 'vms-elements-fastspring-woo-payment' ); ?>
+								<?php if ( ! vms_efwp_is_pro() ) : ?>
+									<span class="vms-efwp-badge vms-efwp-badge--pro"><?php esc_html_e( 'Pro', 'vms-elements-fastspring-woo-payment' ); ?></span>
+								<?php endif; ?>
+							</span>
+							<span class="vms-efwp-mode-option__desc">
 								<?php esc_html_e( 'Customer is charged the price configured in FastSpring for each product. WooCommerce price is ignored. Pick this only if FastSpring is your source of truth for pricing, and every product exists in your FastSpring catalog.', 'vms-elements-fastspring-woo-payment' ); ?>
 							</span>
 						</label>
 					</div>
 
 					<table class="form-table">
-						<tr class="vefwp-custom-price-row" <?php echo 'single_custom_price' === $strategy ? '' : 'style="display:none;"'; ?>>
+						<tr class="vms-efwp-custom-price-row" <?php echo 'single_custom_price' === $strategy ? '' : 'style="display:none;"'; ?>>
 							<th><label for="custom_price_product_path"><?php esc_html_e( 'Catch-all product path', 'vms-elements-fastspring-woo-payment' ); ?></label></th>
 							<td>
-								<input type="text" id="custom_price_product_path" name="custom_price_product_path" class="regular-text" value="<?php echo esc_attr( $saved_path ); ?>" placeholder="<?php echo esc_attr( VMS_EFWP_Settings::DEFAULT_CUSTOM_PRICE_PATH ); ?>" data-vefwp-slug-target autocomplete="off" />
+								<input type="text" id="custom_price_product_path" name="custom_price_product_path" class="regular-text" value="<?php echo esc_attr( $saved_path ); ?>" placeholder="<?php echo esc_attr( VMS_EFWP_Settings::DEFAULT_CUSTOM_PRICE_PATH ); ?>" data-vms-efwp-slug-target autocomplete="off" />
 								<p class="description">
 									<?php
 									printf(
@@ -202,7 +212,7 @@ class VMS_EFWP_Admin_Settings {
 					<?php endif; ?>
 				</div>
 
-				<div class="vefwp-card">
+				<div class="vms-efwp-card">
 					<h2><?php esc_html_e( 'WooCommerce integration', 'vms-elements-fastspring-woo-payment' ); ?></h2>
 					<table class="form-table">
 						<tr>
@@ -218,16 +228,87 @@ class VMS_EFWP_Admin_Settings {
 							<td>
 								<input type="text" id="popup_path" name="popup_path" class="regular-text" value="<?php echo esc_attr( $settings->get( 'popup_path', '' ) ); ?>" placeholder="popup-vmsuniverse2026" />
 								<p class="description">
-									<?php esc_html_e( 'Required for popup-only checkout via the FastSpring Store Builder Library (SBL 1.0.7). In FastSpring → Checkouts → Popup Checkouts → "Place on your website", copy the part AFTER the domain from data-storefront (example: vmsuniverse2026.test.onfastspring.com/popup-vmsuniverse2026 → enter popup-vmsuniverse2026). Whitelist your WordPress site under the checkout\'s "Whitelisted websites". Works with both Gutenberg Checkout block and the classic [woocommerce_checkout] shortcode.', 'vms-elements-fastspring-woo-payment' ); ?>
+									<?php esc_html_e( 'Required for checkout on classic and block pages via the FastSpring Store Builder Library (SBL 1.0.7). In FastSpring → Checkouts → Popup Checkouts → "Place on your website", copy the part AFTER the domain from data-storefront (example: vmsuniverse2026.test.onfastspring.com/popup-vmsuniverse2026 → enter popup-vmsuniverse2026). Whitelist your WordPress site under the checkout\'s "Whitelisted websites".', 'vms-elements-fastspring-woo-payment' ); ?>
+								</p>
+							</td>
+						</tr>
+						<?php if ( vms_efwp_is_pro() ) : ?>
+						<tr>
+							<th><label for="checkout_page_id"><?php esc_html_e( 'Payment link page', 'vms-elements-fastspring-woo-payment' ); ?></label></th>
+							<td>
+								<?php
+								$checkout_page_id   = absint( $settings->get( 'checkout_page_id', 0 ) );
+								$checkout_none_text = __( 'Auto (hidden FastSpring checkout page)', 'vms-elements-fastspring-woo-payment' );
+								// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes option markup; selected is absint().
+								wp_dropdown_pages(
+									array(
+										'name'              => 'checkout_page_id',
+										'id'                => 'checkout_page_id',
+										'selected'          => $checkout_page_id,
+										'show_option_none'  => $checkout_none_text,
+										'option_none_value' => '0',
+									)
+								);
+								// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+								$checkout_endpoint = class_exists( 'VMS_EFWP_Checkout_Links', false )
+									? VMS_EFWP_Checkout_Links::get_checkout_endpoint_url()
+									: home_url( '/fastspring-checkout/' );
+								?>
+								<p class="description">
+									<?php esc_html_e( 'Product and subscription payment links open overlay checkout on this WordPress page. Leave on Auto to use the built-in /fastspring-checkout/ endpoint.', 'vms-elements-fastspring-woo-payment' ); ?>
+									<br />
+									<?php
+									printf(
+										/* translators: %s: checkout endpoint URL */
+										esc_html__( 'Default endpoint: %s', 'vms-elements-fastspring-woo-payment' ),
+										'<a href="' . esc_url( $checkout_endpoint ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $checkout_endpoint ) . '</a>'
+									);
+									?>
 								</p>
 							</td>
 						</tr>
 						<tr>
-							<th><?php esc_html_e( 'Product sync', 'vms-elements-fastspring-woo-payment' ); ?></th>
+							<th><label for="payment_success_page_id"><?php esc_html_e( 'Payment success page', 'vms-elements-fastspring-woo-payment' ); ?></label></th>
 							<td>
-								<label><input type="checkbox" name="sync_products" value="yes" <?php checked( 'yes', $settings->get( 'sync_products', 'no' ) ); ?> /> <?php esc_html_e( 'Push WooCommerce products to FastSpring on save (one-way)', 'vms-elements-fastspring-woo-payment' ); ?></label>
+								<?php
+								$success_page_id   = absint( $settings->get( 'payment_success_page_id', 0 ) );
+								$success_none_text = __( 'Auto (hidden payment success page)', 'vms-elements-fastspring-woo-payment' );
+								// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes option markup; selected is absint().
+								wp_dropdown_pages(
+									array(
+										'name'              => 'payment_success_page_id',
+										'id'                => 'payment_success_page_id',
+										'selected'          => $success_page_id,
+										'show_option_none'  => $success_none_text,
+										'option_none_value' => '0',
+									)
+								);
+								// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+								?>
+								<p class="description">
+									<?php
+									$success_url = class_exists( 'VMS_EFWP_Payment_Success', false )
+										? VMS_EFWP_Payment_Success::get_success_page_url()
+										: home_url( '/fastspring-payment-success/' );
+									printf(
+										/* translators: %s: default success page URL */
+										esc_html__( 'Used when no custom redirect URL is set on payment links or shortcodes. Default page: %s', 'vms-elements-fastspring-woo-payment' ),
+										'<a href="' . esc_url( $success_url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $success_url ) . '</a>'
+									);
+									?>
+								</p>
 							</td>
 						</tr>
+						<tr>
+							<th><?php esc_html_e( 'Success page details', 'vms-elements-fastspring-woo-payment' ); ?></th>
+							<td>
+								<label>
+									<input type="checkbox" name="payment_success_show_details" value="yes" <?php checked( 'yes', $settings->get( 'payment_success_show_details', 'yes' ) ); ?> />
+									<?php esc_html_e( 'Show FastSpring order details on the default success page', 'vms-elements-fastspring-woo-payment' ); ?>
+								</label>
+							</td>
+						</tr>
+						<?php endif; ?>
 						<tr>
 							<th><?php esc_html_e( 'Logging', 'vms-elements-fastspring-woo-payment' ); ?></th>
 							<td>
@@ -239,8 +320,8 @@ class VMS_EFWP_Admin_Settings {
 
 				<p>
 					<button type="submit" class="button button-primary"><?php esc_html_e( 'Save settings', 'vms-elements-fastspring-woo-payment' ); ?></button>
-					<button type="button" class="button" id="vefwp-test-connection"><?php esc_html_e( 'Test connection', 'vms-elements-fastspring-woo-payment' ); ?></button>
-					<span class="vefwp-test-result" id="vefwp-test-result"></span>
+					<button type="button" class="button" id="vms-efwp-test-connection"><?php esc_html_e( 'Test connection', 'vms-elements-fastspring-woo-payment' ); ?></button>
+					<span class="vms-efwp-test-result" id="vms-efwp-test-result"></span>
 				</p>
 			</form>
 		</div>
@@ -389,12 +470,12 @@ class VMS_EFWP_Admin_Settings {
 			'missing_popup_path'  => __( 'Popup checkout path is missing. Set it in WooCommerce integration below (e.g. popup-vmsuniverse2026).', 'vms-elements-fastspring-woo-payment' ),
 		);
 		?>
-		<div class="vefwp-card">
+		<div class="vms-efwp-card">
 			<h2><?php esc_html_e( 'Checkout availability', 'vms-elements-fastspring-woo-payment' ); ?>
 				<?php if ( $all_ok ) : ?>
-					<span class="vefwp-badge vefwp-badge--ok"><?php esc_html_e( 'READY', 'vms-elements-fastspring-woo-payment' ); ?></span>
+					<span class="vms-efwp-badge vms-efwp-badge--ok"><?php esc_html_e( 'READY', 'vms-elements-fastspring-woo-payment' ); ?></span>
 				<?php else : ?>
-					<span class="vefwp-badge vefwp-badge--warning"><?php esc_html_e( 'NEEDS ATTENTION', 'vms-elements-fastspring-woo-payment' ); ?></span>
+					<span class="vms-efwp-badge vms-efwp-badge--warning"><?php esc_html_e( 'NEEDS ATTENTION', 'vms-elements-fastspring-woo-payment' ); ?></span>
 				<?php endif; ?>
 			</h2>
 			<p class="description">
@@ -408,17 +489,17 @@ class VMS_EFWP_Admin_Settings {
 				}
 				?>
 			</p>
-			<table class="widefat striped vefwp-table">
+			<table class="widefat striped vms-efwp-table">
 				<tbody>
 				<?php foreach ( $checks as $c ) : ?>
 					<tr>
 						<td style="width:60px;">
 							<?php if ( $c['ok'] ) : ?>
-								<span class="vefwp-badge vefwp-badge--ok">OK</span>
+								<span class="vms-efwp-badge vms-efwp-badge--ok">OK</span>
 							<?php elseif ( ! empty( $c['warn'] ) ) : ?>
-								<span class="vefwp-badge vefwp-badge--info">INFO</span>
+								<span class="vms-efwp-badge vms-efwp-badge--info">INFO</span>
 							<?php else : ?>
-								<span class="vefwp-badge vefwp-badge--warning">!</span>
+								<span class="vms-efwp-badge vms-efwp-badge--warning">!</span>
 							<?php endif; ?>
 						</td>
 						<td><?php echo esc_html( $c['label'] ); ?></td>
@@ -458,15 +539,15 @@ class VMS_EFWP_Admin_Settings {
 						<?php esc_html_e( 'This is why it does not appear on a block-based checkout. Deactivate and reactivate VMS Elements Fastspring Woo Payment once to trigger registration, then revisit this page.', 'vms-elements-fastspring-woo-payment' ); ?>
 					</p></div>
 				<?php endif; ?>
-				<details class="vefwp-details">
+				<details class="vms-efwp-details">
 					<summary><?php esc_html_e( 'Show all Blocks-registered payment methods', 'vms-elements-fastspring-woo-payment' ); ?></summary>
-					<ul class="vefwp-gateway-list">
+					<ul class="vms-efwp-gateway-list">
 						<?php if ( empty( $blocks_registry_methods ) ) : ?>
 							<li><em><?php esc_html_e( 'None — Blocks payment registry is empty.', 'vms-elements-fastspring-woo-payment' ); ?></em></li>
 						<?php else : ?>
 							<?php foreach ( $blocks_registry_methods as $name ) : ?>
 								<li>
-									<span class="vefwp-badge vefwp-badge--<?php echo 'vms_efwp' === $name ? 'ok' : 'info'; ?>"><?php echo 'vms_efwp' === $name ? 'OURS' : 'BLOCK'; ?></span>
+									<span class="vms-efwp-badge vms-efwp-badge--<?php echo 'vms_efwp' === $name ? 'ok' : 'info'; ?>"><?php echo 'vms_efwp' === $name ? 'OURS' : 'BLOCK'; ?></span>
 									<code><?php echo esc_html( $name ); ?></code>
 								</li>
 							<?php endforeach; ?>
@@ -504,15 +585,15 @@ class VMS_EFWP_Admin_Settings {
 					</p></div>
 				<?php endif; ?>
 
-				<details class="vefwp-details">
+				<details class="vms-efwp-details">
 					<summary><?php esc_html_e( 'Show all currently-available gateways', 'vms-elements-fastspring-woo-payment' ); ?></summary>
-					<ul class="vefwp-gateway-list">
+					<ul class="vms-efwp-gateway-list">
 						<?php if ( empty( $gateways_available ) ) : ?>
 							<li><em><?php esc_html_e( 'No gateways are available right now.', 'vms-elements-fastspring-woo-payment' ); ?></em></li>
 						<?php else : ?>
 							<?php foreach ( $gateways_available as $id => $gw ) : ?>
 								<li>
-									<span class="vefwp-badge vefwp-badge--ok">SHOWN</span>
+									<span class="vms-efwp-badge vms-efwp-badge--ok">SHOWN</span>
 									<code><?php echo esc_html( $id ); ?></code> — <?php echo esc_html( $gw->get_title() ); ?>
 								</li>
 							<?php endforeach; ?>
@@ -520,13 +601,13 @@ class VMS_EFWP_Admin_Settings {
 					</ul>
 				</details>
 
-				<details class="vefwp-details">
+				<details class="vms-efwp-details">
 					<summary><?php esc_html_e( 'Show all registered gateways (including hidden)', 'vms-elements-fastspring-woo-payment' ); ?></summary>
-					<ul class="vefwp-gateway-list">
+					<ul class="vms-efwp-gateway-list">
 						<?php foreach ( $gateways_all as $id => $gw ) : ?>
 							<?php $shown = isset( $gateways_available[ $id ] ); ?>
 							<li>
-								<span class="vefwp-badge vefwp-badge--<?php echo $shown ? 'ok' : 'warning'; ?>"><?php echo $shown ? 'SHOWN' : 'HIDDEN'; ?></span>
+								<span class="vms-efwp-badge vms-efwp-badge--<?php echo $shown ? 'ok' : 'warning'; ?>"><?php echo $shown ? 'SHOWN' : 'HIDDEN'; ?></span>
 								<code><?php echo esc_html( $id ); ?></code> — <?php echo esc_html( $gw->get_method_title() ); ?>
 								<?php if ( $gw->enabled !== 'yes' ) : ?>
 									<span class="description"><?php esc_html_e( '(disabled)', 'vms-elements-fastspring-woo-payment' ); ?></span>
@@ -556,9 +637,15 @@ class VMS_EFWP_Admin_Settings {
 		if ( ! in_array( $strategy, array( 'catalog', 'per_product_override', 'single_custom_price' ), true ) ) {
 			$strategy = 'single_custom_price';
 		}
+		if ( ! vms_efwp_is_pro() && 'catalog' === $strategy ) {
+			$strategy = 'single_custom_price';
+		}
+		if ( ! vms_efwp_is_pro() && 'per_product_override' === $strategy ) {
+			$strategy = 'single_custom_price';
+		}
 
 		$values = array(
-			'mode'                      => isset( $post['mode'] ) && in_array( $post['mode'], array( 'live', 'sandbox' ), true ) ? $post['mode'] : 'sandbox',
+			'mode'                      => ( isset( $post['mode'] ) && in_array( sanitize_key( $post['mode'] ), array( 'live', 'sandbox' ), true ) ) ? sanitize_key( $post['mode'] ) : 'sandbox',
 			'live_username'             => isset( $post['live_username'] ) ? sanitize_text_field( $post['live_username'] ) : '',
 			'live_password'             => isset( $post['live_password'] ) ? sanitize_text_field( $post['live_password'] ) : '',
 			'live_storefront'           => isset( $post['live_storefront'] ) ? sanitize_text_field( $post['live_storefront'] ) : '',
@@ -571,8 +658,11 @@ class VMS_EFWP_Admin_Settings {
 			'webhook_secret_sandbox'    => isset( $post['webhook_secret_sandbox'] ) ? sanitize_text_field( $post['webhook_secret_sandbox'] ) : '',
 			'enable_webhook'            => ! empty( $post['enable_webhook'] ) ? 'yes' : 'no',
 			'enable_logging'            => ! empty( $post['enable_logging'] ) ? 'yes' : 'no',
-			'sync_products'             => ! empty( $post['sync_products'] ) ? 'yes' : 'no',
+			'sync_products'             => ( vms_efwp_is_pro() && ! empty( $post['sync_products'] ) ) ? 'yes' : 'no',
 			'popup_path'                => isset( $post['popup_path'] ) ? trim( sanitize_text_field( $post['popup_path'] ), '/' ) : '',
+			'checkout_page_id'          => isset( $post['checkout_page_id'] ) ? absint( $post['checkout_page_id'] ) : 0,
+			'payment_success_page_id'   => isset( $post['payment_success_page_id'] ) ? absint( $post['payment_success_page_id'] ) : 0,
+			'payment_success_show_details' => ! empty( $post['payment_success_show_details'] ) ? 'yes' : 'no',
 			'gateway_title'             => isset( $post['gateway_title'] ) ? sanitize_text_field( $post['gateway_title'] ) : '',
 			'gateway_description'       => isset( $post['gateway_description'] ) ? wp_kses_post( $post['gateway_description'] ) : '',
 			'pricing_strategy'          => $strategy,
@@ -581,6 +671,9 @@ class VMS_EFWP_Admin_Settings {
 
 		vms_efwp()->settings->update_all( $values );
 		vms_efwp()->settings->refresh();
+		if ( vms_efwp_is_pro() && class_exists( 'VMS_EFWP_Payment_Success', false ) ) {
+			VMS_EFWP_Payment_Success::ensure_success_page();
+		}
 
 		$wc_gateway = get_option( 'woocommerce_vms_efwp_settings', array() );
 		if ( ! is_array( $wc_gateway ) ) {

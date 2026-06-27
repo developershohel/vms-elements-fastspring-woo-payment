@@ -1,29 +1,30 @@
 === VMS Elements Fastspring Woo Payment ===
 Contributors: vmsuniverse
-Tags: woocommerce, fastspring, payments, subscriptions, dashboard
+Tags: woocommerce, fastspring, payments, subscriptions, ecommerce
 Requires at least: 6.0
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.6
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Integrate FastSpring as a WooCommerce payment processor and unlock an advanced analytics dashboard for sales, subscriptions, refunds and customers.
+Connect WooCommerce to FastSpring checkout (classic + blocks), webhooks, and stored orders. Pro adds full catalog and subscription management.
 
 == Description ==
 
-VMS Elements Fastspring Woo Payment connects WooCommerce to FastSpring's hosted checkout and subscription engine, then layers a polished analytics dashboard inside `wp-admin` so you can see how your business is doing without ever leaving WordPress.
+VMS Elements Fastspring Woo Payment is the **free** WordPress plugin that connects WooCommerce to FastSpring checkout and subscription webhooks.
 
-= Highlights =
+= Free features =
 
-* WooCommerce payment gateway powered by FastSpring sessions (cards, PayPal, Apple Pay, Google Pay, more).
-* HMAC-verified webhook listener for `order.completed`, `subscription.activated`, `return.created`, and many more.
-* Optional one-way product sync: WooCommerce -> FastSpring on save.
-* Advanced dashboard: revenue trend, subscription breakdown, MRR, top products, top countries, recent orders.
-* Dedicated screens for FastSpring Orders and Subscriptions with sync/cancel actions.
-* Full Live + Sandbox isolation: separate API credentials, storefronts, and webhook secrets.
-* Refunds via the FastSpring Returns API directly from the WooCommerce order screen.
-* Built-in event log and connection tester for fast debugging.
+* WooCommerce payment gateway — **classic and block checkout** with FastSpring popup overlay.
+* HMAC-verified webhook listener for `order.completed`, `subscription.activated`, `return.created`, and more.
+* Stored FastSpring orders inside WordPress (`FastSpring → Orders`).
+* Analytics dashboard and connection tester.
+* Live + Sandbox mode with separate credentials, storefronts, and webhook secrets.
+
+= Pro add-on =
+
+Advanced **management** features — catalog/subscription admin, payment links, shortcodes, product sync, invoices, coupons, reports, and more — are available in the separate **VMS Elements Fastspring Woo Payment Pro** add-on from [VMS Elements](https://vmselements.com/product/vms-elements-fastspring-woo-payment-pro). Pro code is not bundled in this free plugin.
 
 = Configuration =
 
@@ -45,20 +46,30 @@ No. All payment processing happens on FastSpring's PCI compliant infrastructure.
 
 = Can I use this without WooCommerce? =
 
-Yes. The dashboard, settings, webhook listener and API client all work without WooCommerce. Only the WC payment gateway requires it.
+Partially. The webhook listener, stored orders, settings, and API client work without WooCommerce. The WC payment gateway requires WooCommerce.
+
+= Where are catalog tools and subscription management? =
+
+Those management features require the separate Pro add-on from VMS Elements. The free plugin includes WooCommerce checkout (classic and block) and core webhook integration.
 
 == Screenshots ==
 
-1. Analytics dashboard with revenue KPIs, trend charts, top products and recent orders.
-2. Settings screen with live/sandbox mode toggle, API credentials and webhook configuration.
-3. FastSpring orders list with search, filters and sync actions.
-4. Subscriptions management with status badges, MRR and cancel actions.
-5. WooCommerce checkout with FastSpring as the selected payment method.
+1. Analytics dashboard with credential check and stored order summary.
+2. Settings screen with live/sandbox mode toggle, API credentials, popup checkout path, and webhook configuration.
+3. Stored FastSpring orders list in wp-admin.
+4. WooCommerce checkout (classic or block) with FastSpring gateway selected.
 
 == Changelog ==
 
+= 1.0.0 =
+* Free core: WooCommerce classic + block checkout, popup overlay, webhooks, stored orders, analytics dashboard, and settings.
+* Pro add-on: full FastSpring management (catalog, subscriptions, payment links, shortcodes, and more).
+
+= 1.0.7 =
+* Split Pro features into a separate add-on plugin; free build ships core gateway, webhooks, and stored orders only.
+
 = 1.0.6 =
-* Current stable release.
+* Previous stable release.
 
 = 1.0.0 =
 * Initial release.

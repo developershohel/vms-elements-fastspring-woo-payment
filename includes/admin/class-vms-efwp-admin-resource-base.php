@@ -17,21 +17,123 @@ class VMS_EFWP_Admin_Resource_Base {
 	 */
 	public static function render_json_modal() {
 		?>
-		<div id="vefwp-json-modal" class="vefwp-modal" hidden>
-			<div class="vefwp-modal__backdrop" data-vefwp-close></div>
-			<div class="vefwp-modal__panel" role="dialog" aria-modal="true">
-				<div class="vefwp-modal__head">
-					<h2 id="vefwp-json-modal-title"><?php esc_html_e( 'Details', 'vms-elements-fastspring-woo-payment' ); ?></h2>
-					<button type="button" class="vefwp-modal__close" data-vefwp-close aria-label="<?php esc_attr_e( 'Close', 'vms-elements-fastspring-woo-payment' ); ?>">&times;</button>
+		<div id="vms-efwp-json-modal" class="vms-efwp-modal" hidden>
+			<div class="vms-efwp-modal__backdrop" data-vms-efwp-close></div>
+			<div class="vms-efwp-modal__panel" role="dialog" aria-modal="true">
+				<div class="vms-efwp-modal__head">
+					<h2 id="vms-efwp-json-modal-title"><?php esc_html_e( 'Details', 'vms-elements-fastspring-woo-payment' ); ?></h2>
+					<button type="button" class="vms-efwp-modal__close" data-vms-efwp-close aria-label="<?php esc_attr_e( 'Close', 'vms-elements-fastspring-woo-payment' ); ?>">&times;</button>
 				</div>
-				<pre id="vefwp-json-modal-body" class="vefwp-json"></pre>
-				<div class="vefwp-modal__foot">
-					<button type="button" class="button" data-vefwp-close><?php esc_html_e( 'Close', 'vms-elements-fastspring-woo-payment' ); ?></button>
-					<button type="button" class="button button-primary" id="vefwp-json-copy"><?php esc_html_e( 'Copy JSON', 'vms-elements-fastspring-woo-payment' ); ?></button>
+				<pre id="vms-efwp-json-modal-body" class="vms-efwp-json"></pre>
+				<div class="vms-efwp-modal__foot">
+					<button type="button" class="button" data-vms-efwp-close><?php esc_html_e( 'Close', 'vms-elements-fastspring-woo-payment' ); ?></button>
+					<button type="button" class="button button-primary" id="vms-efwp-json-copy"><?php esc_html_e( 'Copy JSON', 'vms-elements-fastspring-woo-payment' ); ?></button>
 				</div>
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Render the overlay checkout link modal markup once per page.
+	 */
+	public static function render_checkout_link_modal() {
+		?>
+		<div id="vms-efwp-checkout-link-modal" class="vms-efwp-modal" hidden>
+			<div class="vms-efwp-modal__backdrop" data-vms-efwp-close-checkout-link></div>
+			<div class="vms-efwp-modal__panel vms-efwp-modal__panel--checkout-link" role="dialog" aria-modal="true" aria-labelledby="vms-efwp-checkout-link-modal-title">
+				<div class="vms-efwp-modal__head">
+					<h2 id="vms-efwp-checkout-link-modal-title"><?php esc_html_e( 'Overlay payment link', 'vms-elements-fastspring-woo-payment' ); ?></h2>
+					<button type="button" class="vms-efwp-modal__close" data-vms-efwp-close-checkout-link aria-label="<?php esc_attr_e( 'Close', 'vms-elements-fastspring-woo-payment' ); ?>">&times;</button>
+				</div>
+				<div class="vms-efwp-checkout-link-body">
+					<p class="vms-efwp-checkout-link-intro">
+						<?php esc_html_e( 'Share the payment page link with customers. It opens your WordPress checkout page and launches the FastSpring popup overlay.', 'vms-elements-fastspring-woo-payment' ); ?>
+					</p>
+					<p class="vms-efwp-checkout-link-product">
+						<strong><?php esc_html_e( 'Product', 'vms-elements-fastspring-woo-payment' ); ?>:</strong>
+						<code id="vms-efwp-checkout-link-product"></code>
+					</p>
+					<div class="vms-efwp-copy-field">
+						<label for="vms-efwp-checkout-payment-url"><?php esc_html_e( 'Payment page link', 'vms-elements-fastspring-woo-payment' ); ?></label>
+						<div class="vms-efwp-copy-field__row">
+							<input type="text" id="vms-efwp-checkout-payment-url" class="large-text" readonly />
+							<button type="button" class="button vms-efwp-copy-checkout-field" data-target="#vms-efwp-checkout-payment-url"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
+							<a class="button" id="vms-efwp-checkout-open-preview" href="#" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Open payment link', 'vms-elements-fastspring-woo-payment' ); ?></a>
+						</div>
+					</div>
+					<div class="vms-efwp-copy-field">
+						<label for="vms-efwp-checkout-overlay-url"><?php esc_html_e( 'FastSpring catalog URL (reference)', 'vms-elements-fastspring-woo-payment' ); ?></label>
+						<div class="vms-efwp-copy-field__row">
+							<input type="text" id="vms-efwp-checkout-overlay-url" class="large-text" readonly />
+							<button type="button" class="button vms-efwp-copy-checkout-field" data-target="#vms-efwp-checkout-overlay-url"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
+						</div>
+					</div>
+					<input type="hidden" id="vms-efwp-checkout-preview-url" value="" />
+					<div class="vms-efwp-copy-field" id="vms-efwp-checkout-session-wrap" hidden>
+						<label for="vms-efwp-checkout-session-url"><?php esc_html_e( 'Checkout session URL', 'vms-elements-fastspring-woo-payment' ); ?></label>
+						<div class="vms-efwp-copy-field__row">
+							<input type="text" id="vms-efwp-checkout-session-url" class="large-text" readonly />
+							<button type="button" class="button vms-efwp-copy-checkout-field" data-target="#vms-efwp-checkout-session-url"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
+						</div>
+					</div>
+					<div class="vms-efwp-copy-field">
+						<label for="vms-efwp-checkout-embed-html"><?php esc_html_e( 'Embed HTML (Store Builder)', 'vms-elements-fastspring-woo-payment' ); ?></label>
+						<div class="vms-efwp-copy-field__row vms-efwp-copy-field__row--stack">
+							<textarea id="vms-efwp-checkout-embed-html" class="large-text code" rows="3" readonly></textarea>
+							<button type="button" class="button vms-efwp-copy-checkout-field" data-target="#vms-efwp-checkout-embed-html"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
+						</div>
+					</div>
+					<p id="vms-efwp-checkout-link-status" class="vms-efwp-checkout-link-status" hidden></p>
+				</div>
+				<div class="vms-efwp-modal__foot">
+					<button type="button" class="button" data-vms-efwp-close-checkout-link"><?php esc_html_e( 'Close', 'vms-elements-fastspring-woo-payment' ); ?></button>
+					<button type="button" class="button" id="vms-efwp-checkout-generate-session"><?php esc_html_e( 'Generate session link', 'vms-elements-fastspring-woo-payment' ); ?></button>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render overlay checkout link actions for a catalog product path.
+	 *
+	 * @param string $product_path FastSpring product path.
+	 */
+	public static function render_checkout_link_buttons( $product_path ) {
+		if ( ! class_exists( 'VMS_EFWP_Checkout_Links', false ) ) {
+			return;
+		}
+		$product_path = sanitize_text_field( (string) $product_path );
+		if ( '' === $product_path ) {
+			return;
+		}
+
+		$has_popup = function_exists( 'vms_efwp' ) && vms_efwp()->settings && vms_efwp()->settings->has_popup_checkout();
+		if ( ! $has_popup ) {
+			printf(
+				'<button type="button" class="button button-small" disabled title="%1$s">%2$s</button>',
+				esc_attr__( 'Configure the popup checkout path in FastSpring Settings.', 'vms-elements-fastspring-woo-payment' ),
+				esc_html__( 'Payment link', 'vms-elements-fastspring-woo-payment' )
+			);
+			return;
+		}
+
+		$payment_link = VMS_EFWP_Checkout_Links::build_payment_link_url( $product_path );
+
+		printf(
+			'<button type="button" class="button button-small vms-efwp-get-checkout-link" data-product-path="%1$s">%2$s</button>',
+			esc_attr( $product_path ),
+			esc_html__( 'Payment link', 'vms-elements-fastspring-woo-payment' )
+		);
+
+		if ( ! is_wp_error( $payment_link ) ) {
+			printf(
+				'<a class="button button-small" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+				esc_url( $payment_link ),
+				esc_html__( 'Open payment link', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
 	}
 
 	/**
@@ -164,10 +266,7 @@ class VMS_EFWP_Admin_Resource_Base {
 			}
 		}
 
-		printf(
-			'<div class="notice notice-success"><p>%s</p></div>',
-			$message
-		);
+		echo '<div class="notice notice-success"><p>' . wp_kses_post( $message ) . '</p></div>';
 	}
 
 	/**
@@ -178,7 +277,7 @@ class VMS_EFWP_Admin_Resource_Base {
 	public static function render_view_button( $row ) {
 		$json = wp_json_encode( $row, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
 		printf(
-			'<button type="button" class="button button-small vefwp-view-json" data-json="%s">%s</button>',
+			'<button type="button" class="button button-small vms-efwp-view-json" data-json="%s">%s</button>',
 			esc_attr( $json ),
 			esc_html__( 'View', 'vms-elements-fastspring-woo-payment' )
 		);
@@ -223,17 +322,17 @@ class VMS_EFWP_Admin_Resource_Base {
 	public static function render_header( $title, $subtitle = '', $actions = array() ) {
 		$mode = vms_efwp()->settings->get_mode();
 		?>
-		<div class="vefwp-header">
-			<div class="vefwp-header__title">
+		<div class="vms-efwp-header">
+			<div class="vms-efwp-header__title">
 				<h1><?php echo esc_html( $title ); ?></h1>
-				<span class="vefwp-mode-pill vefwp-mode-pill--<?php echo esc_attr( $mode ); ?>">
+				<span class="vms-efwp-mode-pill vms-efwp-mode-pill--<?php echo esc_attr( $mode ); ?>">
 					<?php echo 'live' === $mode ? esc_html__( 'LIVE', 'vms-elements-fastspring-woo-payment' ) : esc_html__( 'SANDBOX', 'vms-elements-fastspring-woo-payment' ); ?>
 				</span>
 				<?php if ( $subtitle ) : ?>
-					<span class="vefwp-subtitle"><?php echo esc_html( $subtitle ); ?></span>
+					<span class="vms-efwp-subtitle"><?php echo esc_html( $subtitle ); ?></span>
 				<?php endif; ?>
 			</div>
-			<div class="vefwp-header__actions">
+			<div class="vms-efwp-header__actions">
 				<?php foreach ( $actions as $action ) : ?>
 					<?php echo wp_kses_post( $action ); ?>
 				<?php endforeach; ?>
@@ -437,6 +536,25 @@ class VMS_EFWP_Admin_Resource_Base {
 	}
 
 	/**
+	 * Read sanitized POST boolean checkbox (call verify_post() first).
+	 *
+	 * @param string $key     Field name.
+	 * @param bool   $default Default when the field is absent.
+	 * @return bool
+	 */
+	public static function post_bool( $key, $default = false ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verify_post() must run first.
+		if ( ! isset( $_POST[ $key ] ) ) {
+			return $default;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- verify_post() must run first; sanitized below.
+		$raw = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
+
+		return in_array( strtolower( $raw ), array( '1', 'true', 'on', 'yes' ), true );
+	}
+
+	/**
 	 * Read unslashed POST array (call verify_post() first).
 	 *
 	 * @param string $key     Field name.
@@ -481,7 +599,7 @@ class VMS_EFWP_Admin_Resource_Base {
 	 */
 	public static function render_lookup_form( $page, $field, $label, $placeholder = '', $value = '', $preserve = array() ) {
 		?>
-		<form method="get" class="vefwp-filters vefwp-filters--lookup">
+		<form method="get" class="vms-efwp-filters vms-efwp-filters--lookup">
 			<input type="hidden" name="page" value="<?php echo esc_attr( $page ); ?>" />
 			<?php foreach ( $preserve as $key => $preserve_value ) : ?>
 				<input type="hidden" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $preserve_value ); ?>" />
@@ -515,12 +633,12 @@ class VMS_EFWP_Admin_Resource_Base {
 			$title = __( 'API response', 'vms-elements-fastspring-woo-payment' );
 		}
 		?>
-		<div class="vefwp-card vefwp-card--wide vefwp-api-detail">
-			<div class="vefwp-card__head">
+		<div class="vms-efwp-card vms-efwp-card--wide vms-efwp-api-detail">
+			<div class="vms-efwp-card__head">
 				<h2><?php echo esc_html( $title ); ?></h2>
 				<?php self::render_view_button( $result ); ?>
 			</div>
-			<pre class="vefwp-json vefwp-json--inline"><?php echo esc_html( wp_json_encode( $result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ); ?></pre>
+			<pre class="vms-efwp-json vms-efwp-json--inline"><?php echo esc_html( wp_json_encode( $result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ); ?></pre>
 		</div>
 		<?php
 	}

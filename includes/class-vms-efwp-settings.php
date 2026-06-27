@@ -79,6 +79,9 @@ class VMS_EFWP_Settings {
 			'gateway_description'        => __( 'Pay securely in a popup overlay powered by FastSpring.', 'vms-elements-fastspring-woo-payment' ),
 			'pricing_strategy'           => 'single_custom_price',
 			'custom_price_product_path'  => '',
+			'checkout_page_id'           => 0,
+			'payment_success_page_id'    => 0,
+			'payment_success_show_details' => 'yes',
 		);
 	}
 
@@ -89,7 +92,16 @@ class VMS_EFWP_Settings {
 	 */
 	public function pricing_strategy() {
 		$value = $this->get( 'pricing_strategy', 'single_custom_price' );
-		return in_array( $value, array( 'catalog', 'per_product_override', 'single_custom_price' ), true ) ? $value : 'single_custom_price';
+		$value = in_array( $value, array( 'catalog', 'per_product_override', 'single_custom_price' ), true ) ? $value : 'single_custom_price';
+
+		if ( ! vms_efwp_is_pro() && 'catalog' === $value ) {
+			$value = 'single_custom_price';
+		}
+		if ( ! vms_efwp_is_pro() && 'per_product_override' === $value ) {
+			$value = 'single_custom_price';
+		}
+
+		return $value;
 	}
 
 	/**

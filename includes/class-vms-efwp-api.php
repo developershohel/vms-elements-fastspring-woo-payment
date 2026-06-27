@@ -373,6 +373,140 @@ class VMS_EFWP_API {
 	}
 
 	/**
+	 * Extract a FastSpring account ID from an order/subscription payload.
+	 *
+	 * @param array $payload Resource payload.
+	 * @return string
+	 */
+	public function extract_account_id_from_payload( $payload ) {
+		if ( ! is_array( $payload ) ) {
+			return '';
+		}
+
+		if ( ! empty( $payload['account'] ) ) {
+			if ( is_string( $payload['account'] ) ) {
+				return sanitize_text_field( $payload['account'] );
+			}
+			if ( is_array( $payload['account'] ) ) {
+				$id = $payload['account']['id'] ?? $payload['account']['account'] ?? '';
+				return $id ? sanitize_text_field( (string) $id ) : '';
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Look up all FastSpring account IDs for a customer email.
+	 *
+	 * @param string $email Customer email.
+	 * @return string[]
+	 */
+	public function get_account_ids_by_email( $email ) {
+		$email = sanitize_email( (string) $email );
+		if ( ! $email || ! is_email( $email ) ) {
+			return array();
+		}
+
+		$ids  = array();
+		$page = 1;
+
+		do {
+			$result = $this->get_accounts(
+				array(
+					'email' => $email,
+					'limit' => 50,
+					'page'  => $page,
+				)
+			);
+			if ( is_wp_error( $result ) ) {
+				break;
+			}
+
+			$ids = array_merge( $ids, $this->extract_account_ids( $result ) );
+			$has_next = ! empty( $result['nextPage'] );
+			++$page;
+		} while ( $has_next && $page <= 20 );
+
+		return array_values( array_unique( array_filter( $ids ) ) );
+	}
+
+	/**
+	 * List every subscription for a FastSpring account.
+	 *
+	 * @param string $account_id Account ID.
+	 * @return array[]
+	 */
+	public function list_all_subscriptions_for_account( $account_id ) {
+		$account_id = sanitize_text_field( (string) $account_id );
+		if ( '' === $account_id ) {
+			return array();
+		}
+
+		$unique   = array();
+		$statuses = array( 'active', 'canceled', 'cancelled', 'deactivated', 'paused', 'overdue', 'trial' );
+		$base     = array(
+			'accountId' => $account_id,
+			'scope'     => 'all',
+		);
+
+		foreach ( $statuses as $status ) {
+			$page = 1;
+			do {
+				$result = $this->list_subscriptions(
+					array_merge(
+						$base,
+						array(
+							'status' => $status,
+							'page'   => $page,
+						)
+					)
+				);
+				if ( is_wp_error( $result ) ) {
+					break;
+				}
+
+				foreach ( $this->parse_subscriptions( $result ) as $subscription ) {
+					$id = $subscription['id'] ?? $subscription['subscription'] ?? '';
+					if ( $id ) {
+						$unique[ $id ] = $subscription;
+					}
+				}
+
+				foreach ( $this->extract_subscription_ids( $result ) as $id ) {
+					if ( isset( $unique[ $id ] ) ) {
+						continue;
+					}
+					$hydrated = $this->hydrate_subscriptions( array( $id ) );
+					if ( ! empty( $hydrated[0] ) && is_array( $hydrated[0] ) ) {
+						$unique[ $id ] = $hydrated[0];
+					}
+				}
+
+				$has_next = ! empty( $result['nextPage'] );
+				++$page;
+			} while ( $has_next && $page <= 20 );
+		}
+
+		if ( empty( $unique ) ) {
+			$result = $this->list_subscriptions( $base );
+			if ( ! is_wp_error( $result ) ) {
+				foreach ( $this->hydrate_subscriptions( $this->extract_subscription_ids( $result ) ) as $subscription ) {
+					if ( ! is_array( $subscription ) ) {
+						continue;
+					}
+					$id = $subscription['id'] ?? $subscription['subscription'] ?? '';
+					if ( $id ) {
+						$unique[ $id ] = $subscription;
+					}
+				}
+			}
+		}
+
+		return array_values( $unique );
+	}
+
+	/**
 	 * Fetch full account objects for a list of account IDs.
 	 *
 	 * @param string[] $account_ids Account IDs.
@@ -1185,6 +1319,160 @@ class VMS_EFWP_API {
 	}
 
 	/**
+	 * Poll FastSpring until an order is marked completed.
+	 *
+	 * @param string $order_id FastSpring order ID.
+	 * @param array  $args {
+	 *     Optional poll tuning (REST confirm uses a short poll per request).
+	 *
+	 *     @type int|null $max_attempts Maximum API attempts. Null = default (longer on localhost).
+	 *     @type int|null $wait_ms      Milliseconds between attempts. Null = default.
+	 * }
+	 * @return array|WP_Error
+	 */
+	public function wait_for_completed_order( $order_id, $args = array() ) {
+		$order_id = sanitize_text_field( (string) $order_id );
+		if ( '' === $order_id ) {
+			return new WP_Error(
+				'missing_fs_order',
+				__( 'FastSpring order id is required.', 'vms-elements-fastspring-woo-payment' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$args = wp_parse_args(
+			is_array( $args ) ? $args : array(),
+			array(
+				'max_attempts' => null,
+				'wait_ms'      => null,
+			)
+		);
+
+		if ( null === $args['max_attempts'] ) {
+			$attempts = (int) apply_filters( 'vms_efwp_complete_payment_poll_attempts', 12 );
+			if ( class_exists( 'VMS_EFWP_Webhook' ) && VMS_EFWP_Webhook::is_localhost_environment() ) {
+				$attempts = (int) apply_filters( 'vms_efwp_complete_payment_poll_attempts_localhost', max( $attempts, 20 ) );
+			}
+		} else {
+			$attempts = (int) $args['max_attempts'];
+		}
+
+		if ( null === $args['wait_ms'] ) {
+			$wait_ms = (int) apply_filters( 'vms_efwp_complete_payment_poll_ms', 250 );
+		} else {
+			$wait_ms = (int) $args['wait_ms'];
+		}
+
+		$attempts = max( 1, $attempts );
+		$wait_ms  = max( 50, $wait_ms );
+
+		$last_order = null;
+		$last_error = null;
+
+		for ( $i = 0; $i < $attempts; $i++ ) {
+			$response = $this->get_order( $order_id );
+			if ( is_wp_error( $response ) ) {
+				$last_error = $response;
+				break;
+			}
+
+			$order = $this->parse_order( $response );
+			if ( is_wp_error( $order ) ) {
+				$last_error = $order;
+				break;
+			}
+
+			$last_order = $order;
+			if ( ! empty( $order['completed'] ) ) {
+				return $order;
+			}
+
+			if ( $i < $attempts - 1 ) {
+				usleep( $wait_ms * 1000 );
+			}
+		}
+
+		if ( is_wp_error( $last_error ) ) {
+			return $last_error;
+		}
+
+		return new WP_Error(
+			'not_completed',
+			__( 'FastSpring has not marked this order as completed yet. Please wait a moment and refresh.', 'vms-elements-fastspring-woo-payment' ),
+			array(
+				'status' => 409,
+				'body'   => $last_order,
+			)
+		);
+	}
+
+	/**
+	 * Poll until invoice metadata is available on a completed order.
+	 *
+	 * @param array $order         Order payload.
+	 * @param int   $max_attempts  Maximum refresh attempts.
+	 * @return array
+	 */
+	public function ensure_order_invoice( $order, $max_attempts = 8 ) {
+		if ( ! is_array( $order ) ) {
+			return $order;
+		}
+
+		$attempts = max( 1, (int) apply_filters( 'vms_efwp_invoice_poll_attempts', $max_attempts ) );
+		$wait_ms  = max( 50, (int) apply_filters( 'vms_efwp_invoice_poll_ms', 250 ) );
+
+		for ( $i = 0; $i < $attempts; $i++ ) {
+			$order = $this->enrich_order_invoice_payload( $order );
+			$meta  = $this->extract_order_invoice_meta( $order );
+			if ( $meta['invoice_url'] || $meta['fs_invoice_id'] ) {
+				return $order;
+			}
+
+			if ( empty( $order['completed'] ) ) {
+				return $order;
+			}
+
+			$fs_order_id = isset( $order['id'] ) ? (string) $order['id'] : '';
+			if ( '' === $fs_order_id ) {
+				return $order;
+			}
+
+			if ( $i < $attempts - 1 ) {
+				usleep( $wait_ms * 1000 );
+				$fresh = $this->parse_order( $this->get_order( $fs_order_id ) );
+				if ( ! is_wp_error( $fresh ) ) {
+					$order = $fresh;
+				}
+			}
+		}
+
+		return $order;
+	}
+
+	/**
+	 * Sync a completed FastSpring order locally and ensure invoice metadata exists.
+	 *
+	 * @param string $order_id FastSpring order ID.
+	 * @return array|WP_Error Completed order payload.
+	 */
+	public function sync_completed_order( $order_id ) {
+		$order = $this->wait_for_completed_order( $order_id );
+		if ( is_wp_error( $order ) ) {
+			return $order;
+		}
+
+		$order = $this->ensure_order_invoice( $order );
+
+		$is_live = isset( $order['live'] ) ? (bool) $order['live'] : (
+			function_exists( 'vms_efwp' ) && vms_efwp()->settings && ! vms_efwp()->settings->is_sandbox()
+		);
+
+		VMS_EFWP_Data_Store::upsert_order( $order, ! $is_live );
+
+		return $order;
+	}
+
+	/**
 	 * Extract order IDs from a search/list response.
 	 *
 	 * @param array $result Decoded list response.
@@ -1604,6 +1892,177 @@ class VMS_EFWP_API {
 	}
 
 	/**
+	 * Whether a canceled subscription can still be uncanceled (before deactivation).
+	 *
+	 * FastSpring only allows clearing deactivation while the subscription is still active.
+	 *
+	 * @param array $subscription Subscription payload.
+	 * @return bool
+	 */
+	public function subscription_can_uncancel( $subscription ) {
+		if ( ! is_array( $subscription ) ) {
+			return false;
+		}
+
+		$state = strtolower( (string) ( $subscription['state'] ?? $subscription['status'] ?? '' ) );
+
+		if ( 'deactivated' === $state ) {
+			return false;
+		}
+
+		if ( array_key_exists( 'active', $subscription ) && ! $subscription['active'] ) {
+			return false;
+		}
+
+		if ( $this->subscription_has_pending_deactivation( $subscription ) ) {
+			return true;
+		}
+
+		if ( 'canceled' === $state && $this->subscription_has_future_deactivation( $subscription ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether a subscription has a pending deactivation scheduled.
+	 *
+	 * @param array $subscription Subscription payload.
+	 * @return bool
+	 */
+	public function subscription_has_pending_deactivation( $subscription ) {
+		if ( ! empty( $subscription['deactivation'] ) && is_array( $subscription['deactivation'] ) ) {
+			return true;
+		}
+
+		return $this->subscription_has_future_deactivation( $subscription );
+	}
+
+	/**
+	 * Whether a subscription deactivation date is still in the future.
+	 *
+	 * @param array $subscription Subscription payload.
+	 * @return bool
+	 */
+	public function subscription_has_future_deactivation( $subscription ) {
+		$now = time();
+
+		foreach ( array( 'deactivationDateInSeconds', 'deactivationDate', 'deactivationDateValue' ) as $key ) {
+			if ( empty( $subscription[ $key ] ) ) {
+				continue;
+			}
+
+			$timestamp = (int) $subscription[ $key ];
+			if ( in_array( $key, array( 'deactivationDate', 'deactivationDateValue' ), true ) && $timestamp > 9999999999 ) {
+				$timestamp = (int) floor( $timestamp / 1000 );
+			}
+
+			if ( $timestamp > $now ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Parse a FastSpring date field group into a MySQL UTC datetime string.
+	 *
+	 * FastSpring returns millisecond timestamps in the primary field, with
+	 * *InSeconds and *DisplayISO8601 companion fields per API docs.
+	 *
+	 * @param array    $payload         Payload array.
+	 * @param string   $base_field      Base field name (e.g. nextChargeDate, begin).
+	 * @param string[] $fallback_bases  Alternate base field names to try.
+	 * @return string|null MySQL datetime (Y-m-d H:i:s) or null.
+	 */
+	public function parse_payload_datetime( $payload, $base_field, $fallback_bases = array() ) {
+		if ( ! is_array( $payload ) ) {
+			return null;
+		}
+
+		$bases = array_merge( array( $base_field ), (array) $fallback_bases );
+		foreach ( $bases as $base ) {
+			$parsed = $this->parse_payload_datetime_base( $payload, $base );
+			if ( $parsed ) {
+				return $parsed;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Parse one FastSpring date field group.
+	 *
+	 * @param array  $payload    Payload array.
+	 * @param string $base_field Base field name.
+	 * @return string|null
+	 */
+	private function parse_payload_datetime_base( $payload, $base_field ) {
+		$seconds_key = $base_field . 'InSeconds';
+		if ( isset( $payload[ $seconds_key ] ) && is_numeric( $payload[ $seconds_key ] ) && (int) $payload[ $seconds_key ] > 0 ) {
+			return gmdate( 'Y-m-d H:i:s', (int) $payload[ $seconds_key ] );
+		}
+
+		$iso_key = $base_field . 'DisplayISO8601';
+		if ( ! empty( $payload[ $iso_key ] ) && is_string( $payload[ $iso_key ] ) ) {
+			$timestamp = strtotime( $payload[ $iso_key ] . ' UTC' );
+			if ( $timestamp ) {
+				return gmdate( 'Y-m-d H:i:s', $timestamp );
+			}
+		}
+
+		foreach ( array( $base_field, $base_field . 'Value' ) as $key ) {
+			if ( ! isset( $payload[ $key ] ) || $payload[ $key ] === '' || $payload[ $key ] === null ) {
+				continue;
+			}
+
+			if ( is_numeric( $payload[ $key ] ) ) {
+				$timestamp = (int) $payload[ $key ];
+				if ( $timestamp > 9999999999 ) {
+					$timestamp = (int) floor( $timestamp / 1000 );
+				}
+				if ( $timestamp > 0 ) {
+					return gmdate( 'Y-m-d H:i:s', $timestamp );
+				}
+			}
+		}
+
+		$display_key = $base_field . 'Display';
+		if ( ! empty( $payload[ $display_key ] ) && is_string( $payload[ $display_key ] ) ) {
+			$timestamp = strtotime( $payload[ $display_key ] );
+			if ( $timestamp ) {
+				return gmdate( 'Y-m-d H:i:s', $timestamp );
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Convert a stored subscription row back into a payload array.
+	 *
+	 * @param array $row Stored subscription row.
+	 * @return array
+	 */
+	public function subscription_payload_from_row( $row ) {
+		if ( ! empty( $row['payload'] ) ) {
+			$payload = json_decode( $row['payload'], true );
+			if ( is_array( $payload ) ) {
+				return $payload;
+			}
+		}
+
+		return array(
+			'id'     => $row['fs_subscription_id'] ?? '',
+			'state'  => $row['status'] ?? '',
+			'status' => $row['status'] ?? '',
+		);
+	}
+
+	/**
 	 * Convert a deactivated trial subscription to paid (creates buyer session).
 	 *
 	 * @param string $subscription_id ID.
@@ -1626,6 +2085,340 @@ class VMS_EFWP_API {
 	/* -------------------------------------------------------------------- *
 	 * Invoices
 	 * -------------------------------------------------------------------- */
+
+	/**
+	 * Extract invoice URL and ID from a FastSpring order payload.
+	 *
+	 * Checkout orders include `invoiceUrl` when FastSpring generates the receipt.
+	 * There is no list-all-invoices API; order receipts are indexed from stored orders.
+	 *
+	 * @param array $order Order payload (webhook or GET /orders response).
+	 * @return array{invoice_url:?string,fs_invoice_id:?string}
+	 */
+	public function extract_order_invoice_meta( $order ) {
+		$empty = array(
+			'invoice_url'   => null,
+			'fs_invoice_id' => null,
+		);
+
+		if ( ! is_array( $order ) ) {
+			return $empty;
+		}
+
+		$url = isset( $order['invoiceUrl'] ) ? trim( (string) $order['invoiceUrl'] ) : '';
+		if ( '' === $url ) {
+			return $empty;
+		}
+
+		if ( false !== strpos( $url, '/null/' ) ) {
+			return $empty;
+		}
+
+		$invoice_id = null;
+		if ( preg_match( '~#/invoice/([^/?#]+)~i', $url, $matches ) ) {
+			$candidate = strtoupper( trim( $matches[1], '/' ) );
+			if ( 'PDF' !== $candidate && preg_match( '/^[A-Z0-9]{10,}$/', $candidate ) ) {
+				$invoice_id = $candidate;
+			}
+		}
+
+		return array(
+			'invoice_url'   => esc_url_raw( $url ),
+			'fs_invoice_id' => $invoice_id,
+		);
+	}
+
+	/**
+	 * Fetch a completed order from the API when invoice metadata is missing locally.
+	 *
+	 * @param array $order Partial order payload.
+	 * @return array Merged order payload.
+	 */
+	public function enrich_order_invoice_payload( $order ) {
+		if ( ! is_array( $order ) ) {
+			return $order;
+		}
+
+		$meta = $this->extract_order_invoice_meta( $order );
+		if ( $meta['invoice_url'] || $meta['fs_invoice_id'] ) {
+			return $order;
+		}
+
+		$fs_order_id = isset( $order['id'] ) ? (string) $order['id'] : '';
+		if ( '' === $fs_order_id || empty( $order['completed'] ) ) {
+			return $order;
+		}
+
+		$fresh = $this->parse_order( $this->get_order( $fs_order_id ) );
+		if ( is_wp_error( $fresh ) || empty( $fresh['invoiceUrl'] ) ) {
+			return $order;
+		}
+
+		$order['invoiceUrl'] = $fresh['invoiceUrl'];
+		return $order;
+	}
+
+	/**
+	 * Resend an order receipt invoice email to the customer.
+	 *
+	 * FastSpring does not expose a public API to resend branded receipt emails.
+	 * This sends the invoice links from WordPress via wp_mail().
+	 *
+	 * @param string $fs_order_id FastSpring order ID.
+	 * @param string $recipient   Optional override recipient email.
+	 * @return array|string|WP_Error
+	 */
+	public function resend_order_invoice_email( $fs_order_id, $recipient = '' ) {
+		$fs_order_id = sanitize_text_field( (string) $fs_order_id );
+		if ( '' === $fs_order_id ) {
+			return new WP_Error(
+				'vms_efwp_invoice_resend',
+				__( 'A FastSpring order ID is required to resend the invoice.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		$row = VMS_EFWP_Data_Store::get_order_by_fs_id( $fs_order_id );
+		if ( ! $row ) {
+			$fresh = $this->parse_order( $this->get_order( $fs_order_id ) );
+			if ( is_wp_error( $fresh ) ) {
+				return $fresh;
+			}
+
+			$fresh   = $this->enrich_order_invoice_payload( $fresh );
+			$is_test = empty( $fresh['live'] );
+			VMS_EFWP_Data_Store::upsert_order( $fresh, $is_test );
+			$row = VMS_EFWP_Data_Store::get_order_by_fs_id( $fs_order_id );
+		}
+
+		if ( ! $row ) {
+			return new WP_Error(
+				'vms_efwp_invoice_resend',
+				__( 'Could not load the order for invoice resend.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		$meta = VMS_EFWP_Data_Store::get_order_invoice_meta( $row );
+		if ( empty( $meta['invoice_url'] ) && empty( $meta['fs_invoice_id'] ) ) {
+			return new WP_Error(
+				'vms_efwp_invoice_resend',
+				__( 'This order does not have an invoice URL yet. Try again after the order is completed.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		$to = $recipient ? sanitize_email( $recipient ) : sanitize_email( (string) ( $row['email'] ?? '' ) );
+		if ( ! $to || ! is_email( $to ) ) {
+			return new WP_Error(
+				'vms_efwp_invoice_resend',
+				__( 'No valid customer email address is available for this order.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		$view_url = $meta['invoice_url'];
+		$pdf_url  = '';
+		if ( $view_url ) {
+			$pdf_url = untrailingslashit( $view_url ) . '/pdf';
+		}
+
+		return $this->deliver_invoice_email(
+			array(
+				'to'            => $to,
+				'customer_name' => (string) ( $row['customer_name'] ?? '' ),
+				'order_id'      => $fs_order_id,
+				'invoice_id'    => (string) ( $meta['fs_invoice_id'] ?? '' ),
+				'currency'      => (string) ( $row['currency'] ?? '' ),
+				'total'         => (float) ( $row['total'] ?? 0 ),
+				'view_url'      => $view_url,
+				'pdf_url'       => $pdf_url,
+				'pay_url'       => '',
+			)
+		);
+	}
+
+	/**
+	 * Resend a manual payment invoice email to the customer.
+	 *
+	 * @param string $invoice_id FastSpring invoice ID.
+	 * @param string $recipient  Optional override recipient email.
+	 * @return array|string|WP_Error
+	 */
+	public function resend_payment_invoice_email( $invoice_id, $recipient = '' ) {
+		$invoice_id = sanitize_text_field( (string) $invoice_id );
+		if ( '' === $invoice_id ) {
+			return new WP_Error(
+				'vms_efwp_invoice_resend',
+				__( 'An invoice ID is required to resend the invoice.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		$invoice = $this->get_invoice( $invoice_id );
+		if ( is_wp_error( $invoice ) ) {
+			return $invoice;
+		}
+
+		$to = $recipient ? sanitize_email( $recipient ) : '';
+		if ( ! $to || ! is_email( $to ) ) {
+			$to = sanitize_email( (string) ( $invoice['purchaser']['email'] ?? ( $invoice['receiver']['email'] ?? '' ) ) );
+		}
+
+		if ( ! $to || ! is_email( $to ) ) {
+			return new WP_Error(
+				'vms_efwp_invoice_resend',
+				__( 'No valid recipient email address is available for this invoice.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		$currency = (string) ( $invoice['currency'] ?? ( $invoice['paymentCurrencyCode'] ?? '' ) );
+		$total    = (float) ( $invoice['totalOrderValue'] ?? ( $invoice['paymentTotals']['payableTotal'] ?? 0 ) );
+		$view_url = (string) ( $invoice['paymentInvoiceWebLink'] ?? '' );
+		$pdf_url  = (string) ( $invoice['paymentInvoicePdfLink'] ?? '' );
+		$pay_url  = (string) ( $invoice['paymentInvoiceWebPayLink'] ?? '' );
+
+		if ( '' === $view_url && '' === $pdf_url && '' === $pay_url ) {
+			return new WP_Error(
+				'vms_efwp_invoice_resend',
+				__( 'This invoice does not include view, PDF, or payment links.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		return $this->deliver_invoice_email(
+			array(
+				'to'            => $to,
+				'customer_name' => trim(
+					(string) ( $invoice['purchaser']['firstName'] ?? '' ) . ' ' . (string) ( $invoice['purchaser']['lastName'] ?? '' )
+				),
+				'order_id'      => (string) ( $invoice['orderReference'] ?? ( $invoice['paymentOrderReference'] ?? '' ) ),
+				'invoice_id'    => (string) ( $invoice['id'] ?? $invoice_id ),
+				'currency'      => $currency,
+				'total'         => $total,
+				'view_url'      => $view_url,
+				'pdf_url'       => $pdf_url,
+				'pay_url'       => $pay_url,
+			)
+		);
+	}
+
+	/**
+	 * Send an invoice notification email from WordPress.
+	 *
+	 * @param array $args Email args.
+	 * @return string|WP_Error
+	 */
+	private function deliver_invoice_email( $args ) {
+		$to = sanitize_email( (string) ( $args['to'] ?? '' ) );
+		if ( ! $to || ! is_email( $to ) ) {
+			return new WP_Error(
+				'vms_efwp_invoice_resend',
+				__( 'No valid recipient email address was provided.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		$reference = ! empty( $args['order_id'] ) ? (string) $args['order_id'] : (string) ( $args['invoice_id'] ?? '' );
+		$subject   = $reference
+			? sprintf(
+				/* translators: %s: order or invoice reference */
+				__( 'Your invoice for %s', 'vms-elements-fastspring-woo-payment' ),
+				$reference
+			)
+			: __( 'Your invoice', 'vms-elements-fastspring-woo-payment' );
+
+		$greeting = ! empty( $args['customer_name'] )
+			? sprintf(
+				/* translators: %s: customer name */
+				__( 'Hello %s,', 'vms-elements-fastspring-woo-payment' ),
+				$args['customer_name']
+			)
+			: __( 'Hello,', 'vms-elements-fastspring-woo-payment' );
+
+		$total_line = '';
+		if ( ! empty( $args['currency'] ) || ! empty( $args['total'] ) ) {
+			$total_line = sprintf(
+				/* translators: 1: currency code, 2: formatted total */
+				__( 'Total: %1$s %2$s', 'vms-elements-fastspring-woo-payment' ),
+				(string) ( $args['currency'] ?? '' ),
+				number_format_i18n( (float) ( $args['total'] ?? 0 ), 2 )
+			);
+		}
+
+		$links = array();
+		if ( ! empty( $args['view_url'] ) ) {
+			$links[] = sprintf(
+				'<li><a href="%1$s">%2$s</a></li>',
+				esc_url( (string) $args['view_url'] ),
+				esc_html__( 'View invoice', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+		if ( ! empty( $args['pdf_url'] ) ) {
+			$links[] = sprintf(
+				'<li><a href="%1$s">%2$s</a></li>',
+				esc_url( (string) $args['pdf_url'] ),
+				esc_html__( 'Download PDF', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+		if ( ! empty( $args['pay_url'] ) ) {
+			$links[] = sprintf(
+				'<li><a href="%1$s">%2$s</a></li>',
+				esc_url( (string) $args['pay_url'] ),
+				esc_html__( 'Pay invoice', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		if ( empty( $links ) ) {
+			return new WP_Error(
+				'vms_efwp_invoice_resend',
+				__( 'No invoice links are available to include in the email.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		$body  = '<p>' . esc_html( $greeting ) . '</p>';
+		$body .= '<p>' . esc_html__( 'Here are the links to your invoice:', 'vms-elements-fastspring-woo-payment' ) . '</p>';
+		if ( $total_line ) {
+			$body .= '<p>' . esc_html( $total_line ) . '</p>';
+		}
+		$body .= '<ul>' . implode( '', $links ) . '</ul>';
+		$body .= '<p>' . esc_html__( 'If you did not request this message, you can ignore it.', 'vms-elements-fastspring-woo-payment' ) . '</p>';
+
+		$sent = wp_mail(
+			$to,
+			$subject,
+			$body,
+			array( 'Content-Type: text/html; charset=UTF-8' )
+		);
+
+		if ( ! $sent ) {
+			VMS_EFWP_Logger::log(
+				'Invoice resend email failed.',
+				'error',
+				'invoice',
+				array(
+					'to'         => $to,
+					'order_id'   => $args['order_id'] ?? '',
+					'invoice_id' => $args['invoice_id'] ?? '',
+				)
+			);
+
+			return new WP_Error(
+				'vms_efwp_invoice_resend',
+				__( 'WordPress could not send the invoice email. Check your site mail configuration.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		VMS_EFWP_Logger::log(
+			'Invoice email resent.',
+			'info',
+			'invoice',
+			array(
+				'to'         => $to,
+				'order_id'   => $args['order_id'] ?? '',
+				'invoice_id' => $args['invoice_id'] ?? '',
+			)
+		);
+
+		return sprintf(
+			/* translators: %s: recipient email address */
+			__( 'Invoice email sent to %s.', 'vms-elements-fastspring-woo-payment' ),
+			$to
+		);
+	}
 
 	/**
 	 * Parse a single invoice from a GET or POST response.
@@ -1654,6 +2447,100 @@ class VMS_EFWP_API {
 			'vms_efwp_invoice_not_found',
 			__( 'FastSpring did not return invoice details.', 'vms-elements-fastspring-woo-payment' ),
 			array( 'body' => $response )
+		);
+	}
+
+	/**
+	 * Whether an API error indicates the requested resource was not found.
+	 *
+	 * @param WP_Error $error Error object.
+	 * @return bool
+	 */
+	public function is_api_not_found_error( $error ) {
+		if ( ! is_wp_error( $error ) ) {
+			return false;
+		}
+
+		$code    = (string) $error->get_error_code();
+		$message = strtolower( (string) $error->get_error_message() );
+		$data    = $error->get_error_data();
+		$status  = is_array( $data ) && isset( $data['status'] ) ? (int) $data['status'] : 0;
+
+		if ( 404 === $status ) {
+			return true;
+		}
+
+		if ( 'vms_efwp_invoice_not_found' === $code || 'vms_efwp_order_not_found' === $code ) {
+			return true;
+		}
+
+		return false !== strpos( $message, 'not found' ) || false !== strpos( $message, 'resource not found' );
+	}
+
+	/**
+	 * Lookup a payment invoice or checkout order receipt by ID.
+	 *
+	 * Checkout orders use the order ID and expose `invoiceUrl` on GET /orders/{id}.
+	 * Manual B2B invoices use GET /invoices/{invoiceId}.
+	 *
+	 * @param string $lookup_id Invoice ID or FastSpring order ID.
+	 * @return array|WP_Error {
+	 *     @type string $type `payment_invoice` or `order_receipt`.
+	 *     @type array  $data Resource payload.
+	 *     @type array  $invoice_meta Present for order receipts.
+	 * }
+	 */
+	public function lookup_invoice_resource( $lookup_id ) {
+		$lookup_id = sanitize_text_field( (string) $lookup_id );
+		if ( '' === $lookup_id ) {
+			return new WP_Error(
+				'vms_efwp_invoice_lookup',
+				__( 'Enter an invoice ID or FastSpring order ID.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
+		$invoice = $this->get_invoice( $lookup_id );
+		if ( ! is_wp_error( $invoice ) ) {
+			return array(
+				'type' => 'payment_invoice',
+				'data' => $invoice,
+			);
+		}
+
+		$invoice_error = $invoice;
+		if ( ! $this->is_api_not_found_error( $invoice_error ) ) {
+			return $invoice_error;
+		}
+
+		$order = $this->parse_order( $this->get_order( $lookup_id ) );
+		if ( is_wp_error( $order ) ) {
+			if ( $this->is_api_not_found_error( $order ) ) {
+				return new WP_Error(
+					'vms_efwp_invoice_lookup',
+					sprintf(
+						/* translators: %s: lookup value */
+						__( '"%s" was not found as a payment invoice (GET /invoices) or as an order (GET /orders). Checkout orders use the order ID — not GET /invoices.', 'vms-elements-fastspring-woo-payment' ),
+						$lookup_id
+					),
+					array(
+						'invoice_error' => $invoice_error,
+						'order_error'   => $order,
+					)
+				);
+			}
+
+			return $order;
+		}
+
+		$order         = $this->enrich_order_invoice_payload( $order );
+		$invoice_meta  = $this->extract_order_invoice_meta( $order );
+		$is_test       = empty( $order['live'] );
+		VMS_EFWP_Data_Store::upsert_order( $order, $is_test );
+
+		return array(
+			'type'         => 'order_receipt',
+			'data'         => $order,
+			'invoice_meta' => $invoice_meta,
 		);
 	}
 

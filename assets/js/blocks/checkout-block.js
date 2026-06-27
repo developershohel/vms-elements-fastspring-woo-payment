@@ -29,11 +29,11 @@
 	var description = decodeEntities( settings.description || '' );
 
 	var Label = function () {
-		return createElement( 'span', { className: 'vefwp-block-label' }, label );
+		return createElement( 'span', { className: 'vms-efwp-block-label' }, label );
 	};
 
 	var Content = function () {
-		return createElement( 'div', { className: 'vefwp-block-method' }, description );
+		return createElement( 'div', { className: 'vms-efwp-block-method' }, description );
 	};
 
 	registerPaymentMethod( {
@@ -92,16 +92,16 @@
 			return;
 		}
 
-		if ( ! window.VmsEfwpCheckout ) {
+		if ( ! window.VMS_EFWP_CheckoutApi ) {
 			return;
 		}
 
 		openedForOrder[ orderId ] = true;
 
-		if ( window.VmsEfwpCheckout.handlePendingFastSpring ) {
-			window.VmsEfwpCheckout.handlePendingFastSpring( orderId );
-		} else if ( window.VmsEfwpCheckout.openForOrder ) {
-			window.VmsEfwpCheckout.openForOrder( orderId, '' );
+		if ( window.VMS_EFWP_CheckoutApi.handlePendingFastSpring ) {
+			window.VMS_EFWP_CheckoutApi.handlePendingFastSpring( orderId );
+		} else if ( window.VMS_EFWP_CheckoutApi.openForOrder ) {
+			window.VMS_EFWP_CheckoutApi.openForOrder( orderId, '' );
 		}
 	}
 

@@ -63,7 +63,7 @@ final class VMS_EFWP_WC_Blocks extends AbstractPaymentMethodType {
 	public function get_payment_method_script_handles() {
 		$handle = 'vms-efwp-blocks';
 
-		$asset_path = VMS_EFWP_URL . 'assets/js/blocks/checkout-block.js';
+		$asset_path = vms_efwp_asset_url( 'assets/js/blocks/checkout-block.js' );
 
 		if ( ! wp_script_is( $handle, 'registered' ) ) {
 			wp_register_script(

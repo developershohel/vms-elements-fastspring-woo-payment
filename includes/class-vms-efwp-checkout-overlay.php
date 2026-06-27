@@ -179,7 +179,7 @@ class VMS_EFWP_Checkout_Overlay {
 				if ( isset( $gateways['vms_efwp'] ) && $gateways['vms_efwp'] instanceof VMS_EFWP_WC_Gateway ) {
 					$overlay['pushPayload'] = $gateways['vms_efwp']->build_sbl_checkout_payload( $order );
 					$overlay['useSecure']   = $gateways['vms_efwp']->uses_sbl_secure();
-					$overlay['tags']        = array( 'wc_order_id' => (string) $order_id );
+					$overlay['tags']        = VMS_EFWP_Data_Store::build_session_tags( $order_id );
 				}
 			}
 		}
@@ -218,6 +218,7 @@ class VMS_EFWP_Checkout_Overlay {
 		}
 
 		if ( $order->is_paid() ) {
+			self::persist_fastspring_order_for_wc( $order, $fs_order_id );
 			return rest_ensure_response(
 				array(
 					'status'      => 'already_paid',
@@ -235,26 +236,28 @@ class VMS_EFWP_Checkout_Overlay {
 			);
 		}
 
-		$fs_order = vms_efwp()->api->get_order( $fs_order_id );
+		$fs_order = self::wait_for_completed_fastspring_order( $fs_order_id, true );
 		if ( is_wp_error( $fs_order ) ) {
+			if ( 'not_completed' === $fs_order->get_error_code() ) {
+				self::persist_fastspring_order_for_wc( $order, $fs_order_id );
+				return rest_ensure_response(
+					array(
+						'status'      => 'pending',
+						'order_id'    => $order_id,
+						'fs_order_id' => $fs_order_id,
+					)
+				);
+			}
 			return $fs_order;
 		}
 
-		$tag_wc_id = isset( $fs_order['tags']['wc_order_id'] ) ? (int) $fs_order['tags']['wc_order_id'] : 0;
-		if ( $tag_wc_id && $tag_wc_id !== $order_id ) {
-			return new WP_Error(
-				'order_mismatch',
-				__( 'This FastSpring order is linked to a different WooCommerce order.', 'vms-elements-fastspring-woo-payment' ),
-				array( 'status' => 403 )
-			);
+		if ( function_exists( 'vms_efwp' ) && vms_efwp()->api ) {
+			$fs_order = vms_efwp()->api->ensure_order_invoice( $fs_order );
 		}
 
-		if ( empty( $fs_order['completed'] ) ) {
-			return new WP_Error(
-				'not_completed',
-				__( 'FastSpring has not marked this order as completed yet. Please wait a moment and refresh.', 'vms-elements-fastspring-woo-payment' ),
-				array( 'status' => 409 )
-			);
+		$valid = self::validate_fastspring_order_for_wc_order( $fs_order, $order_id );
+		if ( is_wp_error( $valid ) ) {
+			return $valid;
 		}
 
 		self::apply_fastspring_payment( $order, $fs_order );
@@ -269,6 +272,64 @@ class VMS_EFWP_Checkout_Overlay {
 	}
 
 	/**
+	 * Poll FastSpring until the order is marked completed (popup closes before API catches up).
+	 *
+	 * @param string $fs_order_id FastSpring order id.
+	 * @param bool   $quick       When true, only a few fast API checks (used by REST confirm).
+	 * @return array|WP_Error Completed order payload.
+	 */
+	public static function wait_for_completed_fastspring_order( $fs_order_id, $quick = false ) {
+		if ( ! function_exists( 'vms_efwp' ) || ! vms_efwp()->api ) {
+			return new WP_Error(
+				'plugin_unavailable',
+				__( 'FastSpring API client is not available.', 'vms-elements-fastspring-woo-payment' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		if ( $quick ) {
+			return vms_efwp()->api->wait_for_completed_order(
+				$fs_order_id,
+				array(
+					'max_attempts' => (int) apply_filters( 'vms_efwp_complete_payment_quick_attempts', 3 ),
+					'wait_ms'      => (int) apply_filters( 'vms_efwp_complete_payment_quick_ms', 150 ),
+				)
+			);
+		}
+
+		return vms_efwp()->api->wait_for_completed_order( $fs_order_id );
+	}
+
+	/**
+	 * Validate a FastSpring order belongs to a WooCommerce order before completing payment.
+	 *
+	 * @param array $fs_order  FastSpring order.
+	 * @param int   $order_id  WooCommerce order id.
+	 * @return true|WP_Error
+	 */
+	public static function validate_fastspring_order_for_wc_order( $fs_order, $order_id ) {
+		$tag_site = VMS_EFWP_Data_Store::resolve_site_url_from_payload( $fs_order );
+		if ( $tag_site && ! VMS_EFWP_Data_Store::site_urls_equivalent( $tag_site, VMS_EFWP_Data_Store::get_site_url() ) ) {
+			return new WP_Error(
+				'site_mismatch',
+				__( 'This FastSpring order belongs to a different website.', 'vms-elements-fastspring-woo-payment' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$tag_wc_id = isset( $fs_order['tags']['wc_order_id'] ) ? (int) $fs_order['tags']['wc_order_id'] : 0;
+		if ( $tag_wc_id && $tag_wc_id !== (int) $order_id ) {
+			return new WP_Error(
+				'order_mismatch',
+				__( 'This FastSpring order is linked to a different WooCommerce order.', 'vms-elements-fastspring-woo-payment' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Mark a WooCommerce order paid from a FastSpring order payload.
 	 *
 	 * @param WC_Order $order    WooCommerce order.
@@ -276,6 +337,13 @@ class VMS_EFWP_Checkout_Overlay {
 	 * @return bool
 	 */
 	public static function apply_fastspring_payment( WC_Order $order, array $fs_order ) {
+		if ( function_exists( 'vms_efwp' ) && vms_efwp()->api && ! empty( $fs_order['completed'] ) ) {
+			$fs_order = vms_efwp()->api->ensure_order_invoice( $fs_order );
+		}
+
+		$fs_order = VMS_EFWP_Data_Store::prepare_payload_for_site( $fs_order, $order->get_id() );
+		self::persist_fastspring_order_for_wc( $order, isset( $fs_order['id'] ) ? (string) $fs_order['id'] : '', $fs_order );
+
 		if ( $order->is_paid() ) {
 			return true;
 		}
@@ -284,16 +352,60 @@ class VMS_EFWP_Checkout_Overlay {
 			return false;
 		}
 
-		$is_live = isset( $fs_order['live'] ) ? (bool) $fs_order['live'] : (
-			function_exists( 'vms_efwp' ) && vms_efwp()->settings && ! vms_efwp()->settings->is_sandbox()
-		);
-
-		VMS_EFWP_Data_Store::upsert_order( $fs_order, ! $is_live );
+		$account_id = VMS_EFWP_Data_Store::extract_account_id_from_payload( $fs_order );
+		if ( $account_id ) {
+			$order->update_meta_data( '_vms_efwp_fs_account_id', $account_id );
+		}
 
 		$fs_id = isset( $fs_order['id'] ) ? (string) $fs_order['id'] : '';
 		$order->payment_complete( $fs_id );
 		$order->add_order_note( __( 'Payment captured by FastSpring.', 'vms-elements-fastspring-woo-payment' ) );
 
 		return true;
+	}
+
+	/**
+	 * Save a FastSpring order payload to the plugin store for this site.
+	 *
+	 * @param WC_Order   $order       WooCommerce order.
+	 * @param string     $fs_order_id FastSpring order ID.
+	 * @param array|null $fs_order    Optional already-fetched FastSpring order payload.
+	 * @return bool
+	 */
+	public static function persist_fastspring_order_for_wc( WC_Order $order, $fs_order_id = '', $fs_order = null ) {
+		$fs_order_id = sanitize_text_field( (string) $fs_order_id );
+		if ( '' === $fs_order_id ) {
+			$fs_order_id = (string) $order->get_transaction_id();
+		}
+		if ( '' === $fs_order_id ) {
+			return false;
+		}
+
+		if ( ! is_array( $fs_order ) && function_exists( 'vms_efwp' ) && vms_efwp()->api ) {
+			$raw = vms_efwp()->api->get_order( $fs_order_id );
+			if ( is_wp_error( $raw ) ) {
+				return false;
+			}
+			$fs_order = vms_efwp()->api->parse_order( $raw );
+			if ( is_wp_error( $fs_order ) ) {
+				return false;
+			}
+		}
+
+		if ( ! is_array( $fs_order ) ) {
+			return false;
+		}
+
+		$fs_order = VMS_EFWP_Data_Store::prepare_payload_for_site( $fs_order, $order->get_id() );
+		if ( ! VMS_EFWP_Data_Store::should_persist_for_site( $fs_order ) ) {
+			return false;
+		}
+
+		$is_live = isset( $fs_order['live'] ) ? (bool) $fs_order['live'] : (
+			function_exists( 'vms_efwp' ) && vms_efwp()->settings && ! vms_efwp()->settings->is_sandbox()
+		);
+		$is_test = ! $is_live || ! empty( $fs_order['test'] ) || ! empty( $fs_order['isTest'] );
+
+		return false !== VMS_EFWP_Data_Store::upsert_order( $fs_order, $is_test );
 	}
 }

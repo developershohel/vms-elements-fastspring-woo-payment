@@ -1,6 +1,6 @@
 <?php
 /**
- * Main plugin loader.
+ * Main plugin loader (free core only — Pro code ships in the separate Pro add-on).
  *
  * @package VMS_EFWP
  */
@@ -34,13 +34,6 @@ final class VMS_EFWP {
 	public $settings = null;
 
 	/**
-	 * Product sync handler.
-	 *
-	 * @var VMS_EFWP_Product_Sync|null
-	 */
-	public $product_sync = null;
-
-	/**
 	 * Returns the singleton.
 	 *
 	 * @return VMS_EFWP
@@ -61,7 +54,7 @@ final class VMS_EFWP {
 	}
 
 	/**
-	 * Load required files.
+	 * Load required files (free core only).
 	 */
 	private function includes() {
 		$base = VMS_EFWP_PATH . 'includes/';
@@ -71,30 +64,21 @@ final class VMS_EFWP {
 		require_once $base . 'class-vms-efwp-settings.php';
 		require_once $base . 'class-vms-efwp-api.php';
 		require_once $base . 'class-vms-efwp-logger.php';
+		require_once $base . 'class-vms-efwp-assets.php';
 		require_once $base . 'class-vms-efwp-webhook-permissions.php';
 		require_once $base . 'class-vms-efwp-webhook.php';
-		require_once $base . 'class-vms-efwp-product-sync.php';
 		require_once $base . 'class-vms-efwp-data-store.php';
-		require_once $base . 'class-vms-efwp-stats.php';
+
+		if ( ! class_exists( 'VMS_EFWP_Stats', false ) ) {
+			require_once $base . 'class-vms-efwp-stats.php';
+		}
 
 		if ( is_admin() ) {
 			require_once $base . 'admin/class-vms-efwp-admin-resource-base.php';
 			require_once $base . 'admin/class-vms-efwp-admin.php';
 			require_once $base . 'admin/class-vms-efwp-admin-dashboard.php';
 			require_once $base . 'admin/class-vms-efwp-admin-orders.php';
-			require_once $base . 'admin/class-vms-efwp-admin-subscriptions.php';
-			require_once $base . 'admin/class-vms-efwp-admin-accounts.php';
-			require_once $base . 'admin/class-vms-efwp-admin-products.php';
-			require_once $base . 'admin/class-vms-efwp-admin-coupons.php';
-			require_once $base . 'admin/class-vms-efwp-admin-invoices.php';
-			require_once $base . 'admin/class-vms-efwp-admin-quotes.php';
-			require_once $base . 'admin/class-vms-efwp-admin-returns.php';
-			require_once $base . 'admin/class-vms-efwp-admin-sessions.php';
-			require_once $base . 'admin/class-vms-efwp-admin-events.php';
-			require_once $base . 'admin/class-vms-efwp-admin-reports.php';
-			require_once $base . 'admin/class-vms-efwp-admin-webhooks.php';
 			require_once $base . 'admin/class-vms-efwp-admin-settings.php';
-			require_once $base . 'admin/class-vms-efwp-admin-tools.php';
 		}
 	}
 
@@ -117,12 +101,13 @@ final class VMS_EFWP {
 		$this->settings = new VMS_EFWP_Settings();
 		$this->api      = new VMS_EFWP_API( $this->settings );
 
+		VMS_EFWP_Install::maybe_upgrade();
+		VMS_EFWP_Install::maybe_backfill_order_invoices();
+		VMS_EFWP_Install::maybe_backfill_user_scope();
+
 		new VMS_EFWP_Webhook( $this->api, $this->settings );
-		$this->product_sync = new VMS_EFWP_Product_Sync( $this->api, $this->settings );
 
 		if ( $this->is_woocommerce_active() ) {
-			require_once VMS_EFWP_PATH . 'includes/class-vms-efwp-checkout-overlay.php';
-			VMS_EFWP_Checkout_Overlay::init();
 			require_once VMS_EFWP_PATH . 'includes/class-vms-efwp-wc-gateway-loader.php';
 			new VMS_EFWP_WC_Gateway_Loader();
 		}
@@ -130,6 +115,11 @@ final class VMS_EFWP {
 		if ( is_admin() ) {
 			new VMS_EFWP_Admin();
 		}
+
+		/**
+		 * Fires after the free plugin core has loaded. The Pro add-on hooks here.
+		 */
+		do_action( 'vms_efwp_loaded' );
 	}
 
 	/**
@@ -137,6 +127,11 @@ final class VMS_EFWP {
 	 */
 	public function on_init() {
 		VMS_EFWP_Data_Store::register_post_types();
+
+		/**
+		 * Fires on init after free core registration. Pro modules hook here.
+		 */
+		do_action( 'vms_efwp_init' );
 	}
 
 	/**
@@ -191,6 +186,9 @@ final class VMS_EFWP {
 			'<a href="' . esc_url( admin_url( 'admin.php?page=vms-efwp' ) ) . '">' . esc_html__( 'Dashboard', 'vms-elements-fastspring-woo-payment' ) . '</a>',
 			'<a href="' . esc_url( admin_url( 'admin.php?page=vms-efwp-settings' ) ) . '">' . esc_html__( 'Settings', 'vms-elements-fastspring-woo-payment' ) . '</a>',
 		);
+		if ( ! vms_efwp_is_pro() ) {
+			$plugin_links[] = '<a href="' . esc_url( VMS_EFWP_Features::pro_url() ) . '" target="_blank" rel="noopener noreferrer" style="color:#2271b1;font-weight:600;">' . esc_html__( 'Get Pro', 'vms-elements-fastspring-woo-payment' ) . '</a>';
+		}
 		return array_merge( $plugin_links, $links );
 	}
 }

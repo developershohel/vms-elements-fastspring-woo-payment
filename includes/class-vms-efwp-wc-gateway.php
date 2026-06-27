@@ -269,7 +269,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 			'language' => $language,
 			'items'    => $sbl_items,
 			'contact'  => $sbl_contact,
-			'tags'     => array( 'wc_order_id' => (string) $order->get_id() ),
+			'tags'     => VMS_EFWP_Data_Store::build_session_tags( $order ),
 		);
 	}
 
@@ -441,14 +441,29 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 			}
 		}
 
+		if ( 'per_product_override' === $strategy ) {
+			$product_sync = vms_efwp()->product_sync;
+			if ( $product_sync ) {
+				$ensured = $product_sync->ensure_order_products_in_fastspring( $order );
+				if ( is_wp_error( $ensured ) ) {
+					VMS_EFWP_Logger::error(
+						'Checkout product auto-provision failed: ' . $ensured->get_error_message(),
+						'gateway',
+						array( 'order_id' => $order_id )
+					);
+					$this->fail_payment( $ensured->get_error_message() );
+				}
+			}
+		}
+
 		$items = $this->build_session_items( $order, $strategy, $currency );
 		if ( empty( $items ) ) {
-			$this->fail_payment( __( 'No cart items could be matched to FastSpring products. Make sure every product in the cart has a FastSpring path or enable product sync.', 'vms-elements-fastspring-woo-payment' ) );
+			$this->fail_payment( __( 'No cart items could be matched to FastSpring products.', 'vms-elements-fastspring-woo-payment' ) );
 		}
 
 		// 3) Build payload (Sessions v1 schema).
 		$payload = array(
-			'tags'    => array( 'wc_order_id' => (string) $order_id ),
+			'tags'    => VMS_EFWP_Data_Store::build_session_tags( $order_id ),
 			'items'   => $items,
 			'contact' => $this->build_contact( $order ),
 		);
@@ -589,7 +604,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 			if ( 'per_product_override' === $strategy ) {
 				return sprintf(
 					/* translators: %s product paths */
-					__( 'FastSpring rejected the checkout session (409 conflict). Each product (%s) must exist in FastSpring with the matching path and have "Allow Price Override" enabled. Enable product sync, or switch to "FastSpring catalog price" in FastSpring → Settings.', 'vms-elements-fastspring-woo-payment' ),
+					__( 'FastSpring rejected the checkout session (409 conflict). Each product (%s) must allow price overrides in FastSpring. The plugin auto-creates missing products at checkout — open the product in FastSpring App → Products and enable "Allow Price Override" if this error persists.', 'vms-elements-fastspring-woo-payment' ),
 					implode( ', ', $paths )
 				);
 			}
@@ -633,6 +648,13 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 	 * @return bool|WP_Error
 	 */
 	public function process_refund( $order_id, $amount = null, $reason = '' ) {
+		if ( ! vms_efwp_is_pro() ) {
+			return new WP_Error(
+				'pro_required',
+				__( 'WooCommerce refunds via FastSpring require the Pro add-on.', 'vms-elements-fastspring-woo-payment' )
+			);
+		}
+
 		$order = wc_get_order( $order_id );
 		if ( ! $order ) {
 			return new WP_Error( 'invalid_order', __( 'Invalid order.', 'vms-elements-fastspring-woo-payment' ) );

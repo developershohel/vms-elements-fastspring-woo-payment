@@ -3,6 +3,24 @@
 
 	config = config || {};
 
+	var i18nStrings = config.i18n || {};
+
+	function t( key, fallback ) {
+		return i18nStrings[ key ] || fallback;
+	}
+
+	function formatMessage( template, values ) {
+		var output = template;
+		var index;
+		if ( ! values || ! values.length ) {
+			return output;
+		}
+		for ( index = 0; index < values.length; index++ ) {
+			output = output.replace( new RegExp( '%' + ( index + 1 ) + '\\$s', 'g' ), values[ index ] );
+		}
+		return output;
+	}
+
 	var STORAGE_KEY = 'vms_efwp_pending';
 	var STASH_TTL_MS = 900000;
 
@@ -45,7 +63,7 @@
 				callback();
 			} else if ( tries >= limit ) {
 				clearInterval( timer );
-				callback( new Error( 'FastSpring Store Builder did not load.' ) );
+				callback( new Error( t( 'loadFailed', 'FastSpring Store Builder did not load.' ) ) );
 			}
 		}, 100 );
 	}
@@ -80,7 +98,7 @@
 				var original = locationProto[ method ];
 				locationProto[ method ] = function ( url ) {
 					if ( shouldBlockNavigation( url ) ) {
-						log( 'Blocked ' + method + ' to order-received while popup is pending.' );
+						log( formatMessage( t( 'blockedNavMethod', 'Blocked %1$s to order-received while popup is pending.' ), [ method ] ) );
 						return;
 					}
 					return original.call( this, url );
@@ -95,7 +113,7 @@
 					get: hrefDesc.get,
 					set: function ( url ) {
 						if ( shouldBlockNavigation( url ) ) {
-							log( 'Blocked href navigation to order-received while popup is pending.' );
+							log( t( 'blockedOrderReceivedNav', 'Blocked href navigation to order-received while popup is pending.' ) );
 							return;
 						}
 						hrefDesc.set.call( this, url );
@@ -108,7 +126,7 @@
 			var origPushState = window.history.pushState.bind( window.history );
 			window.history.pushState = function ( data, title, url ) {
 				if ( shouldBlockNavigation( url ) ) {
-					log( 'Blocked pushState to order-received while popup is pending.' );
+					log( t( 'blockedPushState', 'Blocked pushState to order-received while popup is pending.' ) );
 					return;
 				}
 				return origPushState( data, title, url );
@@ -159,13 +177,44 @@
 		return !!( script && script.getAttribute( 'data-access-key' ) );
 	}
 
+	function activateOverlayShell() {
+		if (
+			window.VMS_EFWP_OverlayApi &&
+			typeof window.VMS_EFWP_OverlayApi.activate === 'function'
+		) {
+			window.VMS_EFWP_OverlayApi.activate();
+		} else {
+			document.documentElement.classList.add( 'vms-efwp-checkout-active' );
+		}
+	}
+
+	function deactivateOverlayShell() {
+		if (
+			window.VMS_EFWP_OverlayApi &&
+			typeof window.VMS_EFWP_OverlayApi.deactivate === 'function'
+		) {
+			window.VMS_EFWP_OverlayApi.deactivate();
+		} else {
+			document.documentElement.classList.remove( 'vms-efwp-checkout-active' );
+		}
+	}
+
+	function mountOverlayShell() {
+		if (
+			window.VMS_EFWP_OverlayApi &&
+			typeof window.VMS_EFWP_OverlayApi.mount === 'function'
+		) {
+			window.VMS_EFWP_OverlayApi.mount();
+		}
+	}
+
 	function showError( message ) {
 		state.opened = false;
 		state.pendingFastSpring = false;
 		state.current = null;
 		clearStash();
-		document.documentElement.classList.remove( 'vefwp-checkout-active' );
-		window.alert( message || ( config.i18n && config.i18n.error ) || 'FastSpring checkout could not open.' );
+		deactivateOverlayShell();
+		window.alert( message || t( 'error', 'FastSpring checkout could not open.' ) );
 	}
 
 	function openOverlay( payload ) {
@@ -187,7 +236,7 @@
 		}
 
 		if ( ! config.popupStorefront ) {
-			showError( ( config.i18n && config.i18n.missingPopup ) || 'FastSpring popup checkout path is not configured.' );
+			showError( t( 'missingPopup', 'FastSpring popup checkout path is not configured.' ) );
 			return false;
 		}
 
@@ -203,8 +252,8 @@
 			state.handledOrders[ orderId ] = true;
 		}
 
-		document.documentElement.classList.add( 'vefwp-checkout-active' );
-		log( 'Opening popup for order ' + ( orderId || 'unknown' ) );
+		activateOverlayShell();
+		log( formatMessage( t( 'openingPopupOrder', 'Opening popup for order %1$s' ), [ orderId || t( 'unknownOrder', 'unknown' ) ] ) );
 
 		whenBuilderReady( function ( err ) {
 			if ( err ) {
@@ -224,7 +273,7 @@
 						if ( ! hasSblAccessKey() ) {
 							showError(
 								( config.i18n && config.i18n.missingAccessKey ) ||
-									'FastSpring Store Builder access key is required for custom WooCommerce pricing. Add it in FastSpring → Settings (sandbox or live), from FastSpring App → Developer Tools → Store Builder Library.'
+									t( 'missingAccessKey', 'FastSpring Store Builder access key is required for custom WooCommerce pricing. Add it in FastSpring → Settings (Developer Tools → Store Builder Library in the FastSpring app).' )
 							);
 							return;
 						}
@@ -248,8 +297,11 @@
 				}
 
 				window.fastspring.builder.checkout();
+				mountOverlayShell();
+				setTimeout( mountOverlayShell, 100 );
+				setTimeout( mountOverlayShell, 500 );
 			} catch ( e ) {
-				showError( e && e.message ? e.message : 'FastSpring checkout failed to open.' );
+				showError( e && e.message ? e.message : t( 'openFailed', 'FastSpring checkout failed to open.' ) );
 			}
 		} );
 
@@ -269,7 +321,17 @@
 
 		state.done = true;
 		state.pendingFastSpring = false;
-		document.documentElement.classList.remove( 'vefwp-checkout-active' );
+		clearStash();
+
+		if ( orderReference && orderReference.id ) {
+			// Redirect immediately — overlay stays up until the thank-you page loads.
+			confirmPaymentAndRedirect( orderId, orderKey, orderReference.id, successUrl );
+			return;
+		}
+
+		state.opened = false;
+		state.current = null;
+		deactivateOverlayShell();
 
 		if (
 			window.fastspring &&
@@ -283,26 +345,23 @@
 			}
 		}
 
-		state.opened = false;
-		state.current = null;
-		clearStash();
-
-		if ( orderReference && orderReference.id ) {
-			confirmPaymentAndRedirect( orderId, orderKey, orderReference.id, successUrl );
-			return;
-		}
-
 		if ( cancelUrl ) {
 			window.location.replace( cancelUrl );
 		}
 	}
 
-	function confirmPaymentAndRedirect( orderId, orderKey, fsOrderId, successUrl ) {
-		if ( ! orderId || ! fsOrderId || ! config.completeRestUrl ) {
-			window.location.replace( successUrl );
-			return;
+	function appendQueryParam( url, key, value ) {
+		try {
+			var target = new URL( url, window.location.origin );
+			target.searchParams.set( key, value );
+			return target.toString();
+		} catch ( e ) {
+			var join = url.indexOf( '?' ) === -1 ? '?' : '&';
+			return url + join + encodeURIComponent( key ) + '=' + encodeURIComponent( value );
 		}
+	}
 
+	function postCompletePayment( orderId, orderKey, fsOrderId ) {
 		var url = config.completeRestUrl + orderId;
 		var headers = {
 			'Content-Type': 'application/json',
@@ -312,46 +371,103 @@
 			headers['X-WP-Nonce'] = config.restNonce;
 		}
 
-		var attempts = 0;
-		var maxAttempts = 4;
+		return window.fetch( url, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: headers,
+			body: JSON.stringify( {
+				fs_order_id: fsOrderId,
+				key: orderKey,
+			} ),
+		} ).then( function ( response ) {
+			return response.json().then( function ( body ) {
+				return {
+					ok: response.ok,
+					status: response.status,
+					body: body,
+				};
+			} );
+		} );
+	}
 
-		function attemptComplete() {
+	function confirmPaymentAndRedirect( orderId, orderKey, fsOrderId, successUrl ) {
+		if ( ! orderId || ! fsOrderId || ! successUrl ) {
+			window.location.replace( successUrl || config.checkoutUrl || '/' );
+			return;
+		}
+
+		var pendingUrl = appendQueryParam( successUrl, 'vms_efwp_fs_order', fsOrderId );
+		window.location.replace( pendingUrl );
+	}
+
+	function showCompletingNotice() {
+		if ( document.getElementById( 'vms-efwp-completing-order' ) ) {
+			return;
+		}
+
+		var notice = document.createElement( 'div' );
+		notice.id = 'vms-efwp-completing-order';
+		notice.className = 'vms-efwp-completing-order';
+		notice.setAttribute( 'role', 'status' );
+		notice.setAttribute( 'aria-live', 'polite' );
+		notice.innerHTML =
+			'<span class="vms-efwp-spinner" aria-hidden="true"></span>' +
+			'<span>' + t( 'completingOrder', 'Finalizing your payment…' ) + '</span>';
+		document.body.appendChild( notice );
+	}
+
+	function initOrderReceivedConfirm() {
+		if ( ! isOrderReceivedUrl( window.location.href ) ) {
+			return;
+		}
+
+		var params = new URLSearchParams( window.location.search );
+		var fsOrderId = params.get( 'vms_efwp_fs_order' );
+		if ( ! fsOrderId || ! config.completeRestUrl ) {
+			return;
+		}
+
+		var match = window.location.pathname.match( /order-received\/(\d+)/ );
+		var orderId = match ? parseInt( match[1], 10 ) : 0;
+		var orderKey = params.get( 'key' ) || '';
+
+		if ( ! orderId ) {
+			return;
+		}
+
+		showCompletingNotice();
+
+		var attempts = 0;
+		var maxAttempts = 30;
+		var pollDelayMs = 300;
+
+		function pollComplete() {
 			attempts += 1;
 
-			return window.fetch( url, {
-				method: 'POST',
-				credentials: 'same-origin',
-				headers: headers,
-				body: JSON.stringify( {
-					fs_order_id: fsOrderId,
-					key: orderKey,
-				} ),
-			} )
-				.then( function ( response ) {
-					return response.json().then( function ( body ) {
-						return {
-							ok: response.ok,
-							body: body,
-						};
-					} );
-				} )
+			postCompletePayment( orderId, orderKey, fsOrderId )
 				.then( function ( result ) {
 					var status = result.body && result.body.status ? result.body.status : '';
-					if ( status === 'completed' || status === 'already_paid' || attempts >= maxAttempts ) {
-						window.location.replace( successUrl );
+					if ( status === 'completed' || status === 'already_paid' ) {
+						var cleanUrl = window.location.pathname;
+						if ( orderKey ) {
+							cleanUrl += '?key=' + encodeURIComponent( orderKey );
+						}
+						window.location.replace( cleanUrl );
 						return;
 					}
 
-					return new Promise( function ( resolve ) {
-						window.setTimeout( resolve, 1200 );
-					} ).then( attemptComplete );
+					if ( attempts < maxAttempts ) {
+						window.setTimeout( pollComplete, pollDelayMs );
+					}
+				} )
+				.catch( function () {
+					if ( attempts < maxAttempts ) {
+						window.setTimeout( pollComplete, pollDelayMs );
+					}
 				} );
 		}
 
-		attemptComplete().catch( function ( err ) {
-			log( 'Payment confirm failed: ' + ( err && err.message ? err.message : err ) );
-			window.location.replace( successUrl );
-		} );
+		pollComplete();
 	}
 
 	function extractOverlay( data ) {
@@ -464,7 +580,10 @@
 				return false;
 			} )
 			.catch( function ( err ) {
-				log( 'Overlay REST fetch failed: ' + ( err && err.message ? err.message : err ) );
+				log(
+					t( 'overlayFetchFailed', 'Overlay REST fetch failed.' ) +
+					( err && err.message ? ' ' + err.message : '' )
+				);
 				return false;
 			} );
 	}
@@ -501,19 +620,19 @@
 		}
 
 		var params = new URLSearchParams( window.location.search );
-		var openId = params.get( 'vefwp_open' );
+		var openId = params.get( 'vms_efwp_open' );
 		if ( openId ) {
 			fetchOverlayForOrder( openId, params.get( 'token' ) || '' );
 		}
 	}
 
 	// FastSpring Store Builder popup-closed callback.
-	window.vmsEfwpPopupClosed = function ( orderReference ) {
+	window.VMS_EFWP_PopupClosed = function ( orderReference ) {
 		finishOverlay( orderReference );
 	};
 
-	window.vmsEfwpErrorCallback = function ( code, message ) {
-		log( 'SBL error: ' + code + ' — ' + message );
+	window.VMS_EFWP_ErrorCallback = function ( code, message ) {
+		log( formatMessage( t( 'sblError', 'SBL error: %1$s — %2$s' ), [ code, message ] ) );
 		if ( window.console && window.console.error ) {
 			console.error( '[VMS FastSpring]', code, message );
 		}
@@ -521,6 +640,7 @@
 
 	installNavigationGuard();
 	initPendingRecovery();
+	initOrderReceivedConfirm();
 
 	// Classic shortcode checkout (jQuery AJAX).
 	if ( $ && $.fn ) {
@@ -540,15 +660,15 @@
 	}
 
 	// Gutenberg block checkout uses wp.apiFetch (XMLHttpRequest under the hood).
-	if ( window.XMLHttpRequest && ! window._vmsEfwpXhrPatched ) {
-		window._vmsEfwpXhrPatched = true;
+	if ( window.XMLHttpRequest && ! window._VMS_EFWP_XhrPatched ) {
+		window._VMS_EFWP_XhrPatched = true;
 
 		var origOpen = XMLHttpRequest.prototype.open;
 		var origSend = XMLHttpRequest.prototype.send;
 
 		XMLHttpRequest.prototype.open = function ( method, url ) {
-			this._vefwpMethod = method;
-			this._vefwpUrl = url;
+			this._VMS_EFWP_XhrMethod = method;
+			this._VMS_EFWP_XhrUrl = url;
 			return origOpen.apply( this, arguments );
 		};
 
@@ -556,7 +676,7 @@
 			var xhr = this;
 
 			xhr.addEventListener( 'load', function () {
-				if ( ! isCheckoutRequest( xhr._vefwpUrl, xhr._vefwpMethod ) ) {
+				if ( ! isCheckoutRequest( xhr._VMS_EFWP_XhrUrl, xhr._VMS_EFWP_XhrMethod ) ) {
 					return;
 				}
 				handlePaymentResponse( tryParseJson( xhr.responseText ) );
@@ -567,8 +687,8 @@
 	}
 
 	// wp.apiFetch middleware — primary hook for WooCommerce Blocks checkout.
-	if ( window.wp && window.wp.apiFetch && ! window._vmsEfwpApiFetchPatched ) {
-		window._vmsEfwpApiFetchPatched = true;
+	if ( window.wp && window.wp.apiFetch && ! window._VMS_EFWP_ApiFetchPatched ) {
+		window._VMS_EFWP_ApiFetchPatched = true;
 
 		window.wp.apiFetch.use( function ( options, next ) {
 			var path = options && ( options.path || options.url ) ? ( options.path || options.url ) : '';
@@ -584,8 +704,8 @@
 	}
 
 	// Native fetch fallback.
-	if ( window.fetch && ! window._vmsEfwpFetchPatched ) {
-		window._vmsEfwpFetchPatched = true;
+	if ( window.fetch && ! window._VMS_EFWP_FetchPatched ) {
+		window._VMS_EFWP_FetchPatched = true;
 		var originalFetch = window.fetch.bind( window );
 
 		window.fetch = function ( input, init ) {
@@ -607,7 +727,7 @@
 		};
 	}
 
-	window.VmsEfwpCheckout = {
+	window.VMS_EFWP_CheckoutApi = {
 		open: openOverlay,
 		handlePaymentResponse: handlePaymentResponse,
 		openForOrder: fetchOverlayForOrder,
@@ -617,4 +737,4 @@
 		},
 	};
 
-}( window.jQuery, window.vmsEfwpCheckout || {} ) );
+}( window.jQuery, window.VMS_EFWP_Checkout || {} ) );

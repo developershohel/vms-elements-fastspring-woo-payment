@@ -9,13 +9,16 @@ Read this end-to-end before making any non-trivial change.
 
 ## 1. What this plugin is
 
-**VMS Elements Fastspring Woo Payment for WooCommerce** is a WordPress plugin that:
+**VMS Elements Fastspring Woo Payment for WooCommerce** is the **free WordPress.org plugin**. It provides the FastSpring core integration; advanced features ship in the separate **Pro add-on** (see §18).
 
-1. Adds a **WooCommerce payment gateway** that creates a [FastSpring](https://fastspring.com) checkout session and redirects the customer to the FastSpring storefront.
+The free plugin:
+
+1. Adds a **WooCommerce payment gateway** that creates a [FastSpring](https://fastspring.com) checkout session and **redirects** the customer to the FastSpring storefront.
 2. Listens for **FastSpring webhooks** (HMAC-SHA256 signed) and persists orders, subscriptions, refunds and events into custom DB tables.
-3. Renders an **advanced analytics dashboard** inside `wp-admin` (KPI cards, daily revenue chart, subscription donut, top products/countries, recent orders, MRR estimate).
-4. Provides full-featured admin resource screens for FastSpring Orders, Subscriptions, Accounts, Products, Coupons, Invoices, Quotes, Returns, Sessions, Events, Reports and Webhooks.
-5. Supports **Live + Sandbox isolation** with independent credentials, storefronts and webhook secrets per mode.
+3. Renders a **basic status dashboard** and **stored Orders** screen inside `wp-admin`.
+4. Provides **Settings** (credentials, webhook URL, gateway options) with Live + Sandbox isolation.
+
+The **Pro add-on** (`vms-elements-fastspring-woo-payment-pro`, sold on vmselements.com) adds analytics dashboard, overlay + Blocks checkout, catalog/subscription admin, shortcodes, product sync, refunds UI, and more — without bundling that code in the free ZIP.
 
 On first load, `VMS_EFWP_Migrate::maybe_run()` performs a **one-time migration** from the legacy `wp-fastspring` plugin (options, tables, meta, WC payment method id). Do not add new backward-compat shims unless explicitly requested.
 
@@ -56,65 +59,82 @@ On first load, `VMS_EFWP_Migrate::maybe_run()` performs a **one-time migration**
 
 ## 2. File map
 
+### Free plugin (`vms-elements-fastspring-woo-payment/`)
+
 ```
-vms-elements-fastspring-woo-payment.php   # Bootstrap, constants, vms_efwp(), activation hooks
+vms-elements-fastspring-woo-payment.php   # Bootstrap, constants, vms_efwp(), features helper
 uninstall.php                             # Drops custom tables + options unless opted out
 readme.txt                                # WordPress.org readme
 README.md                                 # GitHub readme
-AGENTS.md                                 # This file
-gitignore.example                         # Copy to .gitignore locally (.gitignore omitted from release ZIPs)
+distignore.example                        # Excludes docs/, dev files, and ../pro plugin from org ZIP
 LICENSE                                   # GPL-2.0-or-later
 
 includes/
-  class-vms-efwp.php                      # Singleton loader; wires includes + WP hooks
-  class-vms-efwp-install.php              # Creates 4 custom tables + default options
+  class-vms-efwp.php                      # Singleton loader (free core only)
+  class-vms-efwp-features.php             # Pro gate helpers (vms_efwp_is_pro, upgrade UI)
+  class-vms-efwp-install.php                # Creates 4 custom tables + default options
   class-vms-efwp-migrate.php              # One-time migration from legacy wp-fastspring plugin
   class-vms-efwp-settings.php             # Wrapper over vms_efwp_settings (mode-aware)
   class-vms-efwp-api.php                  # FastSpring REST client (api.fastspring.com)
   class-vms-efwp-logger.php               # DB-backed logger (vms_efwp_log)
+  class-vms-efwp-assets.php               # Shared checkout i18n + SBL tag helper (Pro registers assets)
   class-vms-efwp-webhook-permissions.php  # Syncs subscribed webhook events from GET /webhooks
   class-vms-efwp-webhook.php              # Webhook listener + HMAC verify + event dispatch
-  class-vms-efwp-product-sync.php         # One-way WC → FS product sync on save_post_product
-  class-vms-efwp-checkout-overlay.php     # REST + transients for popup checkout overlay
   class-vms-efwp-data-store.php           # Persistence helpers (orders, subs, events)
-  class-vms-efwp-stats.php                # Dashboard aggregations
-  class-vms-efwp-wc-gateway-loader.php    # Registers WC gateway + Blocks integration
+  class-vms-efwp-wc-gateway-loader.php    # Registers WC gateway (redirect checkout only)
   class-vms-efwp-wc-gateway.php           # WC_Payment_Gateway (id: vms_efwp)
-  class-vms-efwp-wc-blocks.php            # Cart/Checkout Block payment method type
   admin/
-    class-vms-efwp-admin.php              # Menu, assets, AJAX
+    class-vms-efwp-admin.php              # Free menu, assets, test-connection AJAX
     class-vms-efwp-admin-resource-base.php
-    class-vms-efwp-admin-dashboard.php
-    class-vms-efwp-admin-orders.php
-    class-vms-efwp-admin-subscriptions.php
-    class-vms-efwp-admin-accounts.php
-    class-vms-efwp-admin-products.php
-    class-vms-efwp-admin-coupons.php
-    class-vms-efwp-admin-invoices.php
-    class-vms-efwp-admin-quotes.php
-    class-vms-efwp-admin-returns.php
-    class-vms-efwp-admin-sessions.php
-    class-vms-efwp-admin-events.php
-    class-vms-efwp-admin-reports.php
-    class-vms-efwp-admin-webhooks.php
-    class-vms-efwp-admin-tools.php
+    class-vms-efwp-admin-dashboard.php    # Free status view; delegates to Pro dashboard when licensed
+    class-vms-efwp-admin-orders.php       # Stored orders list
     class-vms-efwp-admin-settings.php
 
 assets/
   css/admin.css                           # Admin UI (vefwp-* classes)
-  css/checkout-popup.css                  # Popup overlay checkout styles
-  js/admin.js                             # Dashboard AJAX + Chart.js (uses VMSEFWP)
-  js/checkout-popup.js                    # FastSpring popup overlay checkout
-  js/blocks/checkout-block.js             # WC Blocks payment method UI
+  js/admin.js                             # Admin JS (Chart.js + dashboard AJAX when Pro is active)
 
-docs/                                     # Local copies of official FastSpring OpenAPI docs (see §6.1)
-  Products.md, Orders.md, Subscriptions.md, Coupons.md, events.md, webhook.md, …
+docs/                                     # Dev docs + local FastSpring OpenAPI copies (excluded from org ZIP)
+  AGENTS.md                               # This file
+  Products.md, Orders.md, Subscriptions.md, …
 
 languages/
   vms-elements-fastspring-woo-payment.pot
 ```
 
-> The `class-vms-efwp-*` and `class-vms-efwp-admin-*` filename convention is **mandatory** — `VMS_EFWP::includes()` and `VMS_EFWP_Admin` rely on these exact paths.
+### Pro add-on (`../vms-elements-fastspring-woo-payment-pro/` — separate plugin, not in free ZIP)
+
+```
+vms-elements-fastspring-woo-payment-pro.php
+includes/
+  class-vms-efwp-pro.php                  # Pro bootstrap + dependency check
+  class-vms-efwp-pro-license.php          # EDD Software Licensing (vmselements.com)
+  class-vms-efwp-pro-modules.php          # Loads Pro classes when license valid
+  class-vms-efwp-pro-wc-gateway-loader.php # Overlay checkout + WC Blocks
+  class-vms-efwp-stats.php                # Dashboard aggregations
+  class-vms-efwp-product-sync.php         # One-way WC → FS product sync
+  class-vms-efwp-checkout-overlay.php     # REST + transients for popup checkout
+  class-vms-efwp-checkout-links.php       # Payment link pages / endpoints
+  class-vms-efwp-payment-success.php      # Payment success page
+  class-vms-efwp-shortcodes.php           # Checkout shortcodes
+  class-vms-efwp-wc-account-subscriptions.php
+  class-vms-efwp-wc-blocks.php            # Cart/Checkout Block payment method type
+  admin/
+    class-vms-efwp-pro-admin.php          # License screen
+    class-vms-efwp-pro-admin-features.php # Pro admin menus
+    class-vms-efwp-pro-admin-dashboard.php
+    class-vms-efwp-pro-admin-ajax.php
+    class-vms-efwp-admin-subscriptions.php
+    class-vms-efwp-admin-products.php
+    … (coupons, invoices, quotes, returns, sessions, accounts, events, reports, webhooks, tools, shortcodes)
+
+assets/
+  css/checkout-popup.css, payment-success.css, shortcode-checkout.css, account-subscriptions.css
+  js/checkout-popup.js, overlay-shell.js, shortcode-checkout.js
+  js/blocks/checkout-block.js
+```
+
+> The `class-vms-efwp-*` filename convention is **mandatory**. Free `VMS_EFWP::includes()` only requires free-core paths; Pro modules are loaded from `VMS_EFWP_Pro_Modules` in the sibling Pro plugin.
 
 ---
 
@@ -124,25 +144,28 @@ languages/
 
 ```
 vms-elements-fastspring-woo-payment.php
-  └── defines VMS_EFWP_VERSION / FILE / PATH / URL / BASENAME
-  └── requires includes/class-vms-efwp.php
+  └── requires class-vms-efwp-features.php + class-vms-efwp.php
   └── vms_efwp() → VMS_EFWP::instance()
-        └── includes() requires all classes
+        └── includes() requires free-core classes only
         └── init_hooks():
               - plugins_loaded(10)  → on_plugins_loaded()
               - init(5)             → on_init()
-              - plugins_loaded      → load_textdomain()
               - admin_notices       → maybe_render_woocommerce_notice()
               - plugin_action_links → add_action_links()
 
-on_plugins_loaded():
+on_plugins_loaded() [free]:
   - VMS_EFWP_Migrate::maybe_run()
   - new VMS_EFWP_Settings   (cached in vms_efwp()->settings)
   - new VMS_EFWP_API        (cached in vms_efwp()->api)
-  - new VMS_EFWP_Webhook          (internally uses VMS_EFWP_Webhook_Permissions)
-  - new VMS_EFWP_Product_Sync
-  - if WooCommerce active   → new VMS_EFWP_WC_Gateway_Loader
+  - new VMS_EFWP_Webhook    (internally uses VMS_EFWP_Webhook_Permissions)
+  - if WooCommerce active   → new VMS_EFWP_WC_Gateway_Loader (redirect only)
   - if is_admin()           → new VMS_EFWP_Admin
+  - do_action( 'vms_efwp_loaded' )
+
+vms_efwp_loaded [Pro add-on, priority 20]:
+  - VMS_EFWP_Pro_Modules::boot() when license valid
+  - loads stats, product sync, overlay, admin screens, Pro gateway loader
+  - do_action( 'vms_efwp_init' ) from free on_init; Pro hooks pages/modules there
 ```
 
 ### 3.2 Singleton access
@@ -245,7 +268,7 @@ The `docs/` folder contains **local copies** of FastSpring's official OpenAPI do
 | `docs/Coupons.md` | Coupons |
 | `docs/events.md` | Events API |
 | `docs/webhook.md` | Webhook setup + event types |
-| `docs/FastSpring Accounts docs.md` | Accounts |
+| `docs/FastSpring-Accounts.md` | Accounts |
 | `docs/invoice.md` | Invoices |
 | `docs/Quotes.md` | Quotes |
 | `docs/Returns.md` | Returns |
@@ -372,16 +395,33 @@ FastSpring lets merchants choose which event types each webhook URL receives. Th
 
 **Do not** bypass permissions in `process_event()` unless explicitly requested — merchants disable events in FastSpring for a reason.
 
+### 7.2 Localhost dev webhook inject
+
+FastSpring cannot POST to `127.0.0.1` / `localhost`. On local dev hosts only, use:
+
+`?vms-efwp-webhook-dev=1`
+
+| Input | Parameter |
+|-------|-----------|
+| POST body | Raw FastSpring JSON (`{"events":[...]}`) |
+| Inline JSON | `payload` (plain, URL-encoded, or base64) |
+| Remote file | `url` or `source` (http/https JSON URL) |
+
+- Detected via `VMS_EFWP_Webhook::is_localhost_environment()` (`localhost`, `127.0.0.1`, `127.x.x.x`, `::1`).
+- **Returns 403 on live domains** — never enabled in production.
+- Skips HMAC verification; runs handlers even if FastSpring permissions would skip them (`process_event( $event, true )`).
+- Documented with curl examples on **FastSpring → Tools** when localhost is detected.
+
 ---
 
 ## 8. WooCommerce gateway
 
 Class: `VMS_EFWP_WC_Gateway` — id **`vms_efwp`**, supports `products`, `refunds`.
 
-- Loaded only if WooCommerce is active (see `VMS_EFWP_WC_Gateway_Loader`).
+- Loaded only if WooCommerce is active (see `VMS_EFWP_WC_Gateway_Loader` in free; overlay + Blocks in `VMS_EFWP_Pro_WC_Gateway_Loader`).
 - Declares HPOS + Cart/Checkout Blocks compatibility on `before_woocommerce_init`.
-- Classic checkout: `woocommerce_payment_gateways`.
-- Blocks checkout: `VMS_EFWP_WC_Blocks` (handle `vms-efwp-blocks`, setting key `vms_efwp_data`).
+- **Free:** classic checkout redirect via `woocommerce_payment_gateways`.
+- **Pro:** overlay popup checkout + `VMS_EFWP_WC_Blocks` (handle `vms-efwp-blocks`, setting key `vms_efwp_data`).
 
 `process_payment()`:
 
@@ -417,7 +457,11 @@ Always set `_vms_efwp_product_path` explicitly if the FastSpring product path di
 
 Top-level menu label: **FastSpring** (`dashicons-chart-area`, position 56).
 
-Submenus: Dashboard, Orders, Subscriptions, Accounts, Products, Coupons, Invoices, Quotes, Returns, Sessions, Events, Reports, Webhooks, Tools, Settings.
+**Free submenus:** Dashboard (status), Orders (stored), Settings, Upgrade to Pro (hidden when licensed).
+
+**Pro submenus** (registered on `vms_efwp_register_admin_menu` from `VMS_EFWP_Pro_Admin_Features`): Subscriptions, Invoices, Quotes, Returns (Sales); Products, Subscription Products, Coupons, Shortcodes (Catalog); Accounts, Sessions (Customers); Events, Reports, Webhooks (Integrations); Tools (System).
+
+**Subscription product catalog** (Pro) lives under **Catalog → Subscription Products** (`vms-efwp-subscription-catalog` → `admin.php?page=vms-efwp-subscriptions&tab=catalog`). Customer subscription management stays on **Sales → Subscriptions**.
 
 Each submenu page is rendered by a `VMS_EFWP_Admin_*::render()` static method. Resource screens extend `VMS_EFWP_Admin_Resource_Base`.
 
@@ -427,11 +471,13 @@ Each submenu page is rendered by a `VMS_EFWP_Admin_*::render()` static method. R
 
 `enqueue_assets()` runs when `$hook` contains `vms-efwp` or `fastspring`:
 
-| Handle | File |
-|--------|------|
-| `vms-efwp-admin` | `assets/css/admin.css` |
-| `vms-efwp-chartjs` | Chart.js 4.4.4 (CDN, filterable via `vms_efwp_chartjs_url`) |
-| `vms-efwp-admin` (JS) | `assets/js/admin.js` |
+| Handle | File | When |
+|--------|------|------|
+| `vms-efwp-admin` | `assets/css/admin.css` | All plugin admin pages |
+| `vms-efwp-chartjs` | Chart.js 4.4.4 CDN (filterable via `vms_efwp_chartjs_url`) | Pro analytics dashboard only |
+| `vms-efwp-admin` (JS) | `assets/js/admin.js` | All plugin admin pages |
+
+Pro checkout frontend assets (`checkout-popup.css`, `overlay-shell.js`, etc.) register from the Pro plugin via `vms_efwp_pro_asset_url()`.
 
 Localized object: **`VMSEFWP`** (`ajax_url`, `nonce`, `currency`, `i18n`).
 
@@ -439,12 +485,12 @@ Localized object: **`VMSEFWP`** (`ajax_url`, `nonce`, `currency`, `i18n`).
 
 All AJAX requires `manage_options` + nonce `vms_efwp_admin`:
 
-| Action | Purpose |
-|--------|---------|
-| `vms_efwp_dashboard_data` | KPIs, charts, recent orders |
-| `vms_efwp_test_connection` | API ping |
-| `vms_efwp_sync_subscription` | Pull + upsert subscription |
-| `vms_efwp_cancel_subscription` | Cancel at period end |
+| Action | Purpose | Plugin |
+|--------|---------|--------|
+| `vms_efwp_test_connection` | API ping | Free |
+| `vms_efwp_dashboard_data` | KPIs, charts, recent orders | Pro |
+| `vms_efwp_sync_subscription` | Pull + upsert subscription | Pro |
+| `vms_efwp_cancel_subscription` | Cancel at period end | Pro |
 
 Settings save: `admin_post_vms_efwp_save_settings` (nonce `vms_efwp_settings_save`).
 
@@ -482,12 +528,30 @@ Channels: `api`, `webhook`, `gateway`, `sync`, `general`. Context must be JSON-e
 - **WordPress Coding Standards** (PHPCS). Tabs for PHP indentation.
 - Every class file: `defined( 'ABSPATH' ) || exit;`
 - Sanitise all input; nonces on state-changing handlers.
-- Text domain **`vms-elements-fastspring-woo-payment`** on every i18n string; update `.pot` when adding strings.
+- Text domain **`vms-elements-fastspring-woo-payment`** on **every** i18n string in both free and Pro PHP/JS; Pro does **not** ship its own `.pot` or `languages/` folder.
+- Regenerate the shared template in the free plugin after adding strings (see **§12.1**).
 - Use `wp_remote_*`, never raw `curl_*`.
 - `$wpdb->prepare()` for dynamic SQL values; table names may be interpolated.
 - DB writes via `VMS_EFWP_Data_Store::*` or install routine only.
 - No composer, no build step. PHP + assets ship as-is.
 - Avoid narrating comments; explain non-obvious constraints only.
+
+### 12.1 Translations (free + Pro, one catalog)
+
+| Item | Location |
+|------|----------|
+| **Text domain** | `vms-elements-fastspring-woo-payment` (free **and** Pro — never `…-pro`) |
+| **POT / MO / JSON** | `languages/` in the **free** plugin only |
+| **Pro add-on** | No `languages/` folder; `VMS_EFWP_Pro::load_shared_textdomain()` loads MO files from the free plugin path |
+
+Regenerate the merged POT after string changes:
+
+```bash
+wp i18n make-pot wp-content/plugins/vms-elements-fastspring-woo-payment-pro languages/.pro-merge-temp.pot --domain=vms-elements-fastspring-woo-payment
+wp i18n make-pot wp-content/plugins/vms-elements-fastspring-woo-payment languages/vms-elements-fastspring-woo-payment.pot --domain=vms-elements-fastspring-woo-payment --exclude=docs --merge=languages/.pro-merge-temp.pot
+```
+
+WordPress.org language packs for the free slug apply to Pro strings that share the same domain. Ship compiled `.mo` / `.json` with Pro downloads only if you mirror the free `languages/` files on vmselements.com — do not duplicate the POT in the Pro ZIP.
 
 ---
 
@@ -619,12 +683,53 @@ Summary of non-trivial API/admin fixes — read before reworking these areas:
 | 2025 | Orders search | Used non-existent `/orders/search` | `search_orders()` → `list_orders()` on `GET /orders` |
 | 2025 | Products POST | `visibility: Field was not recognized` on update | Removed from admin payload; `sanitize_product_upsert_payload()` strips GET-only fields before every upsert |
 | 2025 | Product format | Invalid `service` option in admin form | Replaced with `digital-and-physical` per `docs/Products.md` |
+| 2026 | Free vs Pro | Pro code was feature-gated inside free ZIP (crackable) | Pro implementation moved to separate `vms-elements-fastspring-woo-payment-pro` plugin; free ships gate helpers only |
 
 **When changing API integration:** update this table and the relevant §6 / §7 sections in the same commit.
 
 ---
 
-## 18. License & contribution
+## 18. Free vs Pro split
+
+| Plugin | Slug | Distribution |
+|--------|------|--------------|
+| **Free** | `vms-elements-fastspring-woo-payment` | WordPress.org |
+| **Pro add-on** | `vms-elements-fastspring-woo-payment-pro` | [vmselements.com](https://vmselements.com/product/vms-elements-fastspring-woo-payment-pro) — **separate folder, never bundled in the free ZIP** |
+
+Pro **requires** the free plugin. Pro defines `VMS_EFWP_PRO_VERSION`, `VMS_EFWP_PRO_PATH`, `VMS_EFWP_PRO_URL` and validates an EDD Software Licensing key via `VMS_EFWP_Pro_License` (store URL `https://vmselements.com`, item name `VMS Elements Fastspring Woo Payment Pro`).
+
+### Architecture (physical separation)
+
+Pro implementation files **do not ship in the free plugin**. The free build only contains gate helpers (`includes/class-vms-efwp-features.php`) and shared utilities (`VMS_EFWP_Assets::checkout_js_i18n()`, `enhance_sbl_script_tag()`). Pro checkout CSS/JS is registered via `vms_efwp_pro_asset_url()` when the Pro add-on is active.
+
+**Free includes:** gateway (redirect only), webhooks, stored orders, settings, `single_custom_price` strategy, test connection, basic dashboard, Orders admin, Upgrade submenu.
+
+**Pro add-on includes (loaded only with valid license):** analytics dashboard (`VMS_EFWP_Pro_Admin_Dashboard`, `VMS_EFWP_Stats`), overlay + Blocks checkout, shortcodes, checkout links, payment success page, My Account subscriptions, product sync, full admin menus (catalog, subscriptions, invoices, tools, etc.), WC refunds via FastSpring, Pro assets under `vms-elements-fastspring-woo-payment-pro/assets/`.
+
+**Bootstrap order:**
+
+1. Free: `vms-elements-fastspring-woo-payment.php` → `VMS_EFWP::on_plugins_loaded()` → `do_action( 'vms_efwp_loaded' )`.
+2. Pro: `plugins_loaded` priority 5 → `VMS_EFWP_Pro::init()` → license filter on `vms_efwp_is_pro`.
+3. Pro modules: `vms_efwp_loaded` priority 20 → `VMS_EFWP_Pro_Modules::boot()` (requires valid license).
+
+### Feature gates (free plugin)
+
+Class: `VMS_EFWP_Features` in `includes/class-vms-efwp-features.php`.
+
+```php
+vms_efwp_is_pro();           // true when Pro add-on has a valid license
+vms_efwp_feature( 'slug' );  // free features always true; Pro features need license
+VMS_EFWP_Features::require( 'slug' ); // wp_die / JSON 403 when missing
+vms_efwp_pro_asset_url( 'assets/css/checkout-popup.css' ); // Pro asset URL when Pro is loaded
+```
+
+Free admin registers Dashboard, Orders, Settings (+ Upgrade when not Pro). Pro registers Sales / Catalog / Integrations submenus on `vms_efwp_register_admin_menu` from `VMS_EFWP_Pro_Admin_Features` (includes **Catalog → Subscription Products**).
+
+Hooks: `vms_efwp_is_pro`, `vms_efwp_pro_url`, `vms_efwp_loaded`, `vms_efwp_init`, `vms_efwp_register_admin`, `vms_efwp_register_admin_menu`, `vms_efwp_pro_modules_loaded`, `vms_efwp_pro_license_valid` (dev override).
+
+---
+
+## 19. License & contribution
 
 - GPL-2.0-or-later only.
 - External calls: `api.fastspring.com` + optional Chart.js CDN (filterable).

@@ -1,4 +1,4 @@
-/* global jQuery, Chart, VMS_EFWP */
+/* global jQuery, Chart, VMS_EFPG */
 ( function ( $ ) {
 	'use strict';
 
@@ -6,16 +6,16 @@
 	var subscriptionChart = null;
 
 	function i18n( key, fallback ) {
-		return ( VMS_EFWP && VMS_EFWP.i18n && VMS_EFWP.i18n[ key ] ) ? VMS_EFWP.i18n[ key ] : fallback;
+		return ( VMS_EFPG && VMS_EFPG.i18n && VMS_EFPG.i18n[ key ] ) ? VMS_EFPG.i18n[ key ] : fallback;
 	}
 
 	function fmtMoney( n ) {
-		var sym = ( VMS_EFWP && VMS_EFWP.currency ) ? VMS_EFWP.currency : '$';
+		var sym = ( VMS_EFPG && VMS_EFPG.currency ) ? VMS_EFPG.currency : '$';
 		return sym + Number( n || 0 ).toFixed( 2 ).replace( /\B(?=(\d{3})+(?!\d))/g, ',' );
 	}
 
 	function ajax( action, data ) {
-		return $.post( VMS_EFWP.ajax_url, $.extend( { action: action, nonce: VMS_EFWP.nonce }, data || {} ) );
+		return $.post( VMS_EFPG.ajax_url, $.extend( { action: action, nonce: VMS_EFPG.nonce }, data || {} ) );
 	}
 
 	function buildRevenueChart( ctx, daily ) {
@@ -133,8 +133,8 @@
 
 	function orderLabel( count ) {
 		var tpl = ( count === 1 )
-			? ( ( VMS_EFWP.i18n && VMS_EFWP.i18n.order_singular ) ? VMS_EFWP.i18n.order_singular : '%d order' )
-			: ( ( VMS_EFWP.i18n && VMS_EFWP.i18n.order_plural ) ? VMS_EFWP.i18n.order_plural : '%d orders' );
+			? ( ( VMS_EFPG.i18n && VMS_EFPG.i18n.order_singular ) ? VMS_EFPG.i18n.order_singular : '%d order' )
+			: ( ( VMS_EFPG.i18n && VMS_EFPG.i18n.order_plural ) ? VMS_EFPG.i18n.order_plural : '%d orders' );
 		return tpl.replace( '%d', count );
 	}
 
@@ -172,7 +172,7 @@
 	}
 
 	function setChartError( message ) {
-		var $err = $( '#vms-efwp-chart-error' );
+		var $err = $( '#vms-efpg-chart-error' );
 		if ( ! $err.length ) {
 			return;
 		}
@@ -184,7 +184,7 @@
 	}
 
 	function setSpinner( visible ) {
-		var $spinner = $( '#vms-efwp-trend-spinner' );
+		var $spinner = $( '#vms-efpg-trend-spinner' );
 		if ( ! $spinner.length ) {
 			return;
 		}
@@ -192,9 +192,9 @@
 	}
 
 	function renderTopProducts( rows ) {
-		var $tbody = $( '#vms-efwp-top-products tbody' ).empty();
+		var $tbody = $( '#vms-efpg-top-products tbody' ).empty();
 		if ( ! rows || ! rows.length ) {
-			$tbody.append( '<tr><td colspan="3">' + VMS_EFWP.i18n.no_data + '</td></tr>' );
+			$tbody.append( '<tr><td colspan="3">' + VMS_EFPG.i18n.no_data + '</td></tr>' );
 			return;
 		}
 		$.each( rows, function ( _, p ) {
@@ -207,9 +207,9 @@
 	}
 
 	function renderTopCountries( rows ) {
-		var $tbody = $( '#vms-efwp-top-countries tbody' ).empty();
+		var $tbody = $( '#vms-efpg-top-countries tbody' ).empty();
 		if ( ! rows || ! rows.length ) {
-			$tbody.append( '<tr><td colspan="3">' + VMS_EFWP.i18n.no_data + '</td></tr>' );
+			$tbody.append( '<tr><td colspan="3">' + VMS_EFPG.i18n.no_data + '</td></tr>' );
 			return;
 		}
 		$.each( rows, function ( _, c ) {
@@ -222,9 +222,9 @@
 	}
 
 	function renderRecentOrders( rows ) {
-		var $tbody = $( '#vms-efwp-recent-orders tbody' ).empty();
+		var $tbody = $( '#vms-efpg-recent-orders tbody' ).empty();
 		if ( ! rows || ! rows.length ) {
-			$tbody.append( '<tr><td colspan="5">' + VMS_EFWP.i18n.no_data + '</td></tr>' );
+			$tbody.append( '<tr><td colspan="5">' + VMS_EFPG.i18n.no_data + '</td></tr>' );
 			return;
 		}
 		$.each( rows, function ( _, o ) {
@@ -233,7 +233,7 @@
 					.append( $( '<td/>' ).html( $( '<code/>' ).text( o.fs_order_id || '' ) ) )
 					.append( $( '<td/>' ).text( ( o.customer_name || '' ) + ( o.email ? ' (' + o.email + ')' : '' ) ) )
 					.append( $( '<td/>' ).text( ( o.currency || '' ) + ' ' + Number( o.total ).toFixed( 2 ) ) )
-					.append( $( '<td/>' ).html( $( '<span/>' ).addClass( 'vms-efwp-status vms-efwp-status--' + ( o.status || '' ) ).text( o.status || '' ) ) )
+					.append( $( '<td/>' ).html( $( '<span/>' ).addClass( 'vms-efpg-status vms-efpg-status--' + ( o.status || '' ) ).text( o.status || '' ) ) )
 					.append( $( '<td/>' ).text( o.created_at || '' ) )
 			);
 		} );
@@ -243,23 +243,23 @@
 		setSpinner( true );
 		setChartError( '' );
 
-		var range = $( '#vms-efwp-range' ).val() || 30;
-		var includeTest = $( '#vms-efwp-include-test' ).is( ':checked' ) ? 1 : 0;
+		var range = $( '#vms-efpg-range' ).val() || 30;
+		var includeTest = $( '#vms-efpg-include-test' ).is( ':checked' ) ? 1 : 0;
 
-		ajax( 'vms_efwp_dashboard_data', { range: range, include_test: includeTest } )
+		ajax( 'vms_efpg_dashboard_data', { range: range, include_test: includeTest } )
 			.done( function ( resp ) {
 				if ( ! resp || ! resp.success || ! resp.data ) {
-					setChartError( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFWP.i18n.error );
+					setChartError( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFPG.i18n.error );
 					return;
 				}
 				var d = resp.data;
-				var revCanvas = document.getElementById( 'vms-efwp-revenue-chart' );
-				var subCanvas = document.getElementById( 'vms-efwp-subscription-chart' );
+				var revCanvas = document.getElementById( 'vms-efpg-revenue-chart' );
+				var subCanvas = document.getElementById( 'vms-efpg-subscription-chart' );
 				if ( revCanvas ) {
 					if ( typeof Chart === 'undefined' ) {
-						setChartError( VMS_EFWP.i18n.chart_fail || VMS_EFWP.i18n.error );
+						setChartError( VMS_EFPG.i18n.chart_fail || VMS_EFPG.i18n.error );
 					} else if ( ! buildRevenueChart( revCanvas.getContext( '2d' ), d.daily ) ) {
-						setChartError( VMS_EFWP.i18n.chart_fail || VMS_EFWP.i18n.error );
+						setChartError( VMS_EFPG.i18n.chart_fail || VMS_EFPG.i18n.error );
 					}
 				}
 				if ( subCanvas && typeof Chart !== 'undefined' ) {
@@ -271,7 +271,7 @@
 				renderRecentOrders( d.recent_orders );
 			} )
 			.fail( function ( xhr ) {
-				var msg = VMS_EFWP.i18n.error;
+				var msg = VMS_EFPG.i18n.error;
 				if ( xhr && xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message ) {
 					msg = xhr.responseJSON.data.message;
 				}
@@ -284,9 +284,9 @@
 
 	$( function () {
 		// Dashboard.
-		if ( document.getElementById( 'vms-efwp-revenue-chart' ) ) {
+		if ( document.getElementById( 'vms-efpg-revenue-chart' ) ) {
 			loadDashboard();
-			$( '#vms-efwp-range, #vms-efwp-include-test' ).on( 'change', loadDashboard );
+			$( '#vms-efpg-range, #vms-efpg-include-test' ).on( 'change', loadDashboard );
 		}
 
 		// Settings: generate / copy webhook secret.
@@ -310,14 +310,14 @@
 			setTimeout( function () { $btn.text( orig ); }, 1500 );
 		}
 
-		$( document ).on( 'click', '.vms-efwp-generate-secret', function () {
+		$( document ).on( 'click', '.vms-efpg-generate-secret', function () {
 			var target = $( this ).data( 'target' );
 			var secret = generateSecret();
 			$( '#' + target ).val( secret );
 			flash( $( this ), i18n( 'generated', 'Generated' ) );
 		} );
 
-		$( document ).on( 'click', '.vms-efwp-copy-secret', function () {
+		$( document ).on( 'click', '.vms-efpg-copy-secret', function () {
 			var target = $( this ).data( 'target' );
 			var $input = $( '#' + target );
 			if ( ! $input.val() ) { return; }
@@ -331,64 +331,64 @@
 		} );
 
 		// Settings: test connection.
-		$( '#vms-efwp-test-connection' ).on( 'click', function () {
+		$( '#vms-efpg-test-connection' ).on( 'click', function () {
 			var $btn = $( this );
-			var $r = $( '#vms-efwp-test-result' ).removeClass( 'is-ok is-err' ).text( VMS_EFWP.i18n.loading );
+			var $r = $( '#vms-efpg-test-result' ).removeClass( 'is-ok is-err' ).text( VMS_EFPG.i18n.loading );
 			$btn.prop( 'disabled', true );
-			ajax( 'vms_efwp_test_connection' )
+			ajax( 'vms_efpg_test_connection' )
 				.done( function ( resp ) {
 					if ( resp.success ) {
 						$r.addClass( 'is-ok' ).text( resp.data.message );
 					} else {
-						$r.addClass( 'is-err' ).text( ( resp.data && resp.data.message ) || VMS_EFWP.i18n.error );
+						$r.addClass( 'is-err' ).text( ( resp.data && resp.data.message ) || VMS_EFPG.i18n.error );
 					}
 				} )
-				.fail( function () { $r.addClass( 'is-err' ).text( VMS_EFWP.i18n.error ); } )
+				.fail( function () { $r.addClass( 'is-err' ).text( VMS_EFPG.i18n.error ); } )
 				.always( function () { $btn.prop( 'disabled', false ); } );
 		} );
 
 		// Mode switch active styling.
 		$( document ).on( 'change', 'input[name="mode"]', function () {
-			$( '.vms-efwp-mode-option' ).removeClass( 'is-active' );
-			$( this ).closest( '.vms-efwp-mode-option' ).addClass( 'is-active' );
+			$( '.vms-efpg-mode-option' ).removeClass( 'is-active' );
+			$( this ).closest( '.vms-efpg-mode-option' ).addClass( 'is-active' );
 		} );
 
 		// Pricing strategy: toggle Custom Price product path field + active styling.
 		$( document ).on( 'change', 'input[name="pricing_strategy"]', function () {
-			$( '.vms-efwp-pricing-strategy .vms-efwp-mode-option' ).removeClass( 'is-active' );
-			$( this ).closest( '.vms-efwp-mode-option' ).addClass( 'is-active' );
-			$( '.vms-efwp-custom-price-row' ).toggle( 'single_custom_price' === $( this ).val() );
+			$( '.vms-efpg-pricing-strategy .vms-efpg-mode-option' ).removeClass( 'is-active' );
+			$( this ).closest( '.vms-efpg-mode-option' ).addClass( 'is-active' );
+			$( '.vms-efpg-custom-price-row' ).toggle( 'single_custom_price' === $( this ).val() );
 		} );
 
 		// JSON modal: open.
-		$( document ).on( 'click', '.vms-efwp-view-json', function () {
+		$( document ).on( 'click', '.vms-efpg-view-json', function () {
 			var json = $( this ).attr( 'data-json' );
 			try {
 				var parsed = JSON.parse( json );
 				json = JSON.stringify( parsed, null, 2 );
 			} catch ( e ) {}
-			$( '#vms-efwp-json-modal-body' ).text( json );
-			$( '#vms-efwp-json-modal' ).removeAttr( 'hidden' );
+			$( '#vms-efpg-json-modal-body' ).text( json );
+			$( '#vms-efpg-json-modal' ).removeAttr( 'hidden' );
 		} );
 
-		$( document ).on( 'click', '[data-vms-efwp-close]', function () {
-			$( '#vms-efwp-json-modal' ).attr( 'hidden', true );
+		$( document ).on( 'click', '[data-vms-efpg-close]', function () {
+			$( '#vms-efpg-json-modal' ).attr( 'hidden', true );
 		} );
 
-		$( document ).on( 'click', '[data-vms-efwp-close-checkout-link]', function () {
-			$( '#vms-efwp-checkout-link-modal' ).attr( 'hidden', true );
+		$( document ).on( 'click', '[data-vms-efpg-close-checkout-link]', function () {
+			$( '#vms-efpg-checkout-link-modal' ).attr( 'hidden', true );
 		} );
 
 		$( document ).on( 'keydown', function ( e ) {
 			if ( e.key === 'Escape' ) {
-				$( '#vms-efwp-json-modal' ).attr( 'hidden', true );
-				$( '#vms-efwp-checkout-link-modal' ).attr( 'hidden', true );
+				$( '#vms-efpg-json-modal' ).attr( 'hidden', true );
+				$( '#vms-efpg-checkout-link-modal' ).attr( 'hidden', true );
 			}
 		} );
 
 		// JSON copy.
-		$( document ).on( 'click', '#vms-efwp-json-copy', function () {
-			var text = $( '#vms-efwp-json-modal-body' ).text();
+		$( document ).on( 'click', '#vms-efpg-json-copy', function () {
+			var text = $( '#vms-efpg-json-modal-body' ).text();
 			if ( navigator.clipboard && navigator.clipboard.writeText ) {
 				navigator.clipboard.writeText( text );
 			} else {
@@ -415,7 +415,7 @@
 		}
 
 		function setCheckoutLinkStatus( message, isError ) {
-			var $status = $( '#vms-efwp-checkout-link-status' );
+			var $status = $( '#vms-efpg-checkout-link-status' );
 			if ( ! message ) {
 				$status.attr( 'hidden', true ).text( '' ).removeClass( 'notice-error notice-success' );
 				return;
@@ -430,31 +430,31 @@
 		function fillCheckoutLinkModal( data ) {
 			data = data || {};
 			var paymentUrl = data.paymentUrl || data.previewUrl || '';
-			$( '#vms-efwp-checkout-link-product' ).text( data.productPath || checkoutLinkProductPath || '' );
-			$( '#vms-efwp-checkout-payment-url' ).val( paymentUrl );
-			$( '#vms-efwp-checkout-overlay-url' ).val( data.overlayUrl || '' );
-			$( '#vms-efwp-checkout-preview-url' ).val( paymentUrl );
-			$( '#vms-efwp-checkout-embed-html' ).val( data.embedHtml || '' );
-			$( '#vms-efwp-checkout-open-preview' ).attr( 'href', paymentUrl || '#' );
+			$( '#vms-efpg-checkout-link-product' ).text( data.productPath || checkoutLinkProductPath || '' );
+			$( '#vms-efpg-checkout-payment-url' ).val( paymentUrl );
+			$( '#vms-efpg-checkout-overlay-url' ).val( data.overlayUrl || '' );
+			$( '#vms-efpg-checkout-preview-url' ).val( paymentUrl );
+			$( '#vms-efpg-checkout-embed-html' ).val( data.embedHtml || '' );
+			$( '#vms-efpg-checkout-open-preview' ).attr( 'href', paymentUrl || '#' );
 
 			if ( data.sessionUrl ) {
-				$( '#vms-efwp-checkout-session-url' ).val( data.sessionUrl );
-				$( '#vms-efwp-checkout-session-wrap' ).removeAttr( 'hidden' );
+				$( '#vms-efpg-checkout-session-url' ).val( data.sessionUrl );
+				$( '#vms-efpg-checkout-session-wrap' ).removeAttr( 'hidden' );
 			} else {
-				$( '#vms-efwp-checkout-session-url' ).val( '' );
-				$( '#vms-efwp-checkout-session-wrap' ).attr( 'hidden', true );
+				$( '#vms-efpg-checkout-session-url' ).val( '' );
+				$( '#vms-efpg-checkout-session-wrap' ).attr( 'hidden', true );
 			}
 		}
 
 		function loadCheckoutLinks( productPath, createSession ) {
 			setCheckoutLinkStatus( createSession ? i18n( 'checkout_session_loading', 'Generating session link…' ) : i18n( 'checkout_link_loading', 'Loading payment link…' ), false );
-			return ajax( 'vms_efwp_get_checkout_link', {
+			return ajax( 'vms_efpg_get_checkout_link', {
 				product_path: productPath,
 				create_session: createSession ? '1' : '0'
 			} );
 		}
 
-		$( document ).on( 'click', '.vms-efwp-get-checkout-link', function () {
+		$( document ).on( 'click', '.vms-efpg-get-checkout-link', function () {
 			var $btn = $( this );
 			var productPath = $btn.data( 'product-path' ) || $btn.data( 'productPath' );
 			if ( ! productPath ) {
@@ -463,7 +463,7 @@
 
 			checkoutLinkProductPath = productPath;
 			fillCheckoutLinkModal( { productPath: productPath } );
-			$( '#vms-efwp-checkout-link-modal' ).removeAttr( 'hidden' );
+			$( '#vms-efpg-checkout-link-modal' ).removeAttr( 'hidden' );
 			$btn.prop( 'disabled', true );
 
 			loadCheckoutLinks( productPath, false )
@@ -473,17 +473,17 @@
 						setCheckoutLinkStatus( '', false );
 						return;
 					}
-					setCheckoutLinkStatus( ( resp && resp.data && resp.data.message ) ? resp.data.message : ( VMS_EFWP.i18n.checkout_link_error || VMS_EFWP.i18n.error ), true );
+					setCheckoutLinkStatus( ( resp && resp.data && resp.data.message ) ? resp.data.message : ( VMS_EFPG.i18n.checkout_link_error || VMS_EFPG.i18n.error ), true );
 				} )
 				.fail( function () {
-					setCheckoutLinkStatus( VMS_EFWP.i18n.checkout_link_error || VMS_EFWP.i18n.error, true );
+					setCheckoutLinkStatus( VMS_EFPG.i18n.checkout_link_error || VMS_EFPG.i18n.error, true );
 				} )
 				.always( function () {
 					$btn.prop( 'disabled', false );
 				} );
 		} );
 
-		$( document ).on( 'click', '#vms-efwp-checkout-generate-session', function () {
+		$( document ).on( 'click', '#vms-efpg-checkout-generate-session', function () {
 			if ( ! checkoutLinkProductPath ) {
 				return;
 			}
@@ -495,17 +495,17 @@
 						setCheckoutLinkStatus( '', false );
 						return;
 					}
-					setCheckoutLinkStatus( ( resp && resp.data && resp.data.message ) ? resp.data.message : ( VMS_EFWP.i18n.checkout_link_error || VMS_EFWP.i18n.error ), true );
+					setCheckoutLinkStatus( ( resp && resp.data && resp.data.message ) ? resp.data.message : ( VMS_EFPG.i18n.checkout_link_error || VMS_EFPG.i18n.error ), true );
 				} )
 				.fail( function () {
-					setCheckoutLinkStatus( VMS_EFWP.i18n.checkout_link_error || VMS_EFWP.i18n.error, true );
+					setCheckoutLinkStatus( VMS_EFPG.i18n.checkout_link_error || VMS_EFPG.i18n.error, true );
 				} )
 				.always( function () {
 					$btn.prop( 'disabled', false );
 				} );
 		} );
 
-		$( document ).on( 'click', '.vms-efwp-copy-checkout-field', function () {
+		$( document ).on( 'click', '.vms-efpg-copy-checkout-field', function () {
 			var target = $( this ).data( 'target' );
 			var $field = target ? $( target ) : $();
 			if ( ! $field.length ) {
@@ -516,25 +516,25 @@
 		} );
 
 		$( document ).on( 'change', '[name="same_as_bill_to"]', function () {
-			$( '[data-vms-efwp-deliver-fields]' ).attr( 'hidden', $( this ).is( ':checked' ) );
+			$( '[data-vms-efpg-deliver-fields]' ).attr( 'hidden', $( this ).is( ':checked' ) );
 		} );
 		$( '[name="same_as_bill_to"]' ).trigger( 'change' );
 
 		function syncPartialReturnFields() {
-			var isPartial = 'PARTIAL' === $( '#vms-efwp-return-refund-type' ).val();
-			$( '[data-vms-efwp-partial-return-fields]' ).attr( 'hidden', ! isPartial );
+			var isPartial = 'PARTIAL' === $( '#vms-efpg-return-refund-type' ).val();
+			$( '[data-vms-efpg-partial-return-fields]' ).attr( 'hidden', ! isPartial );
 		}
-		$( document ).on( 'change', '#vms-efwp-return-refund-type', syncPartialReturnFields );
+		$( document ).on( 'change', '#vms-efpg-return-refund-type', syncPartialReturnFields );
 		syncPartialReturnFields();
 
 		// Toggle inline create forms.
-		$( document ).on( 'click', '[data-vms-efwp-open-form]', function () {
-			var key = $( this ).data( 'vms-efwp-open-form' );
-			var $form = $( '[data-vms-efwp-form="' + key + '"]' );
+		$( document ).on( 'click', '[data-vms-efpg-open-form]', function () {
+			var key = $( this ).data( 'vms-efpg-open-form' );
+			var $form = $( '[data-vms-efpg-form="' + key + '"]' );
 			$form.attr( 'hidden', false ).get( 0 ).scrollIntoView( { behavior: 'smooth', block: 'nearest' } );
 
 			// If opened from "New", reset to create mode.
-			if ( 'vms-efwp-new-product' === this.id ) {
+			if ( 'vms-efpg-new-product' === this.id ) {
 				resetProductForm();
 			}
 		} );
@@ -545,7 +545,7 @@
 		 * @param {string} text Raw input.
 		 * @return {string}
 		 */
-		function vms_efwp_slugify( text ) {
+		function vms_efpg_slugify( text ) {
 			if ( ! text ) {
 				return '';
 			}
@@ -566,105 +566,105 @@
 		 * @param {jQuery} $form Form element.
 		 */
 		function bindSlugForm( $form ) {
-			if ( ! $form.length || $form.data( 'vms-efwp-slugBound' ) ) {
+			if ( ! $form.length || $form.data( 'vms-efpg-slugBound' ) ) {
 				return;
 			}
 
-			var $source = $form.find( '[data-vms-efwp-slug-source]' );
-			var $target = $form.find( '[data-vms-efwp-slug-target]' ).first();
+			var $source = $form.find( '[data-vms-efpg-slug-source]' );
+			var $target = $form.find( '[data-vms-efpg-slug-target]' ).first();
 			if ( ! $source.length || ! $target.length ) {
 				return;
 			}
 
-			$form.data( 'vms-efwp-slugBound', true );
-			$form.data( 'vms-efwp-slugManual', false );
+			$form.data( 'vms-efpg-slugBound', true );
+			$form.data( 'vms-efpg-slugManual', false );
 
-			$source.on( 'input.vms-efwp-slug', function () {
-				if ( $target.prop( 'readonly' ) || $form.data( 'vms-efwp-slugManual' ) ) {
+			$source.on( 'input.vms-efpg-slug', function () {
+				if ( $target.prop( 'readonly' ) || $form.data( 'vms-efpg-slugManual' ) ) {
 					return;
 				}
-				$target.val( vms_efwp_slugify( $source.val() ) );
+				$target.val( vms_efpg_slugify( $source.val() ) );
 			} );
 
-			$target.on( 'input.vms-efwp-slug', function () {
+			$target.on( 'input.vms-efpg-slug', function () {
 				if ( ! $target.prop( 'readonly' ) ) {
-					$form.data( 'vms-efwp-slugManual', true );
+					$form.data( 'vms-efpg-slugManual', true );
 				}
 			} );
 
-			$target.on( 'blur.vms-efwp-slug', function () {
+			$target.on( 'blur.vms-efpg-slug', function () {
 				if ( $target.prop( 'readonly' ) ) {
 					return;
 				}
-				$target.val( vms_efwp_slugify( $target.val() ) );
+				$target.val( vms_efpg_slugify( $target.val() ) );
 			} );
 		}
 
 		function resetSlugForm( $form ) {
-			$form.data( 'vms-efwp-slugManual', false );
+			$form.data( 'vms-efpg-slugManual', false );
 		}
 
-		$( '[data-vms-efwp-slug-form]' ).each( function () {
+		$( '[data-vms-efpg-slug-form]' ).each( function () {
 			bindSlugForm( $( this ) );
 		} );
 
 		// Standalone slug fields (e.g. settings catch-all path) — sanitize on blur only.
-		$( document ).on( 'blur', '[data-vms-efwp-slug-target]', function () {
+		$( document ).on( 'blur', '[data-vms-efpg-slug-target]', function () {
 			var $field = $( this );
-			if ( $field.prop( 'readonly' ) || $field.closest( '[data-vms-efwp-slug-form]' ).length ) {
+			if ( $field.prop( 'readonly' ) || $field.closest( '[data-vms-efpg-slug-form]' ).length ) {
 				return;
 			}
-			$field.val( vms_efwp_slugify( $field.val() ) );
+			$field.val( vms_efpg_slugify( $field.val() ) );
 		} );
 
 		function syncCouponDiscountUi() {
-			var isFlat = 'flat' === $( '#vms-efwp-coupon-discount-type' ).val() || $( '#vms-efwp-order-level-discount' ).is( ':checked' );
-			$( '[data-vms-efwp-flat-only]' ).toggle( isFlat );
-			if ( $( '#vms-efwp-order-level-discount' ).is( ':checked' ) ) {
-				$( '#vms-efwp-coupon-discount-type' ).val( 'flat' );
+			var isFlat = 'flat' === $( '#vms-efpg-coupon-discount-type' ).val() || $( '#vms-efpg-order-level-discount' ).is( ':checked' );
+			$( '[data-vms-efpg-flat-only]' ).toggle( isFlat );
+			if ( $( '#vms-efpg-order-level-discount' ).is( ':checked' ) ) {
+				$( '#vms-efpg-coupon-discount-type' ).val( 'flat' );
 			}
 		}
-		$( document ).on( 'change', '#vms-efwp-coupon-discount-type, #vms-efwp-order-level-discount', syncCouponDiscountUi );
+		$( document ).on( 'change', '#vms-efpg-coupon-discount-type, #vms-efpg-order-level-discount', syncCouponDiscountUi );
 		syncCouponDiscountUi();
 
-		$( document ).on( 'click', '[data-vms-efwp-close-form]', function () {
-			var key = $( this ).data( 'vms-efwp-close-form' );
-			$( '[data-vms-efwp-form="' + key + '"]' ).attr( 'hidden', true );
+		$( document ).on( 'click', '[data-vms-efpg-close-form]', function () {
+			var key = $( this ).data( 'vms-efpg-close-form' );
+			$( '[data-vms-efpg-form="' + key + '"]' ).attr( 'hidden', true );
 		} );
 
 		// Product edit: prefill form from row data.
-		$( document ).on( 'click', '.vms-efwp-edit-product', function () {
+		$( document ).on( 'click', '.vms-efpg-edit-product', function () {
 			var raw = $( this ).attr( 'data-product' );
 			if ( ! raw ) { return; }
 			try {
 				var p = JSON.parse( raw );
 				prefillProductForm( p );
-				$( '[data-vms-efwp-form="save-product"]' )
+				$( '[data-vms-efpg-form="save-product"]' )
 					.attr( 'hidden', false )
 					.get( 0 ).scrollIntoView( { behavior: 'smooth', block: 'start' } );
 			} catch ( e ) {}
 		} );
 
 		function prefillProductForm( p ) {
-			var $form = $( '#vms-efwp-product-form' );
+			var $form = $( '#vms-efpg-product-form' );
 			resetSlugForm( $form );
-			$form.find( '[data-vms-efwp-field="product"]' )
+			$form.find( '[data-vms-efpg-field="product"]' )
 				.val( p.product || '' )
 				.prop( 'readonly', true ); // path is the identifier; cannot change after creation
-			$form.find( '[data-vms-efwp-field="display"]' ).val(
+			$form.find( '[data-vms-efpg-field="display"]' ).val(
 				p.display ? ( p.display.en || Object.values( p.display )[ 0 ] || '' ) : ''
 			);
-			$form.find( '[data-vms-efwp-field="sku"]' ).val( p.sku || '' );
+			$form.find( '[data-vms-efpg-field="sku"]' ).val( p.sku || '' );
 			var format = p.format || 'digital';
 			if ( format === 'service' ) {
 				format = 'digital';
 			}
-			$form.find( '[data-vms-efwp-field="format"]' ).val( format );
-			$form.find( '[data-vms-efwp-field="image"]' ).val( p.image || '' );
-			$form.find( '[data-vms-efwp-field="badge"]' ).val(
+			$form.find( '[data-vms-efpg-field="format"]' ).val( format );
+			$form.find( '[data-vms-efpg-field="image"]' ).val( p.image || '' );
+			$form.find( '[data-vms-efpg-field="badge"]' ).val(
 				p.badge ? ( p.badge.en || Object.values( p.badge )[ 0 ] || '' ) : ''
 			);
-			$form.find( '[data-vms-efwp-field="rank"]' ).val( p.rank || 0 );
+			$form.find( '[data-vms-efpg-field="rank"]' ).val( p.rank || 0 );
 			var summary = '', full = '', action = '', fulfillment = '';
 			if ( p.description ) {
 				summary = ( p.description.summary && ( p.description.summary.en || Object.values( p.description.summary )[ 0 ] ) ) || '';
@@ -674,99 +674,99 @@
 			if ( p.fulfillment && p.fulfillment.instructions ) {
 				fulfillment = p.fulfillment.instructions.en || Object.values( p.fulfillment.instructions )[ 0 ] || '';
 			}
-			$form.find( '[data-vms-efwp-field="summary"]' ).val( summary );
-			$form.find( '[data-vms-efwp-field="action"]' ).val( action );
-			$form.find( '[data-vms-efwp-field="full"]' ).val( full );
-			$form.find( '[data-vms-efwp-field="fulfillment"]' ).val( fulfillment );
+			$form.find( '[data-vms-efpg-field="summary"]' ).val( summary );
+			$form.find( '[data-vms-efpg-field="action"]' ).val( action );
+			$form.find( '[data-vms-efpg-field="full"]' ).val( full );
+			$form.find( '[data-vms-efpg-field="fulfillment"]' ).val( fulfillment );
 
 			// Rebuild pricing rows.
-			var $rows = $( '#vms-efwp-pricing-rows' ).empty();
+			var $rows = $( '#vms-efpg-pricing-rows' ).empty();
 			var prices = ( p.pricing && p.pricing.price ) ? p.pricing.price : { USD: 0 };
 			$.each( prices, function ( cur, val ) {
 				$rows.append( buildPricingRow( cur, val ) );
 			} );
 
-			$( '#vms-efwp-product-form-title' ).text( i18n( 'edit_product', 'Edit product' ) );
-			$( '#vms-efwp-product-submit' ).text( i18n( 'update_product', 'Update product' ) );
+			$( '#vms-efpg-product-form-title' ).text( i18n( 'edit_product', 'Edit product' ) );
+			$( '#vms-efpg-product-submit' ).text( i18n( 'update_product', 'Update product' ) );
 		}
 
 		function resetProductForm() {
-			var $form = $( '#vms-efwp-product-form' );
+			var $form = $( '#vms-efpg-product-form' );
 			if ( ! $form.length ) { return; }
 			$form[ 0 ].reset();
 			resetSlugForm( $form );
-			$form.find( '[data-vms-efwp-field="product"]' ).prop( 'readonly', false );
-			$( '#vms-efwp-pricing-rows' ).html( buildPricingRow( 'USD', '0' ) );
-			$( '#vms-efwp-product-form-title' ).text( i18n( 'create_product', 'Create product' ) );
-			$( '#vms-efwp-product-submit' ).text( i18n( 'create_product', 'Create product' ) );
+			$form.find( '[data-vms-efpg-field="product"]' ).prop( 'readonly', false );
+			$( '#vms-efpg-pricing-rows' ).html( buildPricingRow( 'USD', '0' ) );
+			$( '#vms-efpg-product-form-title' ).text( i18n( 'create_product', 'Create product' ) );
+			$( '#vms-efpg-product-submit' ).text( i18n( 'create_product', 'Create product' ) );
 		}
 
 		function buildPricingRow( cur, val ) {
 			return '<tr>' +
 				'<td><input type="text" name="pricing[currency][]" maxlength="3" value="' + ( cur || '' ) + '" /></td>' +
 				'<td><input type="number" step="0.01" name="pricing[price][]" required value="' + ( typeof val === 'undefined' ? '0' : val ) + '" /></td>' +
-				'<td><button type="button" class="button button-small vms-efwp-pricing-remove">&times;</button></td>' +
+				'<td><button type="button" class="button button-small vms-efpg-pricing-remove">&times;</button></td>' +
 				'</tr>';
 		}
 
-		$( document ).on( 'click', '#vms-efwp-pricing-add', function () {
-			$( '#vms-efwp-pricing-rows' ).append( buildPricingRow( '', '' ) );
+		$( document ).on( 'click', '#vms-efpg-pricing-add', function () {
+			$( '#vms-efpg-pricing-rows' ).append( buildPricingRow( '', '' ) );
 		} );
-		$( document ).on( 'click', '.vms-efwp-pricing-remove', function () {
+		$( document ).on( 'click', '.vms-efpg-pricing-remove', function () {
 			var $tr = $( this ).closest( 'tr' );
-			if ( $( '#vms-efwp-pricing-rows tr' ).length > 1 ) { $tr.remove(); }
+			if ( $( '#vms-efpg-pricing-rows tr' ).length > 1 ) { $tr.remove(); }
 		} );
 
 		// Subscription actions.
 		function showSubActionNotice( message, isError ) {
 			var $notice = $( '<div class="notice ' + ( isError ? 'notice-error' : 'notice-success' ) + ' is-dismissible"><p></p></div>' );
 			$notice.find( 'p' ).text( message );
-			$( '.vms-efwp-wrap' ).first().prepend( $notice );
+			$( '.vms-efpg-wrap' ).first().prepend( $notice );
 		}
 
-		$( document ).on( 'click', '.vms-efwp-sync-sub', function () {
+		$( document ).on( 'click', '.vms-efpg-sync-sub', function () {
 			var $btn = $( this ).prop( 'disabled', true );
-			ajax( 'vms_efwp_sync_subscription', { id: $btn.data( 'id' ) } )
+			ajax( 'vms_efpg_sync_subscription', { id: $btn.data( 'id' ) } )
 				.done( function ( resp ) {
 					if ( resp && resp.success ) {
 						window.location.reload();
 						return;
 					}
-					showSubActionNotice( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFWP.i18n.error, true );
+					showSubActionNotice( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFPG.i18n.error, true );
 					$btn.prop( 'disabled', false );
 				} )
 				.fail( function () {
-					showSubActionNotice( VMS_EFWP.i18n.error, true );
+					showSubActionNotice( VMS_EFPG.i18n.error, true );
 					$btn.prop( 'disabled', false );
 				} );
 		} );
-		$( document ).on( 'click', '.vms-efwp-cancel-sub', function () {
+		$( document ).on( 'click', '.vms-efpg-cancel-sub', function () {
 			var immediate = $( this ).data( 'immediate' ) ? '1' : '0';
-			var message = immediate ? VMS_EFWP.i18n.confirm_immediate_cancel : VMS_EFWP.i18n.confirm_cancel;
+			var message = immediate ? VMS_EFPG.i18n.confirm_immediate_cancel : VMS_EFPG.i18n.confirm_cancel;
 			if ( ! window.confirm( message ) ) { return; }
 			var $btn = $( this ).prop( 'disabled', true );
-			ajax( 'vms_efwp_cancel_subscription', { id: $btn.data( 'id' ), immediate: immediate } )
+			ajax( 'vms_efpg_cancel_subscription', { id: $btn.data( 'id' ), immediate: immediate } )
 				.done( function ( resp ) {
 					if ( resp && resp.success ) {
 						window.location.reload();
 						return;
 					}
-					showSubActionNotice( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFWP.i18n.error, true );
+					showSubActionNotice( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFPG.i18n.error, true );
 					$btn.prop( 'disabled', false );
 				} )
 				.fail( function () {
-					showSubActionNotice( VMS_EFWP.i18n.error, true );
+					showSubActionNotice( VMS_EFPG.i18n.error, true );
 					$btn.prop( 'disabled', false );
 				} );
 		} );
 
 		function bindSubAction( selector, action, confirmKey, extraData ) {
 			$( document ).on( 'click', selector, function () {
-				if ( confirmKey && ! window.confirm( VMS_EFWP.i18n[ confirmKey ] ) ) { return; }
+				if ( confirmKey && ! window.confirm( VMS_EFPG.i18n[ confirmKey ] ) ) { return; }
 				var $btn = $( this ).prop( 'disabled', true );
 				var data = $.extend( { id: $btn.data( 'id' ) }, extraData || {} );
-				if ( 'vms_efwp_pause_subscription' === action ) {
-					var periods = window.prompt( VMS_EFWP.i18n.pause_period_prompt, '1' );
+				if ( 'vms_efpg_pause_subscription' === action ) {
+					var periods = window.prompt( VMS_EFPG.i18n.pause_period_prompt, '1' );
 					if ( null === periods ) {
 						$btn.prop( 'disabled', false );
 						return;
@@ -779,38 +779,38 @@
 							window.location.reload();
 							return;
 						}
-						showSubActionNotice( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFWP.i18n.error, true );
+						showSubActionNotice( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFPG.i18n.error, true );
 						$btn.prop( 'disabled', false );
 					} )
 					.fail( function () {
-						showSubActionNotice( VMS_EFWP.i18n.error, true );
+						showSubActionNotice( VMS_EFPG.i18n.error, true );
 						$btn.prop( 'disabled', false );
 					} );
 			} );
 		}
 
-		bindSubAction( '.vms-efwp-pause-sub', 'vms_efwp_pause_subscription' );
-		bindSubAction( '.vms-efwp-resume-sub', 'vms_efwp_resume_subscription', 'confirm_resume' );
-		bindSubAction( '.vms-efwp-uncancel-sub', 'vms_efwp_uncancel_subscription', 'confirm_uncancel' );
-		bindSubAction( '.vms-efwp-charge-sub', 'vms_efwp_charge_subscription', 'confirm_charge' );
-		bindSubAction( '.vms-efwp-convert-sub', 'vms_efwp_convert_subscription', 'confirm_convert' );
-		bindSubAction( '.vms-efwp-cancel-quote', 'vms_efwp_cancel_quote', 'confirm_cancel_quote' );
+		bindSubAction( '.vms-efpg-pause-sub', 'vms_efpg_pause_subscription' );
+		bindSubAction( '.vms-efpg-resume-sub', 'vms_efpg_resume_subscription', 'confirm_resume' );
+		bindSubAction( '.vms-efpg-uncancel-sub', 'vms_efpg_uncancel_subscription', 'confirm_uncancel' );
+		bindSubAction( '.vms-efpg-charge-sub', 'vms_efpg_charge_subscription', 'confirm_charge' );
+		bindSubAction( '.vms-efpg-convert-sub', 'vms_efpg_convert_subscription', 'confirm_convert' );
+		bindSubAction( '.vms-efpg-cancel-quote', 'vms_efpg_cancel_quote', 'confirm_cancel_quote' );
 
-		$( document ).on( 'click', '.vms-efwp-sync-order', function () {
-			if ( ! window.confirm( VMS_EFWP.i18n.confirm_sync_order ) ) { return; }
+		$( document ).on( 'click', '.vms-efpg-sync-order', function () {
+			if ( ! window.confirm( VMS_EFPG.i18n.confirm_sync_order ) ) { return; }
 			var $btn = $( this ).prop( 'disabled', true );
-			ajax( 'vms_efwp_sync_order', { id: $btn.data( 'id' ), is_test: $btn.data( 'test' ) } )
+			ajax( 'vms_efpg_sync_order', { id: $btn.data( 'id' ), is_test: $btn.data( 'test' ) } )
 				.done( function ( resp ) {
 					if ( resp && resp.success ) {
-						showSubActionNotice( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFWP.i18n.error, false );
+						showSubActionNotice( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFPG.i18n.error, false );
 						$btn.prop( 'disabled', false );
 						return;
 					}
-					showSubActionNotice( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFWP.i18n.error, true );
+					showSubActionNotice( ( resp && resp.data && resp.data.message ) ? resp.data.message : VMS_EFPG.i18n.error, true );
 					$btn.prop( 'disabled', false );
 				} )
 				.fail( function () {
-					showSubActionNotice( VMS_EFWP.i18n.error, true );
+					showSubActionNotice( VMS_EFPG.i18n.error, true );
 					$btn.prop( 'disabled', false );
 				} );
 		} );
@@ -893,9 +893,9 @@
 		}
 
 		function renderShortcodePreview( $builder, fields ) {
-			var type = $builder.data( 'vms-efwp-shortcode-type' ) || 'product';
-			var $preview = $( '#vms-efwp-shortcode-preview-' + type );
-			var $output = $( '#vms-efwp-shortcode-output-' + type );
+			var type = $builder.data( 'vms-efpg-shortcode-type' ) || 'product';
+			var $preview = $( '#vms-efpg-shortcode-preview-' + type );
+			var $output = $( '#vms-efpg-shortcode-output-' + type );
 			var shortcode = buildShortcodeString( type, fields );
 
 			$output.val( shortcode );
@@ -910,8 +910,8 @@
 			}
 
 			var buttonClasses = [
-				'vms-efwp-shortcode-btn',
-				'vms-efwp-shortcode-btn--' + ( fields.style || 'primary' ),
+				'vms-efpg-shortcode-btn',
+				'vms-efpg-shortcode-btn--' + ( fields.style || 'primary' ),
 			];
 			if ( fields.className ) {
 				buttonClasses.push( fields.className );
@@ -921,7 +921,7 @@
 			var wrapperStyle = fields.margin ? ' style="margin:' + fields.margin + '"' : '';
 
 			$preview.html(
-				'<div class="vms-efwp-shortcode vms-efwp-shortcode--' + type + ' vms-efwp-shortcode--align-' + ( fields.align || 'left' ) + '"' + wrapperStyle + '>' +
+				'<div class="vms-efpg-shortcode vms-efpg-shortcode--' + type + ' vms-efpg-shortcode--align-' + ( fields.align || 'left' ) + '"' + wrapperStyle + '>' +
 					'<button type="button" class="' + buttonClasses.join( ' ' ) + '"' + ( buttonStyle ? ' style="' + buttonStyle + '"' : '' ) + ' disabled>' +
 						( fields.text || ( type === 'subscription' ? i18n( 'subscribe_now', 'Subscribe now' ) : i18n( 'buy_now', 'Buy now' ) ) ) +
 					'</button>' +
@@ -949,7 +949,7 @@
 				border_color: '',
 			};
 
-			$builder.find( '.vms-efwp-shortcode-field' ).each( function () {
+			$builder.find( '.vms-efpg-shortcode-field' ).each( function () {
 				var $field = $( this );
 				var key = $field.data( 'field' );
 				if ( ! key || key === 'id' || key === 'id_manual' ) {
@@ -976,29 +976,29 @@
 			renderShortcodePreview( $builder, collectShortcodeFields( $builder ) );
 		}
 
-		$( '.vms-efwp-shortcode-builder' ).each( function () {
+		$( '.vms-efpg-shortcode-builder' ).each( function () {
 			refreshShortcodeBuilder( $( this ) );
 		} );
 
-		$( document ).on( 'input change', '.vms-efwp-shortcode-builder .vms-efwp-shortcode-field', function () {
-			refreshShortcodeBuilder( $( this ).closest( '.vms-efwp-shortcode-builder' ) );
+		$( document ).on( 'input change', '.vms-efpg-shortcode-builder .vms-efpg-shortcode-field', function () {
+			refreshShortcodeBuilder( $( this ).closest( '.vms-efpg-shortcode-builder' ) );
 		} );
 
-		$( document ).on( 'input', '.vms-efwp-shortcode-builder .vms-efwp-shortcode-color', function () {
+		$( document ).on( 'input', '.vms-efpg-shortcode-builder .vms-efpg-shortcode-color', function () {
 			var field = $( this ).data( 'field' );
-			$( this ).closest( '.vms-efwp-color-field' ).find( 'input[type="text"][data-field="' + field + '"]' ).val( $( this ).val() );
-			refreshShortcodeBuilder( $( this ).closest( '.vms-efwp-shortcode-builder' ) );
+			$( this ).closest( '.vms-efpg-color-field' ).find( 'input[type="text"][data-field="' + field + '"]' ).val( $( this ).val() );
+			refreshShortcodeBuilder( $( this ).closest( '.vms-efpg-shortcode-builder' ) );
 		} );
 
-		$( document ).on( 'input', '.vms-efwp-shortcode-builder .vms-efwp-color-field input[type="text"]', function () {
+		$( document ).on( 'input', '.vms-efpg-shortcode-builder .vms-efpg-color-field input[type="text"]', function () {
 			var field = $( this ).data( 'field' );
 			var value = $( this ).val();
 			if ( /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test( value ) ) {
-				$( this ).closest( '.vms-efwp-color-field' ).find( 'input[type="color"][data-field="' + field + '"]' ).val( value );
+				$( this ).closest( '.vms-efpg-color-field' ).find( 'input[type="color"][data-field="' + field + '"]' ).val( value );
 			}
 		} );
 
-		$( document ).on( 'click', '.vms-efwp-copy-shortcode', function () {
+		$( document ).on( 'click', '.vms-efpg-copy-shortcode', function () {
 			var target = $( this ).data( 'target' );
 			var $field = target ? $( target ) : $();
 			if ( ! $field.length ) {

@@ -2,15 +2,15 @@
 /**
  * Shared script/style registration and standalone page asset output.
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class VMS_EFWP_Assets.
+ * Class VMS_EFPG_Assets.
  */
-class VMS_EFWP_Assets {
+class VMS_EFPG_Assets {
 
 	const SBL_SCRIPT_URL = 'https://sbl.onfastspring.com/sbl/1.0.7/fastspring-builder.min.js';
 
@@ -18,36 +18,35 @@ class VMS_EFWP_Assets {
 	 * Register checkout-related assets (idempotent).
 	 */
 	public static function register_checkout_assets() {
-		if ( wp_style_is( 'vms-efwp-checkout-popup', 'registered' ) ) {
+		if ( wp_style_is( 'vms-efpg-checkout-popup', 'registered' ) ) {
 			return;
 		}
 
 		wp_register_style(
-			'vms-efwp-checkout-popup',
-			vms_efwp_asset_url( 'assets/css/checkout-popup.css' ),
+			'vms-efpg-checkout-popup',
+			vms_efpg_asset_url( 'assets/css/checkout-popup.css' ),
 			array(),
-			VMS_EFWP_VERSION
+			VMS_EFPG_VERSION
 		);
 
-		if ( defined( 'VMS_EFWP_PRO_URL' ) && function_exists( 'vms_efwp_pro_asset_url' ) ) {
-			wp_register_style(
-				'vms-efwp-payment-success',
-				vms_efwp_pro_asset_url( 'assets/css/payment-success.css' ),
-				array(),
-				defined( 'VMS_EFWP_PRO_VERSION' ) ? VMS_EFWP_PRO_VERSION : VMS_EFWP_VERSION
-			);
-		}
-
 		wp_register_script(
-			'vms-efwp-overlay-shell',
-			vms_efwp_asset_url( 'assets/js/overlay-shell.js' ),
+			'vms-efpg-overlay-shell',
+			vms_efpg_asset_url( 'assets/js/overlay-shell.js' ),
 			array(),
-			VMS_EFWP_VERSION,
+			VMS_EFPG_VERSION,
 			true
 		);
 
 		wp_register_script(
-			'vms-efwp-standalone-sbl',
+			'vms-efpg-checkout-bridge',
+			vms_efpg_asset_url( 'assets/js/checkout-bridge.js' ),
+			array( 'vms-efpg-overlay-shell' ),
+			VMS_EFPG_VERSION,
+			true
+		);
+
+		wp_register_script(
+			'vms-efpg-standalone-sbl',
 			self::SBL_SCRIPT_URL,
 			array(),
 			'1.0.7',
@@ -62,27 +61,27 @@ class VMS_EFWP_Assets {
 	 */
 	public static function checkout_js_i18n() {
 		return array(
-			'error'                    => __( 'FastSpring checkout could not open. Confirm your popup checkout path is configured and your site domain is whitelisted in FastSpring.', 'vms-elements-fastspring-woo-payment' ),
-			'missingPopup'             => __( 'FastSpring popup checkout path is not configured in FastSpring → Settings.', 'vms-elements-fastspring-woo-payment' ),
-			'missingAccessKey'         => __( 'FastSpring Store Builder access key is required for custom WooCommerce pricing. Add it in FastSpring → Settings (Developer Tools → Store Builder Library in the FastSpring app).', 'vms-elements-fastspring-woo-payment' ),
-			'loadFailed'               => __( 'FastSpring Store Builder did not load. Check your popup checkout path and whitelisted domains.', 'vms-elements-fastspring-woo-payment' ),
-			'openFailed'               => __( 'FastSpring checkout failed to open.', 'vms-elements-fastspring-woo-payment' ),
-			'checkoutClosed'           => __( 'Checkout closed without completing payment.', 'vms-elements-fastspring-woo-payment' ),
+			'error'                    => __( 'FastSpring checkout could not open. Confirm your popup checkout path is configured and your site domain is whitelisted in FastSpring.', 'vms-elements-fastspring-payment-gateway' ),
+			'missingPopup'             => __( 'FastSpring popup checkout path is not configured in FastSpring → Settings.', 'vms-elements-fastspring-payment-gateway' ),
+			'missingAccessKey'         => __( 'FastSpring Store Builder access key is required for custom WooCommerce pricing. Add it in FastSpring → Settings (Developer Tools → Store Builder Library in the FastSpring app).', 'vms-elements-fastspring-payment-gateway' ),
+			'loadFailed'               => __( 'FastSpring Store Builder did not load. Check your popup checkout path and whitelisted domains.', 'vms-elements-fastspring-payment-gateway' ),
+			'openFailed'               => __( 'FastSpring checkout failed to open.', 'vms-elements-fastspring-payment-gateway' ),
+			'checkoutClosed'           => __( 'Checkout closed without completing payment.', 'vms-elements-fastspring-payment-gateway' ),
 			/* translators: 1: error code, 2: error message */
-			'sblError'                 => __( 'SBL error: %1$s — %2$s', 'vms-elements-fastspring-woo-payment' ),
-			'confirmPendingRedirect'   => __( 'Payment confirm pending — redirecting to thank-you page to finish.', 'vms-elements-fastspring-woo-payment' ),
+			'sblError'                 => __( 'SBL error: %1$s — %2$s', 'vms-elements-fastspring-payment-gateway' ),
+			'confirmPendingRedirect'   => __( 'Payment confirm pending — redirecting to thank-you page to finish.', 'vms-elements-fastspring-payment-gateway' ),
 			/* translators: %s: error message */
-			'confirmFailed'            => __( 'Payment confirm failed: %s', 'vms-elements-fastspring-woo-payment' ),
-			'overlayFetchFailed'       => __( 'Overlay REST fetch failed.', 'vms-elements-fastspring-woo-payment' ),
-			'blockedOrderReceivedNav'  => __( 'Blocked navigation to order-received while popup is pending.', 'vms-elements-fastspring-woo-payment' ),
-			'blockedPushState'         => __( 'Blocked pushState to order-received while popup is pending.', 'vms-elements-fastspring-woo-payment' ),
+			'confirmFailed'            => __( 'Payment confirm failed: %s', 'vms-elements-fastspring-payment-gateway' ),
+			'overlayFetchFailed'       => __( 'Overlay REST fetch failed.', 'vms-elements-fastspring-payment-gateway' ),
+			'blockedOrderReceivedNav'  => __( 'Blocked navigation to order-received while popup is pending.', 'vms-elements-fastspring-payment-gateway' ),
+			'blockedPushState'         => __( 'Blocked pushState to order-received while popup is pending.', 'vms-elements-fastspring-payment-gateway' ),
 			/* translators: %s: navigation method name */
-			'blockedNavMethod'         => __( 'Blocked %s to order-received while popup is pending.', 'vms-elements-fastspring-woo-payment' ),
+			'blockedNavMethod'         => __( 'Blocked %s to order-received while popup is pending.', 'vms-elements-fastspring-payment-gateway' ),
 			/* translators: %s: order ID or "unknown" */
-			'openingPopupOrder'        => __( 'Opening popup for order %s', 'vms-elements-fastspring-woo-payment' ),
-			'completingOrder'          => __( 'Finalizing your payment…', 'vms-elements-fastspring-woo-payment' ),
-			'unknownOrder'             => __( 'unknown', 'vms-elements-fastspring-woo-payment' ),
-			'checkoutAriaLabel'        => __( 'FastSpring checkout', 'vms-elements-fastspring-woo-payment' ),
+			'openingPopupOrder'        => __( 'Opening popup for order %s', 'vms-elements-fastspring-payment-gateway' ),
+			'completingOrder'          => __( 'Finalizing your payment…', 'vms-elements-fastspring-payment-gateway' ),
+			'unknownOrder'             => __( 'unknown', 'vms-elements-fastspring-payment-gateway' ),
+			'checkoutAriaLabel'        => __( 'FastSpring checkout', 'vms-elements-fastspring-payment-gateway' ),
 		);
 	}
 
@@ -147,7 +146,7 @@ class VMS_EFWP_Assets {
 				'error_callback'   => '',
 				'include_sbl'      => true,
 				'include_shell'    => true,
-				'style_handle'     => 'vms-efwp-checkout-popup',
+				'style_handle'     => 'vms-efpg-checkout-popup',
 			)
 		);
 
@@ -162,7 +161,7 @@ class VMS_EFWP_Assets {
 				return self::enhance_sbl_script_tag(
 					$tag,
 					$handle,
-					'vms-efwp-standalone-sbl',
+					'vms-efpg-standalone-sbl',
 					$args['popup_storefront'],
 					array(
 						'popup_closed'   => $args['popup_closed'],
@@ -173,23 +172,23 @@ class VMS_EFWP_Assets {
 			};
 
 			add_filter( 'script_loader_tag', $filter, 10, 3 );
-			wp_enqueue_script( 'vms-efwp-standalone-sbl' );
-			wp_print_scripts( array( 'vms-efwp-standalone-sbl' ) );
+			wp_enqueue_script( 'vms-efpg-standalone-sbl' );
+			wp_print_scripts( array( 'vms-efpg-standalone-sbl' ) );
 			remove_filter( 'script_loader_tag', $filter, 10 );
 		}
 
 		if ( $args['include_shell'] ) {
 			wp_localize_script(
-				'vms-efwp-overlay-shell',
-				'VMS_EFWP_OverlayShell',
+				'vms-efpg-overlay-shell',
+				'VMS_EFPG_OverlayShell',
 				array(
 					'i18n' => array(
-						'checkoutAriaLabel' => __( 'FastSpring checkout', 'vms-elements-fastspring-woo-payment' ),
+						'checkoutAriaLabel' => __( 'FastSpring checkout', 'vms-elements-fastspring-payment-gateway' ),
 					),
 				)
 			);
-			wp_enqueue_script( 'vms-efwp-overlay-shell' );
-			wp_print_scripts( array( 'vms-efwp-overlay-shell' ) );
+			wp_enqueue_script( 'vms-efpg-overlay-shell' );
+			wp_print_scripts( array( 'vms-efpg-overlay-shell' ) );
 		}
 	}
 }

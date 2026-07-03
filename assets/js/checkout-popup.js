@@ -21,7 +21,7 @@
 		return output;
 	}
 
-	var STORAGE_KEY = 'vms_efwp_pending';
+	var STORAGE_KEY = 'vms_efpg_pending';
 	var STASH_TTL_MS = 900000;
 
 	var state = {
@@ -179,32 +179,32 @@
 
 	function activateOverlayShell() {
 		if (
-			window.VMS_EFWP_OverlayApi &&
-			typeof window.VMS_EFWP_OverlayApi.activate === 'function'
+			window.VMS_EFPG_OverlayApi &&
+			typeof window.VMS_EFPG_OverlayApi.activate === 'function'
 		) {
-			window.VMS_EFWP_OverlayApi.activate();
+			window.VMS_EFPG_OverlayApi.activate();
 		} else {
-			document.documentElement.classList.add( 'vms-efwp-checkout-active' );
+			document.documentElement.classList.add( 'vms-efpg-checkout-active' );
 		}
 	}
 
 	function deactivateOverlayShell() {
 		if (
-			window.VMS_EFWP_OverlayApi &&
-			typeof window.VMS_EFWP_OverlayApi.deactivate === 'function'
+			window.VMS_EFPG_OverlayApi &&
+			typeof window.VMS_EFPG_OverlayApi.deactivate === 'function'
 		) {
-			window.VMS_EFWP_OverlayApi.deactivate();
+			window.VMS_EFPG_OverlayApi.deactivate();
 		} else {
-			document.documentElement.classList.remove( 'vms-efwp-checkout-active' );
+			document.documentElement.classList.remove( 'vms-efpg-checkout-active' );
 		}
 	}
 
 	function mountOverlayShell() {
 		if (
-			window.VMS_EFWP_OverlayApi &&
-			typeof window.VMS_EFWP_OverlayApi.mount === 'function'
+			window.VMS_EFPG_OverlayApi &&
+			typeof window.VMS_EFPG_OverlayApi.mount === 'function'
 		) {
-			window.VMS_EFWP_OverlayApi.mount();
+			window.VMS_EFPG_OverlayApi.mount();
 		}
 	}
 
@@ -396,22 +396,22 @@
 			return;
 		}
 
-		var pendingUrl = appendQueryParam( successUrl, 'vms_efwp_fs_order', fsOrderId );
+		var pendingUrl = appendQueryParam( successUrl, 'vms_efpg_fs_order', fsOrderId );
 		window.location.replace( pendingUrl );
 	}
 
 	function showCompletingNotice() {
-		if ( document.getElementById( 'vms-efwp-completing-order' ) ) {
+		if ( document.getElementById( 'vms-efpg-completing-order' ) ) {
 			return;
 		}
 
 		var notice = document.createElement( 'div' );
-		notice.id = 'vms-efwp-completing-order';
-		notice.className = 'vms-efwp-completing-order';
+		notice.id = 'vms-efpg-completing-order';
+		notice.className = 'vms-efpg-completing-order';
 		notice.setAttribute( 'role', 'status' );
 		notice.setAttribute( 'aria-live', 'polite' );
 		notice.innerHTML =
-			'<span class="vms-efwp-spinner" aria-hidden="true"></span>' +
+			'<span class="vms-efpg-spinner" aria-hidden="true"></span>' +
 			'<span>' + t( 'completingOrder', 'Finalizing your payment…' ) + '</span>';
 		document.body.appendChild( notice );
 	}
@@ -422,7 +422,7 @@
 		}
 
 		var params = new URLSearchParams( window.location.search );
-		var fsOrderId = params.get( 'vms_efwp_fs_order' );
+		var fsOrderId = params.get( 'vms_efpg_fs_order' );
 		if ( ! fsOrderId || ! config.completeRestUrl ) {
 			return;
 		}
@@ -475,24 +475,24 @@
 			return null;
 		}
 
-		if ( data.vms_efwp_overlay ) {
-			return data.vms_efwp_overlay;
+		if ( data.vms_efpg_overlay ) {
+			return data.vms_efpg_overlay;
 		}
 
 		if ( data.payment_result ) {
-			if ( data.payment_result.vms_efwp_overlay ) {
-				return data.payment_result.vms_efwp_overlay;
+			if ( data.payment_result.vms_efpg_overlay ) {
+				return data.payment_result.vms_efpg_overlay;
 			}
 			if (
 				data.payment_result.payment_details &&
-				data.payment_result.payment_details.vms_efwp_overlay
+				data.payment_result.payment_details.vms_efpg_overlay
 			) {
-				return data.payment_result.payment_details.vms_efwp_overlay;
+				return data.payment_result.payment_details.vms_efpg_overlay;
 			}
 		}
 
-		if ( data.payment_details && data.payment_details.vms_efwp_overlay ) {
-			return data.payment_details.vms_efwp_overlay;
+		if ( data.payment_details && data.payment_details.vms_efpg_overlay ) {
+			return data.payment_details.vms_efpg_overlay;
 		}
 
 		return null;
@@ -620,18 +620,18 @@
 		}
 
 		var params = new URLSearchParams( window.location.search );
-		var openId = params.get( 'vms_efwp_open' );
+		var openId = params.get( 'vms_efpg_open' );
 		if ( openId ) {
 			fetchOverlayForOrder( openId, params.get( 'token' ) || '' );
 		}
 	}
 
 	// FastSpring Store Builder popup-closed callback.
-	window.VMS_EFWP_PopupClosed = function ( orderReference ) {
+	window.VMS_EFPG_PopupClosed = function ( orderReference ) {
 		finishOverlay( orderReference );
 	};
 
-	window.VMS_EFWP_ErrorCallback = function ( code, message ) {
+	window.VMS_EFPG_ErrorCallback = function ( code, message ) {
 		log( formatMessage( t( 'sblError', 'SBL error: %1$s — %2$s' ), [ code, message ] ) );
 		if ( window.console && window.console.error ) {
 			console.error( '[VMS FastSpring]', code, message );
@@ -660,15 +660,15 @@
 	}
 
 	// Gutenberg block checkout uses wp.apiFetch (XMLHttpRequest under the hood).
-	if ( window.XMLHttpRequest && ! window._VMS_EFWP_XhrPatched ) {
-		window._VMS_EFWP_XhrPatched = true;
+	if ( window.XMLHttpRequest && ! window._VMS_EFPG_XhrPatched ) {
+		window._VMS_EFPG_XhrPatched = true;
 
 		var origOpen = XMLHttpRequest.prototype.open;
 		var origSend = XMLHttpRequest.prototype.send;
 
 		XMLHttpRequest.prototype.open = function ( method, url ) {
-			this._VMS_EFWP_XhrMethod = method;
-			this._VMS_EFWP_XhrUrl = url;
+			this._VMS_EFPG_XhrMethod = method;
+			this._VMS_EFPG_XhrUrl = url;
 			return origOpen.apply( this, arguments );
 		};
 
@@ -676,7 +676,7 @@
 			var xhr = this;
 
 			xhr.addEventListener( 'load', function () {
-				if ( ! isCheckoutRequest( xhr._VMS_EFWP_XhrUrl, xhr._VMS_EFWP_XhrMethod ) ) {
+				if ( ! isCheckoutRequest( xhr._VMS_EFPG_XhrUrl, xhr._VMS_EFPG_XhrMethod ) ) {
 					return;
 				}
 				handlePaymentResponse( tryParseJson( xhr.responseText ) );
@@ -687,8 +687,8 @@
 	}
 
 	// wp.apiFetch middleware — primary hook for WooCommerce Blocks checkout.
-	if ( window.wp && window.wp.apiFetch && ! window._VMS_EFWP_ApiFetchPatched ) {
-		window._VMS_EFWP_ApiFetchPatched = true;
+	if ( window.wp && window.wp.apiFetch && ! window._VMS_EFPG_ApiFetchPatched ) {
+		window._VMS_EFPG_ApiFetchPatched = true;
 
 		window.wp.apiFetch.use( function ( options, next ) {
 			var path = options && ( options.path || options.url ) ? ( options.path || options.url ) : '';
@@ -704,8 +704,8 @@
 	}
 
 	// Native fetch fallback.
-	if ( window.fetch && ! window._VMS_EFWP_FetchPatched ) {
-		window._VMS_EFWP_FetchPatched = true;
+	if ( window.fetch && ! window._VMS_EFPG_FetchPatched ) {
+		window._VMS_EFPG_FetchPatched = true;
 		var originalFetch = window.fetch.bind( window );
 
 		window.fetch = function ( input, init ) {
@@ -727,7 +727,7 @@
 		};
 	}
 
-	window.VMS_EFWP_CheckoutApi = {
+	window.VMS_EFPG_CheckoutApi = {
 		open: openOverlay,
 		handlePaymentResponse: handlePaymentResponse,
 		openForOrder: fetchOverlayForOrder,
@@ -737,4 +737,4 @@
 		},
 	};
 
-}( window.jQuery, window.VMS_EFWP_Checkout || {} ) );
+}( window.jQuery, window.VMS_EFPG_Checkout || {} ) );

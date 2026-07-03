@@ -1,7 +1,7 @@
 /* FastSpring Store Builder overlay shell — full-viewport popup host. */
 
-html.vms-efwp-fastspring-checkout,
-html.vms-efwp-checkout-active {
+html.vms-efpg-fastspring-checkout,
+html.vms-efpg-checkout-active {
 	margin: 0;
 	padding: 0;
 	width: 100%;
@@ -9,8 +9,8 @@ html.vms-efwp-checkout-active {
 	overflow: hidden;
 }
 
-html.vms-efwp-fastspring-checkout body,
-html.vms-efwp-checkout-active body {
+html.vms-efpg-fastspring-checkout body,
+html.vms-efpg-checkout-active body {
 	margin: 0;
 	padding: 0;
 	width: 100%;
@@ -18,7 +18,7 @@ html.vms-efwp-checkout-active body {
 	overflow: hidden;
 }
 
-html.vms-efwp-checkout-active body::before {
+html.vms-efpg-checkout-active body::before {
 	content: '';
 	position: fixed;
 	inset: 0;
@@ -27,7 +27,7 @@ html.vms-efwp-checkout-active body::before {
 	pointer-events: none;
 }
 
-.vms-efwp-fastspring-overlay-root {
+.vms-efpg-fastspring-overlay-root {
 	position: fixed;
 	inset: 0;
 	width: 100%;
@@ -41,13 +41,13 @@ html.vms-efwp-checkout-active body::before {
 	pointer-events: none;
 }
 
-.vms-efwp-fastspring-overlay-root.is-open .vms-efwp-checkout-shell--loading {
+.vms-efpg-fastspring-overlay-root.is-open .vms-efpg-checkout-shell--loading {
 	opacity: 0;
 	visibility: hidden;
 	pointer-events: none;
 }
 
-.vms-efwp-checkout-shell {
+.vms-efpg-checkout-shell {
 	position: absolute;
 	inset: 0;
 	display: flex;
@@ -64,26 +64,26 @@ html.vms-efwp-checkout-active body::before {
 	transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
-.vms-efwp-checkout-shell--loading {
+.vms-efpg-checkout-shell--loading {
 	z-index: 1;
 }
 
-.vms-efwp-checkout-shell .vms-efwp-spinner {
+.vms-efpg-checkout-shell .vms-efpg-spinner {
 	width: 42px;
 	height: 42px;
 	border: 4px solid #c3c4c7;
 	border-top-color: #2271b1;
 	border-radius: 50%;
-	animation: vms-efwp-spin 1s linear infinite;
+	animation: vms-efpg-spin 1s linear infinite;
 }
 
-@keyframes vms-efwp-spin {
+@keyframes vms-efpg-spin {
 	to {
 		transform: rotate( 360deg );
 	}
 }
 
-.vms-efwp-completing-order {
+.vms-efpg-completing-order {
 	position: fixed;
 	inset: 0;
 	z-index: 2147483002;
@@ -100,16 +100,16 @@ html.vms-efwp-checkout-active body::before {
 	text-align: center;
 }
 
-.vms-efwp-completing-order .vms-efwp-spinner {
+.vms-efpg-completing-order .vms-efpg-spinner {
 	width: 28px;
 	height: 28px;
 	border-width: 3px;
 	flex-shrink: 0;
 }
 
-.vms-efwp-fastspring-overlay-root iframe,
-.vms-efwp-fastspring-overlay-root #fsc-popup-frame,
-.vms-efwp-fastspring-overlay-root #fscEmbeddedCheckout {
+.vms-efpg-fastspring-overlay-root iframe,
+.vms-efpg-fastspring-overlay-root #fsc-popup-frame,
+.vms-efpg-fastspring-overlay-root #fscEmbeddedCheckout {
 	position: absolute !important;
 	inset: 0 !important;
 	top: 0 !important;
@@ -129,9 +129,9 @@ html.vms-efwp-checkout-active body::before {
 	pointer-events: auto !important;
 }
 
-.vms-efwp-fastspring-overlay-root iframe,
-.vms-efwp-fastspring-overlay-root #fsc-popup-frame,
-.vms-efwp-fastspring-overlay-root #fscEmbeddedCheckout {
+.vms-efpg-fastspring-overlay-root iframe,
+.vms-efpg-fastspring-overlay-root #fsc-popup-frame,
+.vms-efpg-fastspring-overlay-root #fscEmbeddedCheckout {
 	z-index: 5 !important;
 	background: #fff;
 }
@@ -139,7 +139,7 @@ html.vms-efwp-checkout-active body::before {
 /* FastSpring popup host — keep visible; only stop the empty backdrop from blocking clicks. */
 #fscCanvas,
 .fs-popup-background,
-#fscCanvas.vms-efwp-fsc-host {
+#fscCanvas.vms-efpg-fsc-host {
 	position: fixed !important;
 	inset: 0 !important;
 	width: 100% !important;
@@ -159,9 +159,9 @@ html.vms-efwp-checkout-active body::before {
 #fscCanvas iframe,
 #fscCanvas #fsc-popup-frame,
 #fscCanvas #fscEmbeddedCheckout,
-#fscCanvas.vms-efwp-fsc-host iframe,
-#fscCanvas.vms-efwp-fsc-host #fsc-popup-frame,
-#fscCanvas.vms-efwp-fsc-host #fscEmbeddedCheckout {
+#fscCanvas.vms-efpg-fsc-host iframe,
+#fscCanvas.vms-efpg-fsc-host #fsc-popup-frame,
+#fscCanvas.vms-efpg-fsc-host #fscEmbeddedCheckout {
 	position: absolute !important;
 	inset: 0 !important;
 	width: 100% !important;
@@ -183,19 +183,19 @@ html.vms-efwp-checkout-active body::before {
 	pointer-events: none !important;
 }
 
-.vms-efwp-fastspring-overlay-root .fsc-modalBackdrop,
-.vms-efwp-fastspring-overlay-root .fsc-modal-backdrop {
+.vms-efpg-fastspring-overlay-root .fsc-modalBackdrop,
+.vms-efpg-fastspring-overlay-root .fsc-modal-backdrop {
 	z-index: 2 !important;
 	pointer-events: none !important;
 }
 
 /* Fallback when FastSpring appends directly to body (theme pages, shortcodes). */
-body.vms-efwp-fastspring-checkout > iframe[src*="fastspring"],
-body.vms-efwp-checkout-active > iframe[src*="fastspring"],
-body.vms-efwp-fastspring-checkout > #fsc-popup-frame,
-body.vms-efwp-checkout-active > #fsc-popup-frame,
-body.vms-efwp-fastspring-checkout > #fscEmbeddedCheckout,
-body.vms-efwp-checkout-active > #fscEmbeddedCheckout {
+body.vms-efpg-fastspring-checkout > iframe[src*="fastspring"],
+body.vms-efpg-checkout-active > iframe[src*="fastspring"],
+body.vms-efpg-fastspring-checkout > #fsc-popup-frame,
+body.vms-efpg-checkout-active > #fsc-popup-frame,
+body.vms-efpg-fastspring-checkout > #fscEmbeddedCheckout,
+body.vms-efpg-checkout-active > #fscEmbeddedCheckout {
 	position: fixed !important;
 	inset: 0 !important;
 	width: 100% !important;

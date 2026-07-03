@@ -2,17 +2,17 @@
 /**
  * Installation routines.
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table names from VMS_EFWP_Install::table_name().
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table names from VMS_EFPG_Install::table_name().
 
 /**
- * Class VMS_EFWP_Install.
+ * Class VMS_EFPG_Install.
  */
-class VMS_EFWP_Install {
+class VMS_EFPG_Install {
 
 	/**
 	 * Allowed custom table keys.
@@ -20,10 +20,10 @@ class VMS_EFWP_Install {
 	 * @var array<string, string>
 	 */
 	private static $tables = array(
-		'orders'        => 'vms_efwp_orders',
-		'subscriptions' => 'vms_efwp_subscriptions',
-		'events'        => 'vms_efwp_events',
-		'log'           => 'vms_efwp_log',
+		'orders'        => 'vms_efpg_orders',
+		'subscriptions' => 'vms_efpg_subscriptions',
+		'events'        => 'vms_efpg_events',
+		'log'           => 'vms_efpg_log',
 	);
 
 	/**
@@ -46,8 +46,8 @@ class VMS_EFWP_Install {
 	 * Run installation.
 	 */
 	public static function install() {
-		require_once VMS_EFWP_PATH . 'includes/class-vms-efwp-migrate.php';
-		VMS_EFWP_Migrate::maybe_run();
+		require_once VMS_EFPG_PATH . 'includes/class-vms-efpg-migrate.php';
+		VMS_EFPG_Migrate::maybe_run();
 		self::create_tables();
 		self::create_default_options();
 	}
@@ -56,24 +56,24 @@ class VMS_EFWP_Install {
 	 * Backfill invoice columns once per plugin version when the API client is available.
 	 */
 	public static function maybe_backfill_order_invoices() {
-		if ( get_option( 'vms_efwp_order_invoice_backfill', '' ) === VMS_EFWP_VERSION ) {
+		if ( get_option( 'vms_efpg_order_invoice_backfill', '' ) === VMS_EFPG_VERSION ) {
 			return;
 		}
 
 		self::backfill_order_invoice_fields();
-		update_option( 'vms_efwp_order_invoice_backfill', VMS_EFWP_VERSION, false );
+		update_option( 'vms_efpg_order_invoice_backfill', VMS_EFPG_VERSION, false );
 	}
 
 	/**
 	 * Backfill wc_user_id, fs_account_id, and site_url on stored orders and subscriptions.
 	 */
 	public static function maybe_backfill_user_scope() {
-		if ( get_option( 'vms_efwp_user_scope_backfill', '' ) === '2' ) {
+		if ( get_option( 'vms_efpg_user_scope_backfill', '' ) === '2' ) {
 			return;
 		}
 
 		self::backfill_user_scope_fields();
-		update_option( 'vms_efwp_user_scope_backfill', '2', false );
+		update_option( 'vms_efpg_user_scope_backfill', '2', false );
 	}
 
 	/**
@@ -89,15 +89,15 @@ class VMS_EFWP_Install {
 	public static function maybe_upgrade() {
 		self::ensure_schema();
 
-		$installed = get_option( 'vms_efwp_db_version', '0' );
-		if ( version_compare( (string) $installed, VMS_EFWP_VERSION, '>=' ) ) {
+		$installed = get_option( 'vms_efpg_db_version', '0' );
+		if ( version_compare( (string) $installed, VMS_EFPG_VERSION, '>=' ) ) {
 			return;
 		}
 
-		require_once VMS_EFWP_PATH . 'includes/class-vms-efwp-migrate.php';
-		VMS_EFWP_Migrate::maybe_run();
+		require_once VMS_EFPG_PATH . 'includes/class-vms-efpg-migrate.php';
+		VMS_EFPG_Migrate::maybe_run();
 		self::create_default_options();
-		update_option( 'vms_efwp_db_version', VMS_EFWP_VERSION, false );
+		update_option( 'vms_efpg_db_version', VMS_EFPG_VERSION, false );
 	}
 
 	/**
@@ -112,7 +112,7 @@ class VMS_EFWP_Install {
 
 		$tables = array();
 
-		$tables[] = "CREATE TABLE {$wpdb->prefix}vms_efwp_orders (
+		$tables[] = "CREATE TABLE {$wpdb->prefix}vms_efpg_orders (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			fs_order_id VARCHAR(64) NOT NULL,
 			fs_reference VARCHAR(64) NULL,
@@ -147,7 +147,7 @@ class VMS_EFWP_Install {
 			KEY created_at (created_at)
 		) $charset_collate;";
 
-		$tables[] = "CREATE TABLE {$wpdb->prefix}vms_efwp_subscriptions (
+		$tables[] = "CREATE TABLE {$wpdb->prefix}vms_efpg_subscriptions (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			fs_subscription_id VARCHAR(64) NOT NULL,
 			fs_account_id VARCHAR(64) NULL,
@@ -176,7 +176,7 @@ class VMS_EFWP_Install {
 			KEY next_charge (next_charge)
 		) $charset_collate;";
 
-		$tables[] = "CREATE TABLE {$wpdb->prefix}vms_efwp_events (
+		$tables[] = "CREATE TABLE {$wpdb->prefix}vms_efpg_events (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			event_id VARCHAR(64) NOT NULL,
 			event_type VARCHAR(80) NOT NULL,
@@ -193,7 +193,7 @@ class VMS_EFWP_Install {
 			KEY created_at (created_at)
 		) $charset_collate;";
 
-		$tables[] = "CREATE TABLE {$wpdb->prefix}vms_efwp_log (
+		$tables[] = "CREATE TABLE {$wpdb->prefix}vms_efpg_log (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			level VARCHAR(20) NOT NULL,
 			channel VARCHAR(40) NOT NULL,
@@ -217,7 +217,7 @@ class VMS_EFWP_Install {
 	public static function backfill_order_invoice_fields() {
 		global $wpdb;
 
-		if ( ! function_exists( 'vms_efwp' ) || ! vms_efwp()->api ) {
+		if ( ! function_exists( 'vms_efpg' ) || ! vms_efpg()->api ) {
 			return;
 		}
 
@@ -242,7 +242,7 @@ class VMS_EFWP_Install {
 				continue;
 			}
 
-			$meta = vms_efwp()->api->extract_order_invoice_meta( $payload );
+			$meta = vms_efpg()->api->extract_order_invoice_meta( $payload );
 			if ( empty( $meta['invoice_url'] ) && empty( $meta['fs_invoice_id'] ) ) {
 				continue;
 			}
@@ -266,13 +266,13 @@ class VMS_EFWP_Install {
 	public static function backfill_user_scope_fields() {
 		global $wpdb;
 
-		if ( ! class_exists( 'VMS_EFWP_Data_Store' ) ) {
+		if ( ! class_exists( 'VMS_EFPG_Data_Store' ) ) {
 			return;
 		}
 
 		$orders_table = self::table_name( 'orders' );
 		$subs_table   = self::table_name( 'subscriptions' );
-		$site_url     = VMS_EFWP_Data_Store::get_site_url();
+		$site_url     = VMS_EFPG_Data_Store::get_site_url();
 		$now          = current_time( 'mysql', true );
 
 		if ( $orders_table ) {
@@ -290,22 +290,22 @@ class VMS_EFWP_Install {
 
 				$update = array();
 				if ( empty( $row['wc_user_id'] ) ) {
-					$user_id = VMS_EFWP_Data_Store::resolve_wc_user_id_from_payload( $payload, (int) $row['wc_order_id'] );
+					$user_id = VMS_EFPG_Data_Store::resolve_wc_user_id_from_payload( $payload, (int) $row['wc_order_id'] );
 					if ( $user_id ) {
 						$update['wc_user_id'] = $user_id;
 					}
 				}
 				if ( empty( $row['fs_account_id'] ) ) {
-					$account_id = VMS_EFWP_Data_Store::extract_account_id_from_payload( $payload );
+					$account_id = VMS_EFPG_Data_Store::extract_account_id_from_payload( $payload );
 					if ( $account_id ) {
 						$update['fs_account_id'] = $account_id;
 					}
 				}
 				if ( empty( $row['site_url'] ) ) {
-					$resolved_site = VMS_EFWP_Data_Store::resolve_site_url_from_payload( $payload );
-					if ( $resolved_site && VMS_EFWP_Data_Store::site_urls_equivalent( $resolved_site, $site_url ) ) {
+					$resolved_site = VMS_EFPG_Data_Store::resolve_site_url_from_payload( $payload );
+					if ( $resolved_site && VMS_EFPG_Data_Store::site_urls_equivalent( $resolved_site, $site_url ) ) {
 						$update['site_url'] = $resolved_site;
-					} elseif ( VMS_EFWP_Data_Store::is_local_vms_efwp_wc_order( (int) $row['wc_order_id'] ) ) {
+					} elseif ( VMS_EFPG_Data_Store::is_local_vms_efpg_wc_order( (int) $row['wc_order_id'] ) ) {
 						$update['site_url'] = $site_url;
 					}
 				}
@@ -334,16 +334,16 @@ class VMS_EFWP_Install {
 
 				$update = array();
 				if ( empty( $row['wc_user_id'] ) ) {
-					$user_id = VMS_EFWP_Data_Store::resolve_wc_user_id_from_payload( $payload );
+					$user_id = VMS_EFPG_Data_Store::resolve_wc_user_id_from_payload( $payload );
 					if ( $user_id ) {
 						$update['wc_user_id'] = $user_id;
 					}
 				}
 				if ( empty( $row['site_url'] ) ) {
-					$resolved_site = VMS_EFWP_Data_Store::resolve_site_url_from_payload( $payload );
-					if ( $resolved_site && VMS_EFWP_Data_Store::site_urls_equivalent( $resolved_site, $site_url ) ) {
+					$resolved_site = VMS_EFPG_Data_Store::resolve_site_url_from_payload( $payload );
+					if ( $resolved_site && VMS_EFPG_Data_Store::site_urls_equivalent( $resolved_site, $site_url ) ) {
 						$update['site_url'] = $resolved_site;
-					} elseif ( VMS_EFWP_Data_Store::should_persist_for_site( $payload, $site_url ) ) {
+					} elseif ( VMS_EFPG_Data_Store::should_persist_for_site( $payload, $site_url ) ) {
 						$update['site_url'] = $site_url;
 					}
 				}
@@ -375,17 +375,17 @@ class VMS_EFWP_Install {
 			'enable_webhook'          => 'yes',
 			'enable_logging'          => 'yes',
 			'sync_products'           => 'no',
-			'gateway_title'           => __( 'Pay with FastSpring', 'vms-elements-fastspring-woo-payment' ),
-			'gateway_description'     => __( 'Secure checkout powered by FastSpring.', 'vms-elements-fastspring-woo-payment' ),
+			'gateway_title'           => __( 'Pay with FastSpring', 'vms-elements-fastspring-payment-gateway' ),
+			'gateway_description'     => __( 'Secure checkout with FastSpring.', 'vms-elements-fastspring-payment-gateway' ),
 		);
 
-		$existing = get_option( 'vms_efwp_settings', array() );
+		$existing = get_option( 'vms_efpg_settings', array() );
 		if ( ! is_array( $existing ) ) {
 			$existing = array();
 		}
 		$merged = array_merge( $defaults, $existing );
-		update_option( 'vms_efwp_settings', $merged );
-		update_option( 'vms_efwp_db_version', VMS_EFWP_VERSION );
+		update_option( 'vms_efpg_settings', $merged );
+		update_option( 'vms_efpg_db_version', VMS_EFPG_VERSION );
 	}
 }
 

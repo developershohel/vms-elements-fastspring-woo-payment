@@ -2,29 +2,29 @@
 /**
  * FastSpring webhook event permissions (subscribed events per receiver URL).
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class VMS_EFWP_Webhook_Permissions.
+ * Class VMS_EFPG_Webhook_Permissions.
  */
-class VMS_EFWP_Webhook_Permissions {
+class VMS_EFPG_Webhook_Permissions {
 
 	const CACHE_TTL = 600;
 
 	/**
 	 * API client.
 	 *
-	 * @var VMS_EFWP_API
+	 * @var VMS_EFPG_API
 	 */
 	private $api;
 
 	/**
 	 * Settings.
 	 *
-	 * @var VMS_EFWP_Settings
+	 * @var VMS_EFPG_Settings
 	 */
 	private $settings;
 
@@ -38,10 +38,10 @@ class VMS_EFWP_Webhook_Permissions {
 	/**
 	 * Constructor.
 	 *
-	 * @param VMS_EFWP_API      $api      API.
-	 * @param VMS_EFWP_Settings $settings Settings.
+	 * @param VMS_EFPG_API      $api      API.
+	 * @param VMS_EFPG_Settings $settings Settings.
 	 */
-	public function __construct( VMS_EFWP_API $api, VMS_EFWP_Settings $settings ) {
+	public function __construct( VMS_EFPG_API $api, VMS_EFPG_Settings $settings ) {
 		$this->api      = $api;
 		$this->settings = $settings;
 	}
@@ -54,106 +54,106 @@ class VMS_EFWP_Webhook_Permissions {
 	public static function handler_catalog() {
 		return array(
 			'order.completed'               => array(
-				'label'       => __( 'Order completed', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Order completed', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'order',
 				'required'    => true,
-				'description' => __( 'Completes linked WooCommerce orders and stores revenue.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Completes linked WooCommerce orders and stores revenue.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'order.canceled'                => array(
-				'label'       => __( 'Order canceled', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Order canceled', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'order',
 				'required'    => false,
-				'description' => __( 'Cancels linked WooCommerce orders.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Cancels linked WooCommerce orders.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'order.approval.pending'        => array(
-				'label'       => __( 'Order approval pending', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Order approval pending', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'order',
 				'required'    => false,
-				'description' => __( 'Stores pending invoice orders.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Stores pending invoice orders.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'order.payment.pending'         => array(
-				'label'       => __( 'Order payment pending', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Order payment pending', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'order',
 				'required'    => false,
-				'description' => __( 'Stores orders awaiting payment.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Stores orders awaiting payment.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'return.created'                => array(
-				'label'       => __( 'Return created', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Return created', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'return',
 				'required'    => true,
-				'description' => __( 'Marks orders refunded in WooCommerce.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Marks orders refunded in WooCommerce.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'order.refund'                  => array(
-				'label'       => __( 'Order refund', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Order refund', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'return',
 				'required'    => false,
-				'description' => __( 'Legacy refund event — marks orders refunded.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Legacy refund event — marks orders refunded.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'subscription.activated'        => array(
-				'label'       => __( 'Subscription activated', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Subscription activated', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'subscription',
 				'required'    => false,
-				'description' => __( 'Stores new subscriptions.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Stores new subscriptions.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'subscription.charge.completed' => array(
-				'label'       => __( 'Subscription charge completed', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Subscription charge completed', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'subscription',
 				'required'    => false,
-				'description' => __( 'Updates subscription rebill data.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Updates subscription rebill data.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'subscription.updated'          => array(
-				'label'       => __( 'Subscription updated', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Subscription updated', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'subscription',
 				'required'    => false,
-				'description' => __( 'Syncs subscription edits.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Syncs subscription edits.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'subscription.trial.reminder'   => array(
-				'label'       => __( 'Subscription trial reminder', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Subscription trial reminder', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'subscription',
 				'required'    => false,
-				'description' => __( 'Syncs trial reminder notifications.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Syncs trial reminder notifications.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'subscription.payment.overdue'  => array(
-				'label'       => __( 'Subscription payment overdue', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Subscription payment overdue', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'subscription',
 				'required'    => false,
-				'description' => __( 'Syncs overdue payment notifications.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Syncs overdue payment notifications.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'subscription.payment.reminder' => array(
-				'label'       => __( 'Subscription payment reminder', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Subscription payment reminder', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'subscription',
 				'required'    => false,
-				'description' => __( 'Syncs renewal reminder notifications.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Syncs renewal reminder notifications.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'subscription.canceled'         => array(
-				'label'       => __( 'Subscription canceled', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Subscription canceled', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'subscription',
 				'required'    => false,
-				'description' => __( 'Marks subscriptions canceled.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Marks subscriptions canceled.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'subscription.deactivated'      => array(
-				'label'       => __( 'Subscription deactivated', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Subscription deactivated', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'subscription',
 				'required'    => false,
-				'description' => __( 'Marks subscriptions deactivated.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Marks subscriptions deactivated.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'account.created'               => array(
-				'label'       => __( 'Account created', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Account created', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'account',
 				'required'    => false,
-				'description' => __( 'Acknowledged — no local persistence.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Acknowledged — no local persistence.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'account.updated'               => array(
-				'label'       => __( 'Account updated', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Account updated', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'account',
 				'required'    => false,
-				'description' => __( 'Acknowledged — no local persistence.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Acknowledged — no local persistence.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 			'mailingListEntry.updated'      => array(
-				'label'       => __( 'Mailing list updated', 'vms-elements-fastspring-woo-payment' ),
+				'label'       => __( 'Mailing list updated', 'vms-elements-fastspring-payment-gateway' ),
 				'category'    => 'mailing',
 				'required'    => false,
-				'description' => __( 'Acknowledged — no local persistence.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Acknowledged — no local persistence.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 		);
 	}
@@ -176,8 +176,8 @@ class VMS_EFWP_Webhook_Permissions {
 	public function refresh() {
 		if ( ! $this->settings->has_credentials() ) {
 			return new WP_Error(
-				'vms_efwp_webhook_permissions',
-				__( 'Add FastSpring API credentials before syncing webhook permissions.', 'vms-elements-fastspring-woo-payment' )
+				'vms_efpg_webhook_permissions',
+				__( 'Add FastSpring API credentials before syncing webhook permissions.', 'vms-elements-fastspring-payment-gateway' )
 			);
 		}
 
@@ -189,8 +189,8 @@ class VMS_EFWP_Webhook_Permissions {
 		$events = $this->api->extract_webhook_event_permissions( $response, $this->settings->webhook_url() );
 		if ( null === $events ) {
 			return new WP_Error(
-				'vms_efwp_webhook_permissions',
-				__( 'No FastSpring webhook endpoint matches this plugin receiver URL. Add the URL under FastSpring → Integrations → Webhooks first.', 'vms-elements-fastspring-woo-payment' )
+				'vms_efpg_webhook_permissions',
+				__( 'No FastSpring webhook endpoint matches this plugin receiver URL. Add the URL under FastSpring → Integrations → Webhooks first.', 'vms-elements-fastspring-payment-gateway' )
 			);
 		}
 
@@ -330,6 +330,6 @@ class VMS_EFWP_Webhook_Permissions {
 	 * @return string
 	 */
 	private function transient_key() {
-		return 'vms_efwp_webhook_permissions_' . ( $this->settings->is_sandbox() ? 'sandbox' : 'live' );
+		return 'vms_efpg_webhook_permissions_' . ( $this->settings->is_sandbox() ? 'sandbox' : 'live' );
 	}
 }

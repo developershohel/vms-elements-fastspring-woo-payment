@@ -1,51 +1,51 @@
 <?php
 /**
- * WooCommerce payment gateway powered by FastSpring sessions.
+ * WooCommerce payment gateway using FastSpring checkout sessions.
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class VMS_EFWP_WC_Gateway.
+ * Class VMS_EFPG_WC_Gateway.
  */
-class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
+class VMS_EFPG_WC_Gateway extends WC_Payment_Gateway {
 
 	/**
 	 * Constructor.
 	 *
-	 * Carefully avoids depending on vms_efwp()->settings being initialised
+	 * Carefully avoids depending on vms_efpg()->settings being initialised
 	 * because some sites instantiate gateways extremely early (e.g. for cron
 	 * or REST routes) before our plugin's `plugins_loaded` callback has run.
 	 */
 	public function __construct() {
-		$this->id                 = 'vms_efwp';
-		$this->method_title       = __( 'FastSpring', 'vms-elements-fastspring-woo-payment' );
-		$this->method_description = __( 'Accept credit cards, PayPal, Apple Pay, Google Pay and more via FastSpring popup overlay checkout (Store Builder Library).', 'vms-elements-fastspring-woo-payment' );
+		$this->id                 = 'vms_efpg';
+		$this->method_title       = __( 'FastSpring', 'vms-elements-fastspring-payment-gateway' );
+		$this->method_description = __( 'Accept credit cards, PayPal, Apple Pay, Google Pay and more via FastSpring popup overlay checkout (Store Builder Library).', 'vms-elements-fastspring-payment-gateway' );
 		$this->has_fields         = false;
-		$this->supports           = array( 'products', 'refunds' );
+		$this->supports           = array( 'products' );
 
 		$this->init_form_fields();
 		$this->init_settings();
 
-		$plugin_settings_raw = get_option( VMS_EFWP_Settings::OPTION_KEY, array() );
+		$plugin_settings_raw = get_option( VMS_EFPG_Settings::OPTION_KEY, array() );
 		if ( ! is_array( $plugin_settings_raw ) ) {
 			$plugin_settings_raw = array();
 		}
 		$default_title = isset( $plugin_settings_raw['gateway_title'] ) && '' !== $plugin_settings_raw['gateway_title']
 			? $plugin_settings_raw['gateway_title']
-			: __( 'Pay with FastSpring', 'vms-elements-fastspring-woo-payment' );
+			: __( 'Pay with FastSpring', 'vms-elements-fastspring-payment-gateway' );
 		$default_desc  = isset( $plugin_settings_raw['gateway_description'] ) && '' !== $plugin_settings_raw['gateway_description']
 			? $plugin_settings_raw['gateway_description']
-			: __( 'Pay securely in a popup overlay powered by FastSpring.', 'vms-elements-fastspring-woo-payment' );
+			: __( 'Pay securely in a popup checkout overlay.', 'vms-elements-fastspring-payment-gateway' );
 
 		$this->title       = $this->get_option( 'title', $default_title );
 		$this->description = $this->get_option( 'description', $default_desc );
 		$this->enabled     = $this->get_option( 'enabled', 'no' );
 
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-		add_action( 'woocommerce_api_vms_efwp_return', array( $this, 'handle_return' ) );
+		add_action( 'woocommerce_api_vms_efpg_return', array( $this, 'handle_return' ) );
 
 		// Ensure the FastSpring storefront URL survives the WooCommerce Store API
 		// safe-redirect filter (which by default only allows the site host).
@@ -61,7 +61,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 	 * @return array
 	 */
 	public function allow_fastspring_redirect_host( $hosts ) {
-		$settings = function_exists( 'vms_efwp' ) ? vms_efwp()->settings : null;
+		$settings = function_exists( 'vms_efpg' ) ? vms_efpg()->settings : null;
 		if ( ! $settings ) {
 			return $hosts;
 		}
@@ -81,23 +81,23 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 	public function init_form_fields() {
 		$this->form_fields = array(
 			'enabled'         => array(
-				'title'   => __( 'Enable/Disable', 'vms-elements-fastspring-woo-payment' ),
+				'title'   => __( 'Enable/Disable', 'vms-elements-fastspring-payment-gateway' ),
 				'type'    => 'checkbox',
-				'label'   => __( 'Enable FastSpring', 'vms-elements-fastspring-woo-payment' ),
+				'label'   => __( 'Enable FastSpring', 'vms-elements-fastspring-payment-gateway' ),
 				'default' => 'no',
 			),
 			'title'           => array(
-				'title'       => __( 'Title', 'vms-elements-fastspring-woo-payment' ),
+				'title'       => __( 'Title', 'vms-elements-fastspring-payment-gateway' ),
 				'type'        => 'text',
-				'description' => __( 'Title shown to customers at checkout.', 'vms-elements-fastspring-woo-payment' ),
-				'default'     => __( 'Pay with FastSpring', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Title shown to customers at checkout.', 'vms-elements-fastspring-payment-gateway' ),
+				'default'     => __( 'Pay with FastSpring', 'vms-elements-fastspring-payment-gateway' ),
 				'desc_tip'    => true,
 			),
 			'description'     => array(
-				'title'       => __( 'Description', 'vms-elements-fastspring-woo-payment' ),
+				'title'       => __( 'Description', 'vms-elements-fastspring-payment-gateway' ),
 				'type'        => 'textarea',
-				'description' => __( 'Description shown to customers at checkout.', 'vms-elements-fastspring-woo-payment' ),
-				'default'     => __( 'Pay securely in a popup overlay powered by FastSpring.', 'vms-elements-fastspring-woo-payment' ),
+				'description' => __( 'Description shown to customers at checkout.', 'vms-elements-fastspring-payment-gateway' ),
+				'default'     => __( 'Pay securely in a popup checkout overlay.', 'vms-elements-fastspring-payment-gateway' ),
 			),
 		);
 	}
@@ -115,7 +115,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 			$issues[] = 'gateway_disabled';
 		}
 
-		$plugin_settings = function_exists( 'vms_efwp' ) ? vms_efwp()->settings : null;
+		$plugin_settings = function_exists( 'vms_efpg' ) ? vms_efpg()->settings : null;
 		if ( ! $plugin_settings ) {
 			$issues[] = 'plugin_not_loaded';
 			return $issues;
@@ -143,7 +143,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 			return false;
 		}
 
-		$settings = vms_efwp()->settings;
+		$settings = vms_efpg()->settings;
 		if ( ! $settings ) {
 			return false;
 		}
@@ -158,8 +158,8 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 		}
 
 		if ( $reason ) {
-			if ( class_exists( 'VMS_EFWP_Logger' ) ) {
-				VMS_EFWP_Logger::warning(
+			if ( class_exists( 'VMS_EFPG_Logger' ) ) {
+				VMS_EFPG_Logger::warning(
 					'FastSpring gateway hidden at checkout: ' . $reason,
 					'gateway',
 					array( 'mode' => $settings->get_mode() )
@@ -182,19 +182,19 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return $desc;
 		}
-		$settings = vms_efwp()->settings;
+		$settings = vms_efpg()->settings;
 		if ( ! $settings ) {
 			return $desc;
 		}
 		$messages = array();
 		if ( ! $settings->has_credentials() ) {
-			$messages[] = __( 'Admin-only notice: FastSpring API credentials are missing for the active mode.', 'vms-elements-fastspring-woo-payment' );
+			$messages[] = __( 'Admin-only notice: FastSpring API credentials are missing for the active mode.', 'vms-elements-fastspring-payment-gateway' );
 		}
 		if ( '' === $settings->storefront() ) {
-			$messages[] = __( 'Admin-only notice: FastSpring storefront ID is empty. Customers will not see this gateway until you set it.', 'vms-elements-fastspring-woo-payment' );
+			$messages[] = __( 'Admin-only notice: FastSpring storefront ID is empty. Customers will not see this gateway until you set it.', 'vms-elements-fastspring-payment-gateway' );
 		}
 		if ( ! $settings->has_popup_checkout() ) {
-			$messages[] = __( 'Admin-only notice: FastSpring popup checkout path is missing. Set it in FastSpring → Settings (e.g. popup-vmsuniverse2026).', 'vms-elements-fastspring-woo-payment' );
+			$messages[] = __( 'Admin-only notice: FastSpring popup checkout path is missing. Set it in FastSpring → Settings (e.g. popup-vmsuniverse2026).', 'vms-elements-fastspring-payment-gateway' );
 		}
 		if ( $messages ) {
 			$desc .= '<br /><em style="color:#b91c1c;">' . esc_html( implode( ' ', $messages ) ) . '</em>';
@@ -208,7 +208,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 	 * @return bool
 	 */
 	public function uses_sbl_secure() {
-		$settings = vms_efwp()->settings;
+		$settings = vms_efpg()->settings;
 		if ( ! $settings || ! $settings->has_access_key() ) {
 			return false;
 		}
@@ -224,7 +224,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 	 * @return array
 	 */
 	public function build_sbl_checkout_payload( WC_Order $order ) {
-		$settings = vms_efwp()->settings;
+		$settings = vms_efpg()->settings;
 		$strategy = $settings->pricing_strategy();
 		$currency = strtoupper( $order->get_currency() );
 		$items    = $this->build_session_items( $order, $strategy, $currency );
@@ -269,7 +269,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 			'language' => $language,
 			'items'    => $sbl_items,
 			'contact'  => $sbl_contact,
-			'tags'     => VMS_EFWP_Data_Store::build_session_tags( $order ),
+			'tags'     => VMS_EFPG_Data_Store::build_session_tags( $order ),
 		);
 	}
 
@@ -282,7 +282,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 	 * @return array
 	 */
 	private function build_session_items( $order, $strategy, $currency ) {
-		$settings = vms_efwp()->settings;
+		$settings = vms_efpg()->settings;
 		$items    = array();
 
 		if ( 'single_custom_price' === $strategy ) {
@@ -308,7 +308,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 			if ( ! $product ) {
 				continue;
 			}
-			$slug = get_post_meta( $product->get_id(), '_vms_efwp_product_path', true );
+			$slug = get_post_meta( $product->get_id(), '_vms_efpg_product_path', true );
 			if ( ! $slug ) {
 				$slug = sanitize_title( $product->get_slug() );
 			}
@@ -390,26 +390,26 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 	public function process_payment( $order_id ) {
 		$order = wc_get_order( $order_id );
 		if ( ! $order ) {
-			$this->fail_payment( __( 'Order could not be loaded.', 'vms-elements-fastspring-woo-payment' ) );
+			$this->fail_payment( __( 'Order could not be loaded.', 'vms-elements-fastspring-payment-gateway' ) );
 		}
 
-		$settings = vms_efwp()->settings;
-		$api      = vms_efwp()->api;
+		$settings = vms_efpg()->settings;
+		$api      = vms_efpg()->api;
 
 		// 1) Sanity check: credentials + storefront.
 		if ( ! $settings->has_credentials() ) {
-			$this->fail_payment( __( 'FastSpring API credentials are not configured for the active mode.', 'vms-elements-fastspring-woo-payment' ) );
+			$this->fail_payment( __( 'FastSpring API credentials are not configured for the active mode.', 'vms-elements-fastspring-payment-gateway' ) );
 		}
 		if ( '' === $settings->storefront() ) {
-			$this->fail_payment( __( 'FastSpring storefront ID is empty. Please configure it before accepting payments.', 'vms-elements-fastspring-woo-payment' ) );
+			$this->fail_payment( __( 'FastSpring storefront ID is empty. Please configure it before accepting payments.', 'vms-elements-fastspring-payment-gateway' ) );
 		}
 		if ( ! $settings->has_popup_checkout() ) {
-			$this->fail_payment( __( 'FastSpring popup checkout path is not configured. In FastSpring → Settings, set the Popup checkout path (e.g. popup-vmsuniverse2026) from Checkouts → Popup Checkouts → Place on your website.', 'vms-elements-fastspring-woo-payment' ) );
+			$this->fail_payment( __( 'FastSpring popup checkout path is not configured. In FastSpring → Settings, set the Popup checkout path (e.g. popup-vmsuniverse2026) from Checkouts → Popup Checkouts → Place on your website.', 'vms-elements-fastspring-payment-gateway' ) );
 		}
 
 		$strategy = $settings->pricing_strategy();
 		if ( 'catalog' !== $strategy && ! $settings->has_access_key() ) {
-			$this->fail_payment( __( 'FastSpring Store Builder access key is required for custom WooCommerce pricing. Add it in FastSpring → Settings (copy from FastSpring App → Developer Tools → Store Builder Library).', 'vms-elements-fastspring-woo-payment' ) );
+			$this->fail_payment( __( 'FastSpring Store Builder access key is required for custom WooCommerce pricing. Add it in FastSpring → Settings (copy from FastSpring App → Developer Tools → Store Builder Library).', 'vms-elements-fastspring-payment-gateway' ) );
 		}
 
 		$currency = strtoupper( $order->get_currency() );
@@ -419,9 +419,9 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 		// purchased without mirroring the whole catalog into FastSpring.
 		if ( 'single_custom_price' === $strategy ) {
 			$path        = $settings->custom_price_product_path();
-			$ensure_path = $api->ensure_catch_all_product( $path, get_bloginfo( 'name' ) . ' ' . __( 'Order', 'vms-elements-fastspring-woo-payment' ) );
+			$ensure_path = $api->ensure_catch_all_product( $path, get_bloginfo( 'name' ) . ' ' . __( 'Order', 'vms-elements-fastspring-payment-gateway' ) );
 			if ( is_wp_error( $ensure_path ) ) {
-				VMS_EFWP_Logger::error(
+				VMS_EFPG_Logger::error(
 					'Catch-all product provisioning failed: ' . $ensure_path->get_error_message(),
 					'gateway',
 					array( 'path' => $path )
@@ -429,7 +429,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 				$this->fail_payment(
 					sprintf(
 						/* translators: 1: product path, 2: API error */
-						__( 'Could not prepare the FastSpring checkout product "%1$s" automatically. Create a one-time product with exactly this path in FastSpring App → Products (any price — it is overridden per order), then try again. Details: %2$s', 'vms-elements-fastspring-woo-payment' ),
+						__( 'Could not prepare the FastSpring checkout product "%1$s" automatically. Create a one-time product with exactly this path in FastSpring App → Products (any price — it is overridden per order), then try again. Details: %2$s', 'vms-elements-fastspring-payment-gateway' ),
 						$path,
 						$ensure_path->get_error_message()
 					)
@@ -442,11 +442,11 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 		}
 
 		if ( 'per_product_override' === $strategy ) {
-			$product_sync = vms_efwp()->product_sync;
+			$product_sync = vms_efpg()->product_sync;
 			if ( $product_sync ) {
 				$ensured = $product_sync->ensure_order_products_in_fastspring( $order );
 				if ( is_wp_error( $ensured ) ) {
-					VMS_EFWP_Logger::error(
+					VMS_EFPG_Logger::error(
 						'Checkout product auto-provision failed: ' . $ensured->get_error_message(),
 						'gateway',
 						array( 'order_id' => $order_id )
@@ -458,12 +458,12 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 
 		$items = $this->build_session_items( $order, $strategy, $currency );
 		if ( empty( $items ) ) {
-			$this->fail_payment( __( 'No cart items could be matched to FastSpring products.', 'vms-elements-fastspring-woo-payment' ) );
+			$this->fail_payment( __( 'No cart items could be matched to FastSpring products.', 'vms-elements-fastspring-payment-gateway' ) );
 		}
 
 		// 3) Build payload (Sessions v1 schema).
 		$payload = array(
-			'tags'    => VMS_EFWP_Data_Store::build_session_tags( $order_id ),
+			'tags'    => VMS_EFPG_Data_Store::build_session_tags( $order_id ),
 			'items'   => $items,
 			'contact' => $this->build_contact( $order ),
 		);
@@ -486,7 +486,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 		 * @param self      $gateway  Gateway instance.
 		 * @param string    $strategy Active pricing strategy.
 		 */
-		$payload = apply_filters( 'vms_efwp_session_payload', $payload, $order, $this, $strategy );
+		$payload = apply_filters( 'vms_efpg_session_payload', $payload, $order, $this, $strategy );
 
 		// 4) Talk to FastSpring.
 		$session = $api->create_session( $payload );
@@ -496,7 +496,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 			$err_data  = $session->get_error_data();
 			$status    = is_array( $err_data ) && isset( $err_data['status'] ) ? (int) $err_data['status'] : 0;
 			$readable  = $this->humanize_fastspring_error( $err, $strategy, $currency, $items, $status );
-			VMS_EFWP_Logger::error(
+			VMS_EFPG_Logger::error(
 				'Session creation failed: ' . $err,
 				'gateway',
 				array(
@@ -514,12 +514,12 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 		$session_id = isset( $session['id'] ) ? $session['id'] : '';
 		$storefront = $settings->storefront();
 		if ( ! $session_id ) {
-			$this->fail_payment( __( 'FastSpring returned an empty session id. Please try again.', 'vms-elements-fastspring-woo-payment' ) );
+			$this->fail_payment( __( 'FastSpring returned an empty session id. Please try again.', 'vms-elements-fastspring-payment-gateway' ) );
 		}
 
 		// 5) Persist + redirect.
-		$order->update_status( 'pending', __( 'Awaiting FastSpring payment.', 'vms-elements-fastspring-woo-payment' ) );
-		$order->update_meta_data( '_vms_efwp_session_id', $session_id );
+		$order->update_status( 'pending', __( 'Awaiting FastSpring payment.', 'vms-elements-fastspring-payment-gateway' ) );
+		$order->update_meta_data( '_vms_efpg_session_id', $session_id );
 		$order->save();
 
 		// Popup-only: JS opens FastSpring overlay on the same page (no redirect).
@@ -572,52 +572,52 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 		if ( false !== strpos( $lower, 'currency' ) ) {
 			return sprintf(
 				/* translators: %s currency code */
-				__( 'FastSpring rejected the currency "%s". Add this currency to your storefront (FastSpring App → Storefronts → Currencies) or switch WooCommerce to a supported one (USD/EUR/GBP are always supported).', 'vms-elements-fastspring-woo-payment' ),
+				__( 'FastSpring rejected the currency "%s". Add this currency to your storefront (FastSpring App → Storefronts → Currencies) or switch WooCommerce to a supported one (USD/EUR/GBP are always supported).', 'vms-elements-fastspring-payment-gateway' ),
 				$currency
 			);
 		}
 		if ( false !== strpos( $lower, 'product' ) && ( false !== strpos( $lower, 'not found' ) || false !== strpos( $lower, 'invalid' ) ) ) {
 			return sprintf(
 				/* translators: %s product paths */
-				__( 'FastSpring could not find the product(s): %s. Create them in FastSpring App → Products with the matching path, or enable product sync in FastSpring → Settings.', 'vms-elements-fastspring-woo-payment' ),
+				__( 'FastSpring could not find the product(s): %s. Create them in FastSpring App → Products with the matching path.', 'vms-elements-fastspring-payment-gateway' ),
 				implode( ', ', $paths )
 			);
 		}
 		if ( false !== strpos( $lower, 'price' ) && false !== strpos( $lower, 'override' ) ) {
-			return __( 'FastSpring rejected the price override. Open the affected product in FastSpring App → Products and enable "Allow Price Override" (or change the pricing strategy in FastSpring → Settings to "FastSpring catalog price").', 'vms-elements-fastspring-woo-payment' );
+			return __( 'FastSpring rejected the price override. Open the affected product in FastSpring App → Products and enable "Allow Price Override" (or change the pricing strategy in FastSpring → Settings to "FastSpring catalog price").', 'vms-elements-fastspring-payment-gateway' );
 		}
 		if ( 'single_custom_price' === $strategy && false !== strpos( $lower, 'price' ) ) {
-			return __( 'FastSpring rejected the price on your Custom Price product. Confirm the product is configured as Type = Custom Price and has the order\'s currency enabled.', 'vms-elements-fastspring-woo-payment' );
+			return __( 'FastSpring rejected the price on your Custom Price product. Confirm the product is configured as Type = Custom Price and has the order\'s currency enabled.', 'vms-elements-fastspring-payment-gateway' );
 		}
 		if ( false !== strpos( $lower, 'unauthorized' ) || 401 === $status || false !== strpos( $lower, '401' ) ) {
-			return __( 'FastSpring API authentication failed. Double-check the API username/password for the active mode in FastSpring → Settings.', 'vms-elements-fastspring-woo-payment' );
+			return __( 'FastSpring API authentication failed. Double-check the API username/password for the active mode in FastSpring → Settings.', 'vms-elements-fastspring-payment-gateway' );
 		}
 
 		if ( 409 === $status ) {
 			if ( 'single_custom_price' === $strategy ) {
 				return sprintf(
 					/* translators: %s product path */
-					__( 'FastSpring rejected the checkout session (409 conflict). Confirm your Custom Price product "%s" exists, is set to Type = Custom Price, has "Allow Price Override" enabled, and supports the order currency.', 'vms-elements-fastspring-woo-payment' ),
+					__( 'FastSpring rejected the checkout session (409 conflict). Confirm your Custom Price product "%s" exists, is set to Type = Custom Price, has "Allow Price Override" enabled, and supports the order currency.', 'vms-elements-fastspring-payment-gateway' ),
 					implode( ', ', $paths )
 				);
 			}
 			if ( 'per_product_override' === $strategy ) {
 				return sprintf(
 					/* translators: %s product paths */
-					__( 'FastSpring rejected the checkout session (409 conflict). Each product (%s) must allow price overrides in FastSpring. The plugin auto-creates missing products at checkout — open the product in FastSpring App → Products and enable "Allow Price Override" if this error persists.', 'vms-elements-fastspring-woo-payment' ),
+					__( 'FastSpring rejected the checkout session (409 conflict). Each product (%s) must allow price overrides in FastSpring. The plugin auto-creates missing products at checkout — open the product in FastSpring App → Products and enable "Allow Price Override" if this error persists.', 'vms-elements-fastspring-payment-gateway' ),
 					implode( ', ', $paths )
 				);
 			}
 			return sprintf(
 				/* translators: %s product paths */
-				__( 'FastSpring rejected the checkout session (409 conflict). Make sure the product(s) %s exist in your FastSpring catalog and the order currency is enabled for your storefront.', 'vms-elements-fastspring-woo-payment' ),
+				__( 'FastSpring rejected the checkout session (409 conflict). Make sure the product(s) %s exist in your FastSpring catalog and the order currency is enabled for your storefront.', 'vms-elements-fastspring-payment-gateway' ),
 				implode( ', ', $paths )
 			);
 		}
 
 		return sprintf(
 			/* translators: %s raw error message */
-			__( 'FastSpring rejected the checkout session: %s', 'vms-elements-fastspring-woo-payment' ),
+			__( 'FastSpring rejected the checkout session: %s', 'vms-elements-fastspring-payment-gateway' ),
 			$raw
 		);
 	}
@@ -625,7 +625,7 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 	/**
 	 * Handle the post-purchase return from FastSpring (the webhook is the source of truth).
 	 *
-	 * URL: /?wc-api=vms_efwp_return&order=123
+	 * URL: /?wc-api=vms_efpg_return&order=123
 	 */
 	public function handle_return() {
 		$order_id = isset( $_GET['order'] ) ? absint( $_GET['order'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification
@@ -637,57 +637,5 @@ class VMS_EFWP_WC_Gateway extends WC_Payment_Gateway {
 		}
 		wp_safe_redirect( $order->get_checkout_order_received_url() );
 		exit;
-	}
-
-	/**
-	 * Process refund via FastSpring API.
-	 *
-	 * @param int    $order_id Order id.
-	 * @param float  $amount   Amount.
-	 * @param string $reason   Reason.
-	 * @return bool|WP_Error
-	 */
-	public function process_refund( $order_id, $amount = null, $reason = '' ) {
-		if ( ! vms_efwp_is_pro() ) {
-			return new WP_Error(
-				'pro_required',
-				__( 'WooCommerce refunds via FastSpring require the Pro add-on.', 'vms-elements-fastspring-woo-payment' )
-			);
-		}
-
-		$order = wc_get_order( $order_id );
-		if ( ! $order ) {
-			return new WP_Error( 'invalid_order', __( 'Invalid order.', 'vms-elements-fastspring-woo-payment' ) );
-		}
-
-		$fs_order_id = $order->get_transaction_id();
-		if ( ! $fs_order_id ) {
-			return new WP_Error( 'no_fastspring_order', __( 'No FastSpring order linked to this WooCommerce order.', 'vms-elements-fastspring-woo-payment' ) );
-		}
-
-		$api    = vms_efwp()->api;
-		$return = array(
-			'order'  => $fs_order_id,
-			'reason' => $reason ? $reason : 'requested_by_customer',
-		);
-		if ( null !== $amount && $amount > 0 ) {
-			$order_total = (float) $order->get_total();
-			if ( $amount < $order_total ) {
-				$return['amount'] = (float) $amount;
-			}
-		}
-		$result = $api->create_return( $return );
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-		$order->add_order_note(
-			sprintf(
-				/* translators: %s: refund reason */
-				__( 'Refund requested via FastSpring. Reason: %s', 'vms-elements-fastspring-woo-payment' ),
-				$reason
-			)
-		);
-		return true;
 	}
 }

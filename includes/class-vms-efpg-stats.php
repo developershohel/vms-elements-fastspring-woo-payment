@@ -2,17 +2,17 @@
 /**
  * Aggregations used by the admin dashboard.
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table names and scoped SQL fragments from VMS_EFWP_Install::table_name() / VMS_EFWP_Data_Store.
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table names and scoped SQL fragments from VMS_EFPG_Install::table_name() / VMS_EFPG_Data_Store.
 
 /**
- * Class VMS_EFWP_Stats.
+ * Class VMS_EFPG_Stats.
  */
-class VMS_EFWP_Stats {
+class VMS_EFPG_Stats {
 
 	/**
 	 * Build the orders table name.
@@ -20,7 +20,7 @@ class VMS_EFWP_Stats {
 	 * @return string
 	 */
 	private static function orders_table() {
-		return VMS_EFWP_Install::table_name( 'orders' );
+		return VMS_EFPG_Install::table_name( 'orders' );
 	}
 
 	/**
@@ -29,7 +29,7 @@ class VMS_EFWP_Stats {
 	 * @return string
 	 */
 	private static function subscriptions_table() {
-		return VMS_EFWP_Install::table_name( 'subscriptions' );
+		return VMS_EFPG_Install::table_name( 'subscriptions' );
 	}
 
 	/**
@@ -39,7 +39,7 @@ class VMS_EFWP_Stats {
 	 * @return array{sql:string,params:array}
 	 */
 	private static function site_scope( $column = 'site_url' ) {
-		return VMS_EFWP_Data_Store::orders_site_scope_sql( $column );
+		return VMS_EFPG_Data_Store::orders_site_scope_sql( $column );
 	}
 
 	/**
@@ -48,7 +48,7 @@ class VMS_EFWP_Stats {
 	 * @return string
 	 */
 	private static function site_scope_param() {
-		return VMS_EFWP_Data_Store::get_site_url();
+		return VMS_EFPG_Data_Store::get_site_url();
 	}
 
 	/**

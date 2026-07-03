@@ -2,17 +2,46 @@
 /**
  * One-time migration from the legacy WP FastSpring plugin identifiers.
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class VMS_EFWP_Migrate.
+ * Class VMS_EFPG_Migrate.
  */
-class VMS_EFWP_Migrate {
+class VMS_EFPG_Migrate {
 
-	const FLAG_OPTION = 'vms_efwp_migrated_from_wp_fastspring';
+	const FLAG_OPTION = 'vms_efpg_migrated_from_wp_fastspring';
+
+	const PREFIX_MIGRATION_FLAG = 'vms_efpg_migrated_from_efwp';
+
+	/**
+	 * vms_efwp → vms_efpg option keys (sites already on the previous prefix).
+	 *
+	 * @var array<string, string>
+	 */
+	private static $efwp_option_map = array(
+		'vms_efwp_settings'                       => 'vms_efpg_settings',
+		'vms_efwp_db_version'                     => 'vms_efpg_db_version',
+		'vms_efwp_keep_data_on_uninstall'         => 'vms_efpg_keep_data_on_uninstall',
+		'vms_efwp_migrated_from_wp_fastspring'    => 'vms_efpg_migrated_from_wp_fastspring',
+		'vms_efwp_order_invoice_backfill'         => 'vms_efpg_order_invoice_backfill',
+		'vms_efwp_user_scope_backfill'            => 'vms_efpg_user_scope_backfill',
+		'woocommerce_vms_efwp_settings'           => 'woocommerce_vms_efpg_settings',
+	);
+
+	/**
+	 * vms_efwp_* → vms_efpg_* table suffixes.
+	 *
+	 * @var array<string, string>
+	 */
+	private static $efwp_table_map = array(
+		'vms_efwp_orders'         => 'vms_efpg_orders',
+		'vms_efwp_subscriptions'  => 'vms_efpg_subscriptions',
+		'vms_efwp_events'         => 'vms_efpg_events',
+		'vms_efwp_log'            => 'vms_efpg_log',
+	);
 
 	/**
 	 * Legacy → current option keys.
@@ -20,10 +49,10 @@ class VMS_EFWP_Migrate {
 	 * @var array<string, string>
 	 */
 	private static $option_map = array(
-		'wp_fastspring_settings'                 => 'vms_efwp_settings',
-		'wp_fastspring_db_version'               => 'vms_efwp_db_version',
-		'wp_fastspring_keep_data_on_uninstall'   => 'vms_efwp_keep_data_on_uninstall',
-		'woocommerce_wp_fastspring_settings'     => 'woocommerce_vms_efwp_settings',
+		'wp_fastspring_settings'                 => 'vms_efpg_settings',
+		'wp_fastspring_db_version'               => 'vms_efpg_db_version',
+		'wp_fastspring_keep_data_on_uninstall'   => 'vms_efpg_keep_data_on_uninstall',
+		'woocommerce_wp_fastspring_settings'     => 'woocommerce_vms_efpg_settings',
 	);
 
 	/**
@@ -32,10 +61,10 @@ class VMS_EFWP_Migrate {
 	 * @var array<string, string>
 	 */
 	private static $table_map = array(
-		'fastspring_orders'         => 'vms_efwp_orders',
-		'fastspring_subscriptions'  => 'vms_efwp_subscriptions',
-		'fastspring_events'         => 'vms_efwp_events',
-		'fastspring_log'            => 'vms_efwp_log',
+		'fastspring_orders'         => 'vms_efpg_orders',
+		'fastspring_subscriptions'  => 'vms_efpg_subscriptions',
+		'fastspring_events'         => 'vms_efpg_events',
+		'fastspring_log'            => 'vms_efpg_log',
 	);
 
 	/**
@@ -44,19 +73,21 @@ class VMS_EFWP_Migrate {
 	 * @var array<string, string>
 	 */
 	private static $meta_map = array(
-		'_fastspring_product_path' => '_vms_efwp_product_path',
+		'_fastspring_product_path' => '_vms_efpg_product_path',
 	);
 
 	/**
 	 * Run migration once when legacy data is detected.
 	 */
 	public static function maybe_run() {
+		self::maybe_migrate_efwp_prefix();
+
 		if ( get_option( self::FLAG_OPTION ) ) {
 			return;
 		}
 
 		if ( ! self::legacy_data_exists() ) {
-			update_option( self::FLAG_OPTION, VMS_EFWP_VERSION, false );
+			update_option( self::FLAG_OPTION, VMS_EFPG_VERSION, false );
 			return;
 		}
 
@@ -66,7 +97,7 @@ class VMS_EFWP_Migrate {
 		self::migrate_order_meta();
 		self::migrate_wc_payment_method();
 
-		update_option( self::FLAG_OPTION, VMS_EFWP_VERSION, false );
+		update_option( self::FLAG_OPTION, VMS_EFPG_VERSION, false );
 	}
 
 	/**
@@ -218,7 +249,7 @@ class VMS_EFWP_Migrate {
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE {$wpdb->postmeta} SET meta_key = %s WHERE meta_key = %s",
-				'_vms_efwp_session_id',
+				'_vms_efpg_session_id',
 				'_fastspring_session_id'
 			)
 		);
@@ -237,7 +268,7 @@ class VMS_EFWP_Migrate {
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `{$meta_table}` SET meta_key = %s WHERE meta_key = %s",
-				'_vms_efwp_session_id',
+				'_vms_efpg_session_id',
 				'_fastspring_session_id'
 			)
 		);
@@ -254,7 +285,7 @@ class VMS_EFWP_Migrate {
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE {$wpdb->postmeta} SET meta_value = %s WHERE meta_key = %s AND meta_value = %s",
-				'vms_efwp',
+				'vms_efpg',
 				'_payment_method',
 				'wp_fastspring'
 			)
@@ -264,7 +295,7 @@ class VMS_EFWP_Migrate {
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE {$wpdb->postmeta} SET meta_value = %s WHERE meta_key = %s AND meta_value = %s",
-				'vms_efwp',
+				'vms_efpg',
 				'_payment_method_title',
 				'Pay with FastSpring'
 			)
@@ -284,8 +315,123 @@ class VMS_EFWP_Migrate {
 		$wpdb->query(
 			$wpdb->prepare(
 				"UPDATE `{$orders_table}` SET payment_method = %s WHERE payment_method = %s",
-				'vms_efwp',
+				'vms_efpg',
 				'wp_fastspring'
+			)
+		);
+		// phpcs:enable
+	}
+
+	/**
+	 * Migrate stored data from the previous vms_efwp prefix to vms_efpg.
+	 */
+	public static function maybe_migrate_efwp_prefix() {
+		if ( get_option( self::PREFIX_MIGRATION_FLAG ) ) {
+			return;
+		}
+
+		foreach ( self::$efwp_option_map as $old_key => $new_key ) {
+			$old_value = get_option( $old_key, null );
+			if ( null === $old_value ) {
+				continue;
+			}
+
+			$new_value = get_option( $new_key, null );
+			if ( self::should_copy_option( $old_value, $new_value ) ) {
+				update_option( $new_key, $old_value );
+			}
+
+			delete_option( $old_key );
+		}
+
+		foreach ( self::$efwp_table_map as $old_suffix => $new_suffix ) {
+			self::migrate_table( $old_suffix, $new_suffix );
+		}
+
+		self::migrate_efwp_meta_keys();
+		self::migrate_efwp_payment_method();
+
+		update_option( self::PREFIX_MIGRATION_FLAG, VMS_EFPG_VERSION, false );
+	}
+
+	/**
+	 * Rename vms_efwp order/product meta keys to vms_efpg.
+	 */
+	private static function migrate_efwp_meta_keys() {
+		global $wpdb;
+
+		$meta_keys = array(
+			'_vms_efwp_product_path'   => '_vms_efpg_product_path',
+			'_vms_efwp_session_id'     => '_vms_efpg_session_id',
+			'_vms_efwp_fs_account_id'  => '_vms_efpg_fs_account_id',
+		);
+
+		foreach ( $meta_keys as $old_key => $new_key ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->postmeta} SET meta_key = %s WHERE meta_key = %s",
+					$new_key,
+					$old_key
+				)
+			);
+		}
+
+		if ( ! self::hpos_is_enabled() ) {
+			return;
+		}
+
+		$meta_table = $wpdb->prefix . 'wc_orders_meta';
+		if ( ! self::table_exists( $meta_table ) ) {
+			return;
+		}
+
+		foreach ( $meta_keys as $old_key => $new_key ) {
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE `{$meta_table}` SET meta_key = %s WHERE meta_key = %s",
+					$new_key,
+					$old_key
+				)
+			);
+			// phpcs:enable
+		}
+	}
+
+	/**
+	 * Point WooCommerce orders at the renamed gateway id (vms_efwp → vms_efpg).
+	 */
+	private static function migrate_efwp_payment_method() {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$wpdb->postmeta} SET meta_value = %s WHERE meta_key = %s AND meta_value = %s",
+				'vms_efpg',
+				'_payment_method',
+				'vms_efwp'
+			)
+		);
+
+		if ( ! self::hpos_is_enabled() ) {
+			return;
+		}
+
+		$orders_table = $wpdb->prefix . 'wc_orders';
+		if ( ! self::table_exists( $orders_table ) ) {
+			return;
+		}
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE `{$orders_table}` SET payment_method = %s WHERE payment_method = %s",
+				'vms_efpg',
+				'vms_efwp'
 			)
 		);
 		// phpcs:enable
@@ -386,4 +532,5 @@ class VMS_EFWP_Migrate {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
 	}
+
 }

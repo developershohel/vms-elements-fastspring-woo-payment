@@ -2,15 +2,15 @@
 /**
  * Lightweight logger writing to a custom DB table.
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class VMS_EFWP_Logger.
+ * Class VMS_EFPG_Logger.
  */
-class VMS_EFWP_Logger {
+class VMS_EFPG_Logger {
 
 	/**
 	 * Add a log line.
@@ -23,12 +23,12 @@ class VMS_EFWP_Logger {
 	public static function log( $message, $level = 'info', $channel = 'general', $context = array() ) {
 		global $wpdb;
 
-		$settings = vms_efwp()->settings;
+		$settings = vms_efpg()->settings;
 		if ( $settings && 'yes' !== $settings->get( 'enable_logging', 'yes' ) && 'error' !== $level ) {
 			return;
 		}
 
-		$table = VMS_EFWP_Install::table_name( 'log' );
+		$table = VMS_EFPG_Install::table_name( 'log' );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->insert(
 			$table,

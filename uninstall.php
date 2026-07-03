@@ -2,7 +2,7 @@
 /**
  * Uninstall handler.
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
@@ -11,27 +11,37 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 global $wpdb;
 
-$vms_efwp_keep_data = get_option( 'vms_efwp_keep_data_on_uninstall', false );
-if ( $vms_efwp_keep_data ) {
+$vms_efpg_keep_data = get_option( 'vms_efpg_keep_data_on_uninstall', false );
+if ( $vms_efpg_keep_data ) {
 	return;
 }
 
-$vms_efwp_tables = array(
-	$wpdb->prefix . 'vms_efwp_orders',
-	$wpdb->prefix . 'vms_efwp_subscriptions',
-	$wpdb->prefix . 'vms_efwp_events',
-	$wpdb->prefix . 'vms_efwp_log',
+$vms_efpg_tables = array(
+	$wpdb->prefix . 'vms_efpg_orders',
+	$wpdb->prefix . 'vms_efpg_subscriptions',
+	$wpdb->prefix . 'vms_efpg_events',
+	$wpdb->prefix . 'vms_efpg_log',
 );
-foreach ( $vms_efwp_tables as $vms_efwp_table ) {
+foreach ( $vms_efpg_tables as $vms_efpg_table ) {
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Hardcoded plugin table names on uninstall.
-	$wpdb->query( "DROP TABLE IF EXISTS {$vms_efwp_table}" );
+	$wpdb->query( "DROP TABLE IF EXISTS {$vms_efpg_table}" );
 }
+
+delete_option( 'vms_efpg_settings' );
+delete_option( 'vms_efpg_db_version' );
+delete_option( 'vms_efpg_keep_data_on_uninstall' );
+delete_option( 'woocommerce_vms_efpg_settings' );
+delete_option( 'vms_efpg_migrated_from_wp_fastspring' );
+delete_option( 'vms_efpg_migrated_plugin_slug' );
+delete_option( 'vms_efpg_migrated_from_efwp' );
 
 delete_option( 'vms_efwp_settings' );
 delete_option( 'vms_efwp_db_version' );
 delete_option( 'vms_efwp_keep_data_on_uninstall' );
 delete_option( 'woocommerce_vms_efwp_settings' );
 delete_option( 'vms_efwp_migrated_from_wp_fastspring' );
+delete_option( 'vms_efwp_migrated_plugin_slug' );
+delete_option( 'vms_efwp_migrated_from_efwp' );
 
 delete_option( 'wp_fastspring_settings' );
 delete_option( 'wp_fastspring_db_version' );

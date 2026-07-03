@@ -2,49 +2,49 @@
 /**
  * Webhook listener for FastSpring events.
  *
- * Endpoint: https://example.com/?vms-efwp-webhook=1
+ * Endpoint: https://example.com/?vms-efpg-webhook=1
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class VMS_EFWP_Webhook.
+ * Class VMS_EFPG_Webhook.
  */
-class VMS_EFWP_Webhook {
+class VMS_EFPG_Webhook {
 
 	/**
 	 * API.
 	 *
-	 * @var VMS_EFWP_API
+	 * @var VMS_EFPG_API
 	 */
 	private $api;
 
 	/**
 	 * Settings.
 	 *
-	 * @var VMS_EFWP_Settings
+	 * @var VMS_EFPG_Settings
 	 */
 	private $settings;
 
 	/**
 	 * Webhook permissions helper.
 	 *
-	 * @var VMS_EFWP_Webhook_Permissions
+	 * @var VMS_EFPG_Webhook_Permissions
 	 */
 	private $permissions;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param VMS_EFWP_API      $api      API.
-	 * @param VMS_EFWP_Settings $settings Settings.
+	 * @param VMS_EFPG_API      $api      API.
+	 * @param VMS_EFPG_Settings $settings Settings.
 	 */
-	public function __construct( VMS_EFWP_API $api, VMS_EFWP_Settings $settings ) {
+	public function __construct( VMS_EFPG_API $api, VMS_EFPG_Settings $settings ) {
 		$this->api         = $api;
 		$this->settings    = $settings;
-		$this->permissions = new VMS_EFWP_Webhook_Permissions( $api, $settings );
+		$this->permissions = new VMS_EFPG_Webhook_Permissions( $api, $settings );
 
 		add_action( 'parse_request', array( $this, 'maybe_handle' ) );
 		add_action( 'parse_request', array( $this, 'maybe_handle_localhost_dev' ) );
@@ -56,7 +56,7 @@ class VMS_EFWP_Webhook {
 	 * @param WP $wp Request object.
 	 */
 	public function maybe_handle( $wp ) {
-		if ( empty( $_GET['vms-efwp-webhook'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( empty( $_GET['vms-efpg-webhook'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			return;
 		}
 
@@ -69,7 +69,7 @@ class VMS_EFWP_Webhook {
 		$sig  = isset( $_SERVER['HTTP_X_FS_SIGNATURE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FS_SIGNATURE'] ) ) : '';
 
 		if ( ! $this->verify_signature( $body, $sig ) ) {
-			VMS_EFWP_Logger::warning( 'Webhook signature verification failed', 'webhook' );
+			VMS_EFPG_Logger::warning( 'Webhook signature verification failed', 'webhook' );
 			status_header( 401 );
 			echo wp_json_encode( array( 'error' => 'invalid_signature' ) );
 			exit;
@@ -77,6 +77,13 @@ class VMS_EFWP_Webhook {
 
 		$payload = json_decode( $body, true );
 		if ( ! is_array( $payload ) || empty( $payload['events'] ) ) {
+			status_header( 400 );
+			echo wp_json_encode( array( 'error' => 'invalid_payload' ) );
+			exit;
+		}
+
+		$payload = self::sanitize_webhook_payload( $payload );
+		if ( null === $payload ) {
 			status_header( 400 );
 			echo wp_json_encode( array( 'error' => 'invalid_payload' ) );
 			exit;
@@ -98,9 +105,9 @@ class VMS_EFWP_Webhook {
 	 * webhook JSON from a URL parameter or POST body while testing locally.
 	 *
 	 * Examples:
-	 *   ?vms-efwp-webhook-dev=1&payload={...urlencoded json...}
-	 *   ?vms-efwp-webhook-dev=1&url=https://example.com/sample-webhook.json
-	 *   POST ?vms-efwp-webhook-dev=1 with raw JSON body (same shape as FastSpring).
+	 *   ?vms-efpg-webhook-dev=1&payload={...urlencoded json...}
+	 *   ?vms-efpg-webhook-dev=1&url=https://example.com/sample-webhook.json
+	 *   POST ?vms-efpg-webhook-dev=1 with raw JSON body (same shape as FastSpring).
 	 *
 	 * Disabled automatically on non-localhost hosts.
 	 *
@@ -108,12 +115,12 @@ class VMS_EFWP_Webhook {
 	 */
 	public function maybe_handle_localhost_dev( $wp ) {
 		unset( $wp );
-		if ( empty( $_GET['vms-efwp-webhook-dev'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( empty( $_GET['vms-efpg-webhook-dev'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			return;
 		}
 
 		if ( ! self::is_localhost_environment() ) {
-			VMS_EFWP_Logger::warning( 'Blocked localhost dev webhook on non-local host.', 'webhook' );
+			VMS_EFPG_Logger::warning( 'Blocked localhost dev webhook on non-local host.', 'webhook' );
 			status_header( 403 );
 			echo wp_json_encode( array( 'error' => 'localhost_only' ) );
 			exit;
@@ -137,7 +144,7 @@ class VMS_EFWP_Webhook {
 			exit;
 		}
 
-		VMS_EFWP_Logger::info(
+		VMS_EFPG_Logger::info(
 			'Localhost dev webhook inject started.',
 			'webhook',
 			array( 'events' => count( $payload['events'] ) )
@@ -214,7 +221,7 @@ class VMS_EFWP_Webhook {
 		 * @param bool   $is_local Whether the host is treated as localhost.
 		 * @param string $host     Hostname being checked.
 		 */
-		return (bool) apply_filters( 'vms_efwp_is_localhost_host', false, $host );
+		return (bool) apply_filters( 'vms_efpg_is_localhost_host', false, $host );
 	}
 
 	/**
@@ -225,7 +232,7 @@ class VMS_EFWP_Webhook {
 	 */
 	public static function localhost_dev_webhook_url( $args = array() ) {
 		$args = array_merge(
-			array( 'vms-efwp-webhook-dev' => 1 ),
+			array( 'vms-efpg-webhook-dev' => 1 ),
 			(array) $args
 		);
 		return add_query_arg( $args, home_url( '/' ) );
@@ -242,21 +249,22 @@ class VMS_EFWP_Webhook {
 		if ( is_string( $body ) && '' !== trim( $body ) ) {
 			$decoded = $this->decode_dev_payload_string( $body );
 			if ( is_array( $decoded ) ) {
+				$decoded = self::sanitize_decoded_dev_payload( $decoded );
 				return $this->normalize_webhook_payload( $decoded );
 			}
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Disabled at method start.
 		if ( ! empty( $_GET['payload'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Raw JSON/base64 decoded in decode_dev_payload_string().
-			$raw     = wp_unslash( $_GET['payload'] );
+			$raw     = sanitize_textarea_field( wp_unslash( $_GET['payload'] ) );
 			$decoded = $this->decode_dev_payload_string( $raw );
 			if ( is_array( $decoded ) ) {
+				$decoded = self::sanitize_decoded_dev_payload( $decoded );
 				return $this->normalize_webhook_payload( $decoded );
 			}
 			return new WP_Error(
 				'invalid_payload',
-				__( 'Could not decode the payload query parameter as JSON.', 'vms-elements-fastspring-woo-payment' )
+				__( 'Could not decode the payload query parameter as JSON.', 'vms-elements-fastspring-payment-gateway' )
 			);
 		}
 
@@ -272,7 +280,26 @@ class VMS_EFWP_Webhook {
 
 		return new WP_Error(
 			'missing_payload',
-			__( 'Provide webhook JSON via POST body, the payload query parameter, or url/source to fetch JSON from.', 'vms-elements-fastspring-woo-payment' )
+			__( 'Provide webhook JSON via POST body, the payload query parameter, or url/source to fetch JSON from.', 'vms-elements-fastspring-payment-gateway' )
+		);
+	}
+
+	/**
+	 * Sanitize a decoded dev-webhook JSON payload before further processing.
+	 *
+	 * @param array $decoded Decoded array.
+	 * @return array
+	 */
+	private static function sanitize_decoded_dev_payload( $decoded ) {
+		if ( ! is_array( $decoded ) || ! function_exists( 'map_deep' ) ) {
+			return is_array( $decoded ) ? $decoded : array();
+		}
+
+		return map_deep(
+			$decoded,
+			static function ( $value ) {
+				return is_scalar( $value ) ? sanitize_text_field( (string) $value ) : $value;
+			}
 		);
 	}
 
@@ -315,7 +342,7 @@ class VMS_EFWP_Webhook {
 		if ( ! in_array( $scheme, array( 'http', 'https' ), true ) ) {
 			return new WP_Error(
 				'invalid_source_url',
-				__( 'The source URL must use http or https.', 'vms-elements-fastspring-woo-payment' )
+				__( 'The source URL must use http or https.', 'vms-elements-fastspring-payment-gateway' )
 			);
 		}
 
@@ -334,7 +361,7 @@ class VMS_EFWP_Webhook {
 				'source_fetch_failed',
 				sprintf(
 					/* translators: %s: error message */
-					__( 'Could not fetch webhook JSON from URL: %s', 'vms-elements-fastspring-woo-payment' ),
+					__( 'Could not fetch webhook JSON from URL: %s', 'vms-elements-fastspring-payment-gateway' ),
 					$response->get_error_message()
 				)
 			);
@@ -346,7 +373,7 @@ class VMS_EFWP_Webhook {
 				'source_fetch_failed',
 				sprintf(
 					/* translators: %d: HTTP status code */
-					__( 'Source URL returned HTTP %d.', 'vms-elements-fastspring-woo-payment' ),
+					__( 'Source URL returned HTTP %d.', 'vms-elements-fastspring-payment-gateway' ),
 					$code
 				)
 			);
@@ -357,10 +384,11 @@ class VMS_EFWP_Webhook {
 		if ( ! is_array( $decoded ) ) {
 			return new WP_Error(
 				'invalid_source_payload',
-				__( 'The source URL did not return valid webhook JSON.', 'vms-elements-fastspring-woo-payment' )
+				__( 'The source URL did not return valid webhook JSON.', 'vms-elements-fastspring-payment-gateway' )
 			);
 		}
 
+		$decoded = self::sanitize_decoded_dev_payload( $decoded );
 		return $this->normalize_webhook_payload( $decoded );
 	}
 
@@ -374,7 +402,7 @@ class VMS_EFWP_Webhook {
 		if ( ! is_array( $data ) ) {
 			return new WP_Error(
 				'invalid_payload',
-				__( 'Webhook payload must be a JSON object.', 'vms-elements-fastspring-woo-payment' )
+				__( 'Webhook payload must be a JSON object.', 'vms-elements-fastspring-payment-gateway' )
 			);
 		}
 
@@ -388,8 +416,35 @@ class VMS_EFWP_Webhook {
 
 		return new WP_Error(
 			'invalid_payload',
-			__( 'Webhook JSON must contain an events array or a single event object.', 'vms-elements-fastspring-woo-payment' )
+			__( 'Webhook JSON must contain an events array or a single event object.', 'vms-elements-fastspring-payment-gateway' )
 		);
+	}
+
+	/**
+	 * Sanitize decoded webhook JSON before processing.
+	 *
+	 * @param array $payload Decoded webhook body.
+	 * @return array|null
+	 */
+	private static function sanitize_webhook_payload( array $payload ) {
+		if ( empty( $payload['events'] ) || ! is_array( $payload['events'] ) ) {
+			return null;
+		}
+
+		if ( function_exists( 'map_deep' ) ) {
+			$payload = map_deep(
+				$payload,
+				static function ( $value ) {
+					return is_scalar( $value ) ? sanitize_text_field( (string) $value ) : $value;
+				}
+			);
+		}
+
+		if ( empty( $payload['events'] ) || ! is_array( $payload['events'] ) ) {
+			return null;
+		}
+
+		return $payload;
 	}
 
 	/**
@@ -411,7 +466,7 @@ class VMS_EFWP_Webhook {
 		);
 
 		if ( empty( $secrets ) ) {
-			VMS_EFWP_Logger::warning( 'No webhook secret configured; accepting unsigned webhook.', 'webhook' );
+			VMS_EFPG_Logger::warning( 'No webhook secret configured; accepting unsigned webhook.', 'webhook' );
 			return true;
 		}
 		if ( empty( $signature ) ) {
@@ -438,7 +493,7 @@ class VMS_EFWP_Webhook {
 		$is_live = isset( $event['live'] ) ? (bool) $event['live'] : ! $this->settings->is_sandbox();
 		$is_test = ! $is_live;
 
-		VMS_EFWP_Data_Store::record_event( $event, $is_live );
+		VMS_EFPG_Data_Store::record_event( $event, $is_live );
 
 		$type = isset( $event['type'] ) ? $event['type'] : '';
 		$data = isset( $event['data'] ) ? $event['data'] : array();
@@ -447,20 +502,20 @@ class VMS_EFWP_Webhook {
 			if ( $force_handlers || $this->permissions->is_event_enabled( $type ) ) {
 				$this->apply_event_handlers( $type, $data, $is_test );
 			} else {
-				VMS_EFWP_Logger::info(
+				VMS_EFPG_Logger::info(
 					'Webhook event skipped — not enabled in FastSpring webhook permissions: ' . $type,
 					'webhook',
 					array( 'type' => $type )
 				);
 			}
 
-			do_action( 'vms_efwp_event_' . $type, $data, $event );
-			do_action( 'vms_efwp_event', $type, $data, $event );
+			do_action( 'vms_efpg_event_' . $type, $data, $event );
+			do_action( 'vms_efpg_event', $type, $data, $event );
 
-			VMS_EFWP_Data_Store::mark_event_processed( $event['id'] );
+			VMS_EFPG_Data_Store::mark_event_processed( $event['id'] );
 		} catch ( Exception $e ) {
-			VMS_EFWP_Logger::error( 'Webhook processing error: ' . $e->getMessage(), 'webhook', array( 'type' => $type ) );
-			VMS_EFWP_Data_Store::mark_event_processed( $event['id'], $e->getMessage() );
+			VMS_EFPG_Logger::error( 'Webhook processing error: ' . $e->getMessage(), 'webhook', array( 'type' => $type ) );
+			VMS_EFPG_Data_Store::mark_event_processed( $event['id'], $e->getMessage() );
 		}
 	}
 
@@ -479,20 +534,20 @@ class VMS_EFWP_Webhook {
 			case 'order.approval.pending':
 			case 'order.payment.pending':
 			case 'order.canceled':
-				$data = VMS_EFWP_Data_Store::prepare_payload_for_site( $data );
-				if ( ! VMS_EFWP_Data_Store::should_persist_for_site( $data ) ) {
-					VMS_EFWP_Logger::info(
+				$data = VMS_EFPG_Data_Store::prepare_payload_for_site( $data );
+				if ( ! VMS_EFPG_Data_Store::should_persist_for_site( $data ) ) {
+					VMS_EFPG_Logger::info(
 						'Webhook order ignored — belongs to another WordPress site.',
 						'webhook',
 						array(
 							'type'     => $type,
 							'order_id' => $data['id'] ?? '',
-							'site_url' => VMS_EFWP_Data_Store::resolve_site_url_from_payload( $data ),
+							'site_url' => VMS_EFPG_Data_Store::resolve_site_url_from_payload( $data ),
 						)
 					);
 					break;
 				}
-				VMS_EFWP_Data_Store::upsert_order( $data, $is_test );
+				VMS_EFPG_Data_Store::upsert_order( $data, $is_test );
 				if ( 'order.completed' === $type ) {
 					$this->maybe_complete_wc_order( $data );
 				} elseif ( 'order.canceled' === $type ) {
@@ -504,15 +559,15 @@ class VMS_EFWP_Webhook {
 			case 'order.refund':
 				$order_id = $this->resolve_fs_order_id( $data );
 				if ( $order_id ) {
-					$stored = VMS_EFWP_Data_Store::get_order_by_fs_id( $order_id );
+					$stored = VMS_EFPG_Data_Store::get_order_by_fs_id( $order_id );
 					if ( ! $stored ) {
 						break;
 					}
 					$stored_site = ! empty( $stored['site_url'] ) ? (string) $stored['site_url'] : '';
-					if ( $stored_site && ! VMS_EFWP_Data_Store::site_urls_equivalent( $stored_site, VMS_EFWP_Data_Store::get_site_url() ) ) {
+					if ( $stored_site && ! VMS_EFPG_Data_Store::site_urls_equivalent( $stored_site, VMS_EFPG_Data_Store::get_site_url() ) ) {
 						break;
 					}
-					VMS_EFWP_Data_Store::mark_order_refunded( $order_id );
+					VMS_EFPG_Data_Store::mark_order_refunded( $order_id );
 					$this->maybe_refund_wc_order( $order_id, $data );
 				}
 				break;
@@ -525,23 +580,23 @@ class VMS_EFWP_Webhook {
 			case 'subscription.payment.reminder':
 			case 'subscription.canceled':
 			case 'subscription.deactivated':
-				$data = VMS_EFWP_Data_Store::prepare_payload_for_site( $data );
-				if ( ! VMS_EFWP_Data_Store::should_persist_for_site( $data ) ) {
-					VMS_EFWP_Logger::info(
+				$data = VMS_EFPG_Data_Store::prepare_payload_for_site( $data );
+				if ( ! VMS_EFPG_Data_Store::should_persist_for_site( $data ) ) {
+					VMS_EFPG_Logger::info(
 						'Webhook subscription ignored — belongs to another WordPress site.',
 						'webhook',
 						array(
 							'type'             => $type,
 							'subscription_id'  => $data['id'] ?? '',
-							'site_url'         => VMS_EFWP_Data_Store::resolve_site_url_from_payload( $data ),
+							'site_url'         => VMS_EFPG_Data_Store::resolve_site_url_from_payload( $data ),
 						)
 					);
 					break;
 				}
-				$wc_user_id = VMS_EFWP_Data_Store::resolve_wc_user_id_from_payload( $data );
-				VMS_EFWP_Data_Store::upsert_subscription( $data, $is_test, $wc_user_id );
+				$wc_user_id = VMS_EFPG_Data_Store::resolve_wc_user_id_from_payload( $data );
+				VMS_EFPG_Data_Store::upsert_subscription( $data, $is_test, $wc_user_id );
 				if ( 'subscription.canceled' === $type || 'subscription.deactivated' === $type ) {
-					VMS_EFWP_Data_Store::set_subscription_status( $data['id'], 'canceled' );
+					VMS_EFPG_Data_Store::set_subscription_status( $data['id'], 'canceled' );
 				}
 				break;
 
@@ -552,7 +607,7 @@ class VMS_EFWP_Webhook {
 				break;
 
 			default:
-				VMS_EFWP_Logger::info( 'Unhandled FastSpring event type: ' . $type, 'webhook' );
+				VMS_EFPG_Logger::info( 'Unhandled FastSpring event type: ' . $type, 'webhook' );
 		}
 	}
 
@@ -608,13 +663,13 @@ class VMS_EFWP_Webhook {
 		if ( ! $order ) {
 			return;
 		}
-		if ( class_exists( 'VMS_EFWP_Checkout_Overlay' ) ) {
-			VMS_EFWP_Checkout_Overlay::apply_fastspring_payment( $order, $data );
+		if ( class_exists( 'VMS_EFPG_Checkout_Overlay' ) ) {
+			VMS_EFPG_Checkout_Overlay::apply_fastspring_payment( $order, $data );
 			return;
 		}
 		if ( ! $order->is_paid() ) {
 			$order->payment_complete( isset( $data['id'] ) ? $data['id'] : '' );
-			$order->add_order_note( __( 'Payment captured by FastSpring.', 'vms-elements-fastspring-woo-payment' ) );
+			$order->add_order_note( __( 'Payment captured by FastSpring.', 'vms-elements-fastspring-payment-gateway' ) );
 		}
 	}
 
@@ -633,7 +688,7 @@ class VMS_EFWP_Webhook {
 		}
 		$order = wc_get_order( $wc_order_id );
 		if ( $order && ! in_array( $order->get_status(), array( 'cancelled', 'refunded' ), true ) ) {
-			$order->update_status( 'cancelled', __( 'FastSpring reported the order was canceled.', 'vms-elements-fastspring-woo-payment' ) );
+			$order->update_status( 'cancelled', __( 'FastSpring reported the order was canceled.', 'vms-elements-fastspring-payment-gateway' ) );
 		}
 	}
 
@@ -648,7 +703,7 @@ class VMS_EFWP_Webhook {
 			return;
 		}
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'orders' );
+		$table = VMS_EFPG_Install::table_name( 'orders' );
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wc_order_id = $wpdb->get_var(
@@ -663,7 +718,7 @@ class VMS_EFWP_Webhook {
 		}
 		$order = wc_get_order( (int) $wc_order_id );
 		if ( $order && 'refunded' !== $order->get_status() ) {
-			$order->update_status( 'refunded', __( 'Refund issued via FastSpring.', 'vms-elements-fastspring-woo-payment' ) );
+			$order->update_status( 'refunded', __( 'Refund issued via FastSpring.', 'vms-elements-fastspring-payment-gateway' ) );
 		}
 	}
 }

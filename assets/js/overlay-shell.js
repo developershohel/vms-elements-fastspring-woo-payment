@@ -1,14 +1,14 @@
 ( function () {
 	'use strict';
 
-	var shellConfig = window.VMS_EFWP_OverlayShell || {};
+	var shellConfig = window.VMS_EFPG_OverlayShell || {};
 	var shellI18n = shellConfig.i18n || {};
 
 	function shellText( key, fallback ) {
 		return shellI18n[ key ] || fallback;
 	}
 
-	var ROOT_ID = 'vms-efwp-fastspring-overlay-root';
+	var ROOT_ID = 'vms-efpg-fastspring-overlay-root';
 
 	var CHECKOUT_SELECTORS = [
 		'#fsc-popup-frame',
@@ -36,7 +36,7 @@
 
 		root = document.createElement( 'main' );
 		root.id = ROOT_ID;
-		root.className = 'vms-efwp-fastspring-overlay-root';
+		root.className = 'vms-efpg-fastspring-overlay-root';
 		root.setAttribute( 'role', 'dialog' );
 		root.setAttribute( 'aria-modal', 'true' );
 		root.setAttribute( 'aria-label', shellText( 'checkoutAriaLabel', 'FastSpring checkout' ) );
@@ -111,14 +111,14 @@
 		canvas.style.pointerEvents = 'none';
 
 		if ( checkoutInside ) {
-			canvas.classList.add( 'vms-efwp-fsc-host' );
+			canvas.classList.add( 'vms-efpg-fsc-host' );
 			canvas.style.opacity = '';
 			canvas.style.visibility = '';
 			hideCanvasSpinner( canvas );
 			return;
 		}
 
-		canvas.classList.remove( 'vms-efwp-fsc-host' );
+		canvas.classList.remove( 'vms-efpg-fsc-host' );
 
 		if ( checkoutAnywhere ) {
 			hideCanvasSpinner( canvas );
@@ -169,36 +169,36 @@
 	}
 
 	function startObserver() {
-		if ( window._VMS_EFWP_OverlayObserver || ! window.MutationObserver ) {
+		if ( window._VMS_EFPG_OverlayObserver || ! window.MutationObserver ) {
 			return;
 		}
 
-		window._VMS_EFWP_OverlayObserver = new MutationObserver( function () {
+		window._VMS_EFPG_OverlayObserver = new MutationObserver( function () {
 			mountPopupNodes();
 		} );
 
-		window._VMS_EFWP_OverlayObserver.observe( document.body, {
+		window._VMS_EFPG_OverlayObserver.observe( document.body, {
 			childList: true,
 			subtree: true,
 		} );
 	}
 
 	function activate() {
-		document.documentElement.classList.add( 'vms-efwp-checkout-active', 'vms-efwp-fastspring-checkout' );
+		document.documentElement.classList.add( 'vms-efpg-checkout-active', 'vms-efpg-fastspring-checkout' );
 		ensureRoot();
 		mountPopupNodes();
 		startObserver();
 	}
 
 	function deactivate() {
-		document.documentElement.classList.remove( 'vms-efwp-checkout-active', 'vms-efwp-fastspring-checkout' );
+		document.documentElement.classList.remove( 'vms-efpg-checkout-active', 'vms-efpg-fastspring-checkout' );
 		var root = document.getElementById( ROOT_ID );
 		if ( root ) {
 			root.classList.remove( 'is-open' );
 		}
 	}
 
-	window.VMS_EFWP_OverlayApi = {
+	window.VMS_EFPG_OverlayApi = {
 		activate: activate,
 		deactivate: deactivate,
 		mount: mountPopupNodes,

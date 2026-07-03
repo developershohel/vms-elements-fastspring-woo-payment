@@ -1,10 +1,8 @@
 # Copy to .distignore locally when building WordPress.org release ZIPs.
 # Plugin Check flags dotfiles in the plugin root — do not commit .distignore to the org SVN tree.
-#
-# IMPORTANT: The Pro add-on (vms-elements-fastspring-woo-payment-pro) is a separate
-# plugin sold on vmselements.com — never include it in the free WordPress.org ZIP.
 docs/
 gitignore.example
 wordpress-org-assets/
 distignore.example
-../vms-elements-fastspring-woo-payment-pro/
+dist/
+scripts/

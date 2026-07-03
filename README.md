@@ -1,27 +1,16 @@
-# VMS Elements Fastspring Woo Payment for WooCommerce
+# VMS Elements Payment Gateway with FastSpring for WooCommerce
 
-The **free WordPress.org plugin** for integrating [FastSpring](https://fastspring.com) with WooCommerce — redirect checkout, webhooks, stored orders, and core settings.
+Integrate [FastSpring](https://fastspring.com) with WooCommerce — popup overlay checkout (classic + blocks), webhooks, stored orders, and core settings.
 
-Advanced analytics, overlay checkout, catalog tools, and subscription management ship in the separate **[Pro add-on](https://vmselements.com/product/vms-elements-fastspring-woo-payment-pro)** (not bundled in this repository's org ZIP).
+## Features
 
-## Free plugin features
-
-- **WooCommerce payment gateway** — creates FastSpring checkout sessions and redirects customers to your FastSpring storefront.
+- **WooCommerce payment gateway** — classic and block checkout with FastSpring Store Builder popup overlay.
+- **Three pricing strategies** — single custom price, per-product override, and FastSpring catalog pricing.
 - **Webhook listener** — HMAC-SHA256 signature verification; persists orders, subscriptions, and events to custom tables.
-- **Stored Orders admin** — browse webhook-synced FastSpring orders from WordPress.
-- **Status dashboard** — credentials check, mode indicator, recent stored orders.
+- **Stored Orders admin** — browse webhook-synced FastSpring orders; resend invoice emails from WordPress.
+- **Analytics dashboard** — KPIs, charts, and recent orders.
 - **Live + Sandbox isolation** — independent API credentials, storefronts, and webhook secrets per mode.
 - **Connection tester** on the Settings screen.
-
-## Pro add-on (separate plugin)
-
-Install **VMS Elements Fastspring Woo Payment Pro** from [VMS Elements](https://vmselements.com/product/vms-elements-fastspring-woo-payment-pro) to unlock:
-
-- Advanced analytics dashboard (KPIs, charts, MRR, top products/countries)
-- Overlay popup checkout + WooCommerce Blocks support
-- Catalog admin (Products, Subscription Products, Coupons, Shortcodes)
-- Subscriptions, Invoices, Quotes, Returns, Accounts, Sessions, Events, Reports, Webhooks, Tools
-- Payment links, payment success pages, My Account subscriptions, product sync, WC refunds via FastSpring
 
 ## Configuration
 
@@ -29,39 +18,43 @@ Install **VMS Elements Fastspring Woo Payment Pro** from [VMS Elements](https://
 2. Configure a webhook under **Integrations → Webhooks** with the URL shown on the plugin's Settings page and HMAC SHA256 signing.
 3. Paste credentials, storefront ids and webhook secrets into **FastSpring → Settings** in WordPress, choose your active mode, and click **Test connection**.
 
-## File map (free plugin only)
+## File map
 
 ```
-vms-elements-fastspring-woo-payment.php
+vms-elements-fastspring-payment-gateway.php
 includes/
-  class-vms-efwp.php
-  class-vms-efwp-features.php     # Pro gate helpers
-  class-vms-efwp-install.php
-  class-vms-efwp-migrate.php
-  class-vms-efwp-settings.php
-  class-vms-efwp-api.php
-  class-vms-efwp-logger.php
-  class-vms-efwp-assets.php       # Shared checkout i18n helpers
-  class-vms-efwp-webhook-permissions.php
-  class-vms-efwp-webhook.php
-  class-vms-efwp-data-store.php
-  class-vms-efwp-wc-gateway-loader.php
-  class-vms-efwp-wc-gateway.php
+  class-vms-efpg.php
+  class-vms-efpg-helpers.php
+  class-vms-efpg-install.php
+  class-vms-efpg-migrate.php
+  class-vms-efpg-settings.php
+  class-vms-efpg-api.php
+  class-vms-efpg-logger.php
+  class-vms-efpg-assets.php
+  class-vms-efpg-webhook-permissions.php
+  class-vms-efpg-webhook.php
+  class-vms-efpg-data-store.php
+  class-vms-efpg-wc-gateway-loader.php
+  class-vms-efpg-wc-gateway.php
+  class-vms-efpg-wc-blocks.php
+  class-vms-efpg-checkout-overlay.php
+  class-vms-efpg-checkout-loader.php
   admin/
-    class-vms-efwp-admin.php
-    class-vms-efwp-admin-dashboard.php
-    class-vms-efwp-admin-orders.php
-    class-vms-efwp-admin-settings.php
-    class-vms-efwp-admin-resource-base.php
+    class-vms-efpg-admin.php
+    class-vms-efpg-admin-dashboard.php
+    class-vms-efpg-admin-orders.php
+    class-vms-efpg-admin-settings.php
+    class-vms-efpg-admin-invoice-actions.php
+    class-vms-efpg-admin-resource-base.php
 assets/
   css/admin.css
+  css/checkout-popup.css
   js/admin.js
-languages/vms-elements-fastspring-woo-payment.pot
+  js/blocks/checkout-block.js
+  js/vendor/chart.umd.min.js
+languages/vms-elements-fastspring-payment-gateway.pot
 uninstall.php
-docs/AGENTS.md                    # Agent/developer guide (excluded from WordPress.org ZIP)
 ```
-
-Pro implementation files live in the sibling folder `vms-elements-fastspring-woo-payment-pro/` (separate product).
 
 ## License
 

@@ -2,17 +2,17 @@
 /**
  * Persistence layer for FastSpring orders, subscriptions, events.
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table names from VMS_EFWP_Install::table_name().
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table names from VMS_EFPG_Install::table_name().
 
 /**
- * Class VMS_EFWP_Data_Store.
+ * Class VMS_EFPG_Data_Store.
  */
-class VMS_EFWP_Data_Store {
+class VMS_EFPG_Data_Store {
 
 	/**
 	 * Orders site-scope WHERE fragment (single %s = normalized site URL).
@@ -203,18 +203,18 @@ class VMS_EFWP_Data_Store {
 	 * @param int $wc_order_id WooCommerce order ID.
 	 * @return bool
 	 */
-	public static function is_local_vms_efwp_wc_order( $wc_order_id ) {
+	public static function is_local_vms_efpg_wc_order( $wc_order_id ) {
 		$wc_order_id = (int) $wc_order_id;
 		if ( ! $wc_order_id || ! function_exists( 'wc_get_order' ) ) {
 			return false;
 		}
 
 		$order = wc_get_order( $wc_order_id );
-		if ( ! $order || 'vms_efwp' !== $order->get_payment_method() ) {
+		if ( ! $order || 'vms_efpg' !== $order->get_payment_method() ) {
 			return false;
 		}
 
-		return (bool) $order->get_meta( '_vms_efwp_session_id' ) || (bool) $order->get_transaction_id();
+		return (bool) $order->get_meta( '_vms_efpg_session_id' ) || (bool) $order->get_transaction_id();
 	}
 
 	/**
@@ -250,7 +250,7 @@ class VMS_EFWP_Data_Store {
 			return self::site_urls_equivalent( $tag_site, $site_url );
 		}
 
-		return self::is_local_vms_efwp_wc_order( self::resolve_wc_order_id_from_payload( $payload ) );
+		return self::is_local_vms_efpg_wc_order( self::resolve_wc_order_id_from_payload( $payload ) );
 	}
 
 	/**
@@ -269,7 +269,7 @@ class VMS_EFWP_Data_Store {
 			$wc_order_id = self::resolve_wc_order_id_from_payload( $payload );
 		}
 
-		if ( ! self::is_local_vms_efwp_wc_order( $wc_order_id ) ) {
+		if ( ! self::is_local_vms_efpg_wc_order( $wc_order_id ) ) {
 			return $payload;
 		}
 
@@ -390,7 +390,7 @@ class VMS_EFWP_Data_Store {
 	public static function get_site_context() {
 		global $wpdb;
 
-		$table = VMS_EFWP_Install::table_name( 'orders' );
+		$table = VMS_EFPG_Install::table_name( 'orders' );
 		$scope = self::orders_site_scope_sql( 'site_url' );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -408,7 +408,7 @@ class VMS_EFWP_Data_Store {
 					array(
 						'limit'          => -1,
 						'return'         => 'ids',
-						'payment_method' => 'vms_efwp',
+						'payment_method' => 'vms_efpg',
 						'status'         => array_keys( wc_get_order_statuses() ),
 					)
 				)
@@ -433,7 +433,7 @@ class VMS_EFWP_Data_Store {
 	 * @return array{synced:int,skipped:bool,errors:int}
 	 */
 	public static function sync_site_orders( $force = false ) {
-		$transient_key = 'vms_efwp_site_orders_sync';
+		$transient_key = 'vms_efpg_site_orders_sync';
 		if ( ! $force && get_transient( $transient_key ) ) {
 			return array(
 				'synced'   => 0,
@@ -448,7 +448,7 @@ class VMS_EFWP_Data_Store {
 		$now    = current_time( 'mysql', true );
 
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'orders' );
+		$table = VMS_EFPG_Install::table_name( 'orders' );
 		if ( $table ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$wpdb->query(
@@ -462,14 +462,14 @@ class VMS_EFWP_Data_Store {
 			);
 		}
 
-		if ( function_exists( 'wc_get_orders' ) && function_exists( 'vms_efwp' ) && vms_efwp()->api ) {
+		if ( function_exists( 'wc_get_orders' ) && function_exists( 'vms_efpg' ) && vms_efpg()->api ) {
 			$wc_ids = wc_get_orders(
 				array(
 					'limit'          => 500,
 					'orderby'        => 'date',
 					'order'          => 'DESC',
 					'return'         => 'ids',
-					'payment_method' => 'vms_efwp',
+					'payment_method' => 'vms_efpg',
 					'status'         => array_keys( wc_get_order_statuses() ),
 				)
 			);
@@ -489,13 +489,13 @@ class VMS_EFWP_Data_Store {
 					continue;
 				}
 
-				$raw = vms_efwp()->api->get_order( $fs_id );
+				$raw = vms_efpg()->api->get_order( $fs_id );
 				if ( is_wp_error( $raw ) ) {
 					++$errors;
 					continue;
 				}
 
-				$parsed = vms_efwp()->api->parse_order( $raw );
+				$parsed = vms_efpg()->api->parse_order( $raw );
 				if ( is_wp_error( $parsed ) ) {
 					++$errors;
 					continue;
@@ -508,7 +508,7 @@ class VMS_EFWP_Data_Store {
 
 				$is_test = ! empty( $parsed['test'] ) || ! empty( $parsed['isTest'] );
 				$is_live = isset( $parsed['live'] ) ? (bool) $parsed['live'] : (
-					function_exists( 'vms_efwp' ) && vms_efwp()->settings && ! vms_efwp()->settings->is_sandbox()
+					function_exists( 'vms_efpg' ) && vms_efpg()->settings && ! vms_efpg()->settings->is_sandbox()
 				);
 				if ( ! $is_live ) {
 					$is_test = true;
@@ -520,9 +520,9 @@ class VMS_EFWP_Data_Store {
 			}
 		}
 
-		$settings = function_exists( 'vms_efwp' ) ? vms_efwp()->settings : null;
-		if ( $settings && $settings->has_credentials() && function_exists( 'vms_efwp' ) && vms_efwp()->api ) {
-			$api   = vms_efwp()->api;
+		$settings = function_exists( 'vms_efpg' ) ? vms_efpg()->settings : null;
+		if ( $settings && $settings->has_credentials() && function_exists( 'vms_efpg' ) && vms_efpg()->api ) {
+			$api   = vms_efpg()->api;
 			$begin = gmdate( 'Y-m-d', strtotime( '-365 days' ) );
 			$end   = gmdate( 'Y-m-d' );
 			$page  = 1;
@@ -601,7 +601,7 @@ class VMS_EFWP_Data_Store {
 	 */
 	public static function upsert_order( $payload, $is_test = false ) {
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'orders' );
+		$table = VMS_EFPG_Install::table_name( 'orders' );
 
 		if ( ! is_array( $payload ) ) {
 			return false;
@@ -612,8 +612,8 @@ class VMS_EFWP_Data_Store {
 			return false;
 		}
 
-		if ( ! empty( $payload['completed'] ) && function_exists( 'vms_efwp' ) && vms_efwp()->api ) {
-			$payload = vms_efwp()->api->ensure_order_invoice( $payload );
+		if ( ! empty( $payload['completed'] ) && function_exists( 'vms_efpg' ) && vms_efpg()->api ) {
+			$payload = vms_efpg()->api->ensure_order_invoice( $payload );
 		}
 
 		$fs_order_id = isset( $payload['id'] ) ? $payload['id'] : ( isset( $payload['order'] ) ? $payload['order'] : '' );
@@ -679,7 +679,7 @@ class VMS_EFWP_Data_Store {
 			$data['site_url'] = $site_url;
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table from VMS_EFWP_Install::table_name().
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Custom table from VMS_EFPG_Install::table_name().
 		$existing_id = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE fs_order_id = %s", $fs_order_id ) );
 		if ( $existing_id ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -708,8 +708,8 @@ class VMS_EFWP_Data_Store {
 	 * @return array{invoice_url:?string,fs_invoice_id:?string}
 	 */
 	public static function resolve_order_invoice_meta( $payload ) {
-		if ( function_exists( 'vms_efwp' ) && vms_efwp()->api ) {
-			return vms_efwp()->api->extract_order_invoice_meta( $payload );
+		if ( function_exists( 'vms_efpg' ) && vms_efpg()->api ) {
+			return vms_efpg()->api->extract_order_invoice_meta( $payload );
 		}
 
 		return array(
@@ -806,7 +806,7 @@ class VMS_EFWP_Data_Store {
 		}
 
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'orders' );
+		$table = VMS_EFPG_Install::table_name( 'orders' );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->update(
 			$table,
@@ -828,7 +828,7 @@ class VMS_EFWP_Data_Store {
 	 */
 	public static function mark_order_refunded( $fs_order_id ) {
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'orders' );
+		$table = VMS_EFPG_Install::table_name( 'orders' );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->update(
 			$table,
@@ -845,7 +845,7 @@ class VMS_EFWP_Data_Store {
 	 */
 	public static function get_orders( $args = array() ) {
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'orders' );
+		$table = VMS_EFPG_Install::table_name( 'orders' );
 
 		$args = wp_parse_args(
 			$args,
@@ -993,7 +993,7 @@ class VMS_EFWP_Data_Store {
 			return null;
 		}
 
-		$table = VMS_EFWP_Install::table_name( 'orders' );
+		$table = VMS_EFPG_Install::table_name( 'orders' );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$row = $wpdb->get_row(
 			$wpdb->prepare( "SELECT * FROM {$table} WHERE fs_order_id = %s", $fs_order_id ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -1016,7 +1016,7 @@ class VMS_EFWP_Data_Store {
 	 */
 	public static function upsert_subscription( $payload, $is_test = false, $wc_user_id = 0 ) {
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'subscriptions' );
+		$table = VMS_EFPG_Install::table_name( 'subscriptions' );
 
 		if ( ! is_array( $payload ) ) {
 			return false;
@@ -1091,8 +1091,8 @@ class VMS_EFWP_Data_Store {
 	 * @return string|null
 	 */
 	public static function extract_account_id_from_payload( $payload ) {
-		if ( function_exists( 'vms_efwp' ) && vms_efwp()->api ) {
-			return vms_efwp()->api->extract_account_id_from_payload( $payload );
+		if ( function_exists( 'vms_efpg' ) && vms_efpg()->api ) {
+			return vms_efpg()->api->extract_account_id_from_payload( $payload );
 		}
 
 		if ( ! is_array( $payload ) || empty( $payload['account'] ) ) {
@@ -1133,8 +1133,8 @@ class VMS_EFWP_Data_Store {
 		}
 
 		$ids            = array();
-		$sub_table      = VMS_EFWP_Install::table_name( 'subscriptions' );
-		$order_table    = VMS_EFWP_Install::table_name( 'orders' );
+		$sub_table      = VMS_EFPG_Install::table_name( 'subscriptions' );
+		$order_table    = VMS_EFPG_Install::table_name( 'orders' );
 		$placeholders   = implode( ', ', array_fill( 0, count( $normalized ), '%s' ) );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
@@ -1184,7 +1184,7 @@ class VMS_EFWP_Data_Store {
 			return array();
 		}
 
-		$table = VMS_EFWP_Install::table_name( 'subscriptions' );
+		$table = VMS_EFPG_Install::table_name( 'subscriptions' );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$ids = $wpdb->get_col(
 			$wpdb->prepare(
@@ -1193,7 +1193,7 @@ class VMS_EFWP_Data_Store {
 			)
 		);
 
-		$orders_table = VMS_EFWP_Install::table_name( 'orders' );
+		$orders_table = VMS_EFPG_Install::table_name( 'orders' );
 		if ( $orders_table ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 			$order_ids = $wpdb->get_col(
@@ -1217,8 +1217,8 @@ class VMS_EFWP_Data_Store {
 	 * @return string|null
 	 */
 	public static function parse_payload_datetime( $payload, $base_field, $fallback_bases = array() ) {
-		if ( function_exists( 'vms_efwp' ) && vms_efwp()->api ) {
-			return vms_efwp()->api->parse_payload_datetime( $payload, $base_field, $fallback_bases );
+		if ( function_exists( 'vms_efpg' ) && vms_efpg()->api ) {
+			return vms_efpg()->api->parse_payload_datetime( $payload, $base_field, $fallback_bases );
 		}
 
 		if ( ! is_array( $payload ) ) {
@@ -1294,7 +1294,7 @@ class VMS_EFWP_Data_Store {
 	 */
 	public static function set_subscription_status( $fs_subscription_id, $status ) {
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'subscriptions' );
+		$table = VMS_EFPG_Install::table_name( 'subscriptions' );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->update(
 			$table,
@@ -1311,7 +1311,7 @@ class VMS_EFWP_Data_Store {
 	 */
 	public static function get_subscription_by_fs_id( $fs_subscription_id ) {
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'subscriptions' );
+		$table = VMS_EFPG_Install::table_name( 'subscriptions' );
 
 		if ( ! $fs_subscription_id ) {
 			return null;
@@ -1337,7 +1337,7 @@ class VMS_EFWP_Data_Store {
 	 */
 	public static function get_subscriptions( $args = array() ) {
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'subscriptions' );
+		$table = VMS_EFPG_Install::table_name( 'subscriptions' );
 
 		$args = wp_parse_args(
 			$args,
@@ -1450,7 +1450,7 @@ class VMS_EFWP_Data_Store {
 	 */
 	public static function record_event( $event, $is_live = true ) {
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'events' );
+		$table = VMS_EFPG_Install::table_name( 'events' );
 
 		$event_id = isset( $event['id'] ) ? $event['id'] : '';
 		if ( empty( $event_id ) ) {
@@ -1486,7 +1486,7 @@ class VMS_EFWP_Data_Store {
 	 */
 	public static function mark_event_processed( $event_id, $error = null ) {
 		global $wpdb;
-		$table = VMS_EFWP_Install::table_name( 'events' );
+		$table = VMS_EFPG_Install::table_name( 'events' );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		$wpdb->update(
 			$table,

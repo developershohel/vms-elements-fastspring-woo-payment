@@ -2,138 +2,36 @@
 /**
  * Shared helpers for admin resource screens.
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class VMS_EFWP_Admin_Resource_Base.
+ * Class VMS_EFPG_Admin_Resource_Base.
  */
-class VMS_EFWP_Admin_Resource_Base {
+class VMS_EFPG_Admin_Resource_Base {
 
 	/**
 	 * Render the JSON detail modal markup once per page.
 	 */
 	public static function render_json_modal() {
 		?>
-		<div id="vms-efwp-json-modal" class="vms-efwp-modal" hidden>
-			<div class="vms-efwp-modal__backdrop" data-vms-efwp-close></div>
-			<div class="vms-efwp-modal__panel" role="dialog" aria-modal="true">
-				<div class="vms-efwp-modal__head">
-					<h2 id="vms-efwp-json-modal-title"><?php esc_html_e( 'Details', 'vms-elements-fastspring-woo-payment' ); ?></h2>
-					<button type="button" class="vms-efwp-modal__close" data-vms-efwp-close aria-label="<?php esc_attr_e( 'Close', 'vms-elements-fastspring-woo-payment' ); ?>">&times;</button>
+		<div id="vms-efpg-json-modal" class="vms-efpg-modal" hidden>
+			<div class="vms-efpg-modal__backdrop" data-vms-efpg-close></div>
+			<div class="vms-efpg-modal__panel" role="dialog" aria-modal="true">
+				<div class="vms-efpg-modal__head">
+					<h2 id="vms-efpg-json-modal-title"><?php esc_html_e( 'Details', 'vms-elements-fastspring-payment-gateway' ); ?></h2>
+					<button type="button" class="vms-efpg-modal__close" data-vms-efpg-close aria-label="<?php esc_attr_e( 'Close', 'vms-elements-fastspring-payment-gateway' ); ?>">&times;</button>
 				</div>
-				<pre id="vms-efwp-json-modal-body" class="vms-efwp-json"></pre>
-				<div class="vms-efwp-modal__foot">
-					<button type="button" class="button" data-vms-efwp-close><?php esc_html_e( 'Close', 'vms-elements-fastspring-woo-payment' ); ?></button>
-					<button type="button" class="button button-primary" id="vms-efwp-json-copy"><?php esc_html_e( 'Copy JSON', 'vms-elements-fastspring-woo-payment' ); ?></button>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Render the overlay checkout link modal markup once per page.
-	 */
-	public static function render_checkout_link_modal() {
-		?>
-		<div id="vms-efwp-checkout-link-modal" class="vms-efwp-modal" hidden>
-			<div class="vms-efwp-modal__backdrop" data-vms-efwp-close-checkout-link></div>
-			<div class="vms-efwp-modal__panel vms-efwp-modal__panel--checkout-link" role="dialog" aria-modal="true" aria-labelledby="vms-efwp-checkout-link-modal-title">
-				<div class="vms-efwp-modal__head">
-					<h2 id="vms-efwp-checkout-link-modal-title"><?php esc_html_e( 'Overlay payment link', 'vms-elements-fastspring-woo-payment' ); ?></h2>
-					<button type="button" class="vms-efwp-modal__close" data-vms-efwp-close-checkout-link aria-label="<?php esc_attr_e( 'Close', 'vms-elements-fastspring-woo-payment' ); ?>">&times;</button>
-				</div>
-				<div class="vms-efwp-checkout-link-body">
-					<p class="vms-efwp-checkout-link-intro">
-						<?php esc_html_e( 'Share the payment page link with customers. It opens your WordPress checkout page and launches the FastSpring popup overlay.', 'vms-elements-fastspring-woo-payment' ); ?>
-					</p>
-					<p class="vms-efwp-checkout-link-product">
-						<strong><?php esc_html_e( 'Product', 'vms-elements-fastspring-woo-payment' ); ?>:</strong>
-						<code id="vms-efwp-checkout-link-product"></code>
-					</p>
-					<div class="vms-efwp-copy-field">
-						<label for="vms-efwp-checkout-payment-url"><?php esc_html_e( 'Payment page link', 'vms-elements-fastspring-woo-payment' ); ?></label>
-						<div class="vms-efwp-copy-field__row">
-							<input type="text" id="vms-efwp-checkout-payment-url" class="large-text" readonly />
-							<button type="button" class="button vms-efwp-copy-checkout-field" data-target="#vms-efwp-checkout-payment-url"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
-							<a class="button" id="vms-efwp-checkout-open-preview" href="#" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Open payment link', 'vms-elements-fastspring-woo-payment' ); ?></a>
-						</div>
-					</div>
-					<div class="vms-efwp-copy-field">
-						<label for="vms-efwp-checkout-overlay-url"><?php esc_html_e( 'FastSpring catalog URL (reference)', 'vms-elements-fastspring-woo-payment' ); ?></label>
-						<div class="vms-efwp-copy-field__row">
-							<input type="text" id="vms-efwp-checkout-overlay-url" class="large-text" readonly />
-							<button type="button" class="button vms-efwp-copy-checkout-field" data-target="#vms-efwp-checkout-overlay-url"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
-						</div>
-					</div>
-					<input type="hidden" id="vms-efwp-checkout-preview-url" value="" />
-					<div class="vms-efwp-copy-field" id="vms-efwp-checkout-session-wrap" hidden>
-						<label for="vms-efwp-checkout-session-url"><?php esc_html_e( 'Checkout session URL', 'vms-elements-fastspring-woo-payment' ); ?></label>
-						<div class="vms-efwp-copy-field__row">
-							<input type="text" id="vms-efwp-checkout-session-url" class="large-text" readonly />
-							<button type="button" class="button vms-efwp-copy-checkout-field" data-target="#vms-efwp-checkout-session-url"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
-						</div>
-					</div>
-					<div class="vms-efwp-copy-field">
-						<label for="vms-efwp-checkout-embed-html"><?php esc_html_e( 'Embed HTML (Store Builder)', 'vms-elements-fastspring-woo-payment' ); ?></label>
-						<div class="vms-efwp-copy-field__row vms-efwp-copy-field__row--stack">
-							<textarea id="vms-efwp-checkout-embed-html" class="large-text code" rows="3" readonly></textarea>
-							<button type="button" class="button vms-efwp-copy-checkout-field" data-target="#vms-efwp-checkout-embed-html"><?php esc_html_e( 'Copy', 'vms-elements-fastspring-woo-payment' ); ?></button>
-						</div>
-					</div>
-					<p id="vms-efwp-checkout-link-status" class="vms-efwp-checkout-link-status" hidden></p>
-				</div>
-				<div class="vms-efwp-modal__foot">
-					<button type="button" class="button" data-vms-efwp-close-checkout-link"><?php esc_html_e( 'Close', 'vms-elements-fastspring-woo-payment' ); ?></button>
-					<button type="button" class="button" id="vms-efwp-checkout-generate-session"><?php esc_html_e( 'Generate session link', 'vms-elements-fastspring-woo-payment' ); ?></button>
+				<pre id="vms-efpg-json-modal-body" class="vms-efpg-json"></pre>
+				<div class="vms-efpg-modal__foot">
+					<button type="button" class="button" data-vms-efpg-close><?php esc_html_e( 'Close', 'vms-elements-fastspring-payment-gateway' ); ?></button>
+					<button type="button" class="button button-primary" id="vms-efpg-json-copy"><?php esc_html_e( 'Copy JSON', 'vms-elements-fastspring-payment-gateway' ); ?></button>
 				</div>
 			</div>
 		</div>
 		<?php
-	}
-
-	/**
-	 * Render overlay checkout link actions for a catalog product path.
-	 *
-	 * @param string $product_path FastSpring product path.
-	 */
-	public static function render_checkout_link_buttons( $product_path ) {
-		if ( ! class_exists( 'VMS_EFWP_Checkout_Links', false ) ) {
-			return;
-		}
-		$product_path = sanitize_text_field( (string) $product_path );
-		if ( '' === $product_path ) {
-			return;
-		}
-
-		$has_popup = function_exists( 'vms_efwp' ) && vms_efwp()->settings && vms_efwp()->settings->has_popup_checkout();
-		if ( ! $has_popup ) {
-			printf(
-				'<button type="button" class="button button-small" disabled title="%1$s">%2$s</button>',
-				esc_attr__( 'Configure the popup checkout path in FastSpring Settings.', 'vms-elements-fastspring-woo-payment' ),
-				esc_html__( 'Payment link', 'vms-elements-fastspring-woo-payment' )
-			);
-			return;
-		}
-
-		$payment_link = VMS_EFWP_Checkout_Links::build_payment_link_url( $product_path );
-
-		printf(
-			'<button type="button" class="button button-small vms-efwp-get-checkout-link" data-product-path="%1$s">%2$s</button>',
-			esc_attr( $product_path ),
-			esc_html__( 'Payment link', 'vms-elements-fastspring-woo-payment' )
-		);
-
-		if ( ! is_wp_error( $payment_link ) ) {
-			printf(
-				'<a class="button button-small" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
-				esc_url( $payment_link ),
-				esc_html__( 'Open payment link', 'vms-elements-fastspring-woo-payment' )
-			);
-		}
 	}
 
 	/**
@@ -154,112 +52,112 @@ class VMS_EFWP_Admin_Resource_Base {
 			return;
 		}
 
-		$message = esc_html__( 'Operation completed successfully.', 'vms-elements-fastspring-woo-payment' );
+		$message = esc_html__( 'Operation completed successfully.', 'vms-elements-fastspring-payment-gateway' );
 		if ( is_string( $result ) && '' !== $result ) {
 			$message = esc_html( $result );
 		} elseif ( is_array( $result ) ) {
 			if ( ! empty( $result['action'] ) && ! empty( $result['coupon'] ) ) {
 				$message = sprintf(
 					/* translators: 1: FastSpring action, 2: coupon path */
-					esc_html__( '%1$s for %2$s completed successfully.', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( '%1$s for %2$s completed successfully.', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) $result['action'] ),
 					esc_html( (string) $result['coupon'] )
 				);
 			} elseif ( ! empty( $result['result'] ) && 'success' === $result['result'] && ! empty( $result['coupon'] ) ) {
 				$message = sprintf(
 					/* translators: %s: coupon path */
-					esc_html__( 'Coupon %s updated successfully.', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( 'Coupon %s updated successfully.', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) $result['coupon'] )
 				);
 			} elseif ( ! empty( $result['products'][0]['product'] ) && ! empty( $result['products'][0]['result'] ) && 'success' === $result['products'][0]['result'] ) {
 				$message = sprintf(
 					/* translators: 1: FastSpring action, 2: product path */
-					esc_html__( '%1$s for %2$s completed successfully.', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( '%1$s for %2$s completed successfully.', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) ( $result['products'][0]['action'] ?? 'product' ) ),
 					esc_html( (string) $result['products'][0]['product'] )
 				);
 			} elseif ( ! empty( $result['subscriptions'][0]['subscription'] ) && ! empty( $result['subscriptions'][0]['result'] ) && 'success' === $result['subscriptions'][0]['result'] ) {
 				$message = sprintf(
 					/* translators: 1: FastSpring action, 2: subscription id */
-					esc_html__( '%1$s for %2$s completed successfully.', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( '%1$s for %2$s completed successfully.', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) ( $result['subscriptions'][0]['action'] ?? 'subscription' ) ),
 					esc_html( (string) $result['subscriptions'][0]['subscription'] )
 				);
 			} elseif ( ! empty( $result['returns'][0]['return'] ) && ! empty( $result['returns'][0]['result'] ) && 'success' === $result['returns'][0]['result'] ) {
 				$message = sprintf(
 					/* translators: %s: return id */
-					esc_html__( 'Return %s created successfully.', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( 'Return %s created successfully.', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) $result['returns'][0]['return'] )
 				);
 			} elseif ( is_array( $result ) && isset( $result[0]['return'] ) && ! isset( $result['returns'] ) ) {
 				$message = sprintf(
 					/* translators: %d: number of returns */
-					esc_html( _n( '%d return processed.', '%d returns processed.', count( $result ), 'vms-elements-fastspring-woo-payment' ) ),
+					esc_html( _n( '%d return processed.', '%d returns processed.', count( $result ), 'vms-elements-fastspring-payment-gateway' ) ),
 					count( $result )
 				);
 			} elseif ( ! empty( $result['mode'] ) && 'async' === $result['mode'] && ! empty( $result['job']['id'] ) ) {
 				$message = sprintf(
 					/* translators: 1: job id, 2: status */
-					esc_html__( 'Report job %1$s queued (%2$s).', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( 'Report job %1$s queued (%2$s).', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) $result['job']['id'] ),
 					esc_html( (string) ( $result['job']['status'] ?? '' ) )
 				);
 			} elseif ( ! empty( $result['mode'] ) && 'sync' === $result['mode'] && ! empty( $result['report'] ) ) {
 				$message = sprintf(
 					/* translators: %d: row count */
-					esc_html( _n( 'Report generated with %d row.', 'Report generated with %d rows.', count( $result['report'] ), 'vms-elements-fastspring-woo-payment' ) ),
+					esc_html( _n( 'Report generated with %d row.', 'Report generated with %d rows.', count( $result['report'] ), 'vms-elements-fastspring-payment-gateway' ) ),
 					count( $result['report'] )
 				);
 			} elseif ( isset( $result[0]['id'] ) && isset( $result[0]['status'] ) && isset( $result[0]['name'] ) && ! isset( $result[0]['return'] ) ) {
 				$message = sprintf(
 					/* translators: %d: job count */
-					esc_html( _n( '%d job loaded.', '%d jobs loaded.', count( $result ), 'vms-elements-fastspring-woo-payment' ) ),
+					esc_html( _n( '%d job loaded.', '%d jobs loaded.', count( $result ), 'vms-elements-fastspring-payment-gateway' ) ),
 					count( $result )
 				);
 			} elseif ( ! empty( $result['id'] ) && isset( $result['status'] ) && ! empty( $result['name'] ) && ! isset( $result['processed'] ) && ! isset( $result['quoteUrl'] ) && ! isset( $result['checkoutUrls'] ) && ! isset( $result['expires'] ) && ! isset( $result['invoiceType'] ) ) {
 				$message = sprintf(
 					/* translators: 1: job id, 2: status */
-					esc_html__( 'Report job %1$s (%2$s).', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( 'Report job %1$s (%2$s).', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) $result['id'] ),
 					esc_html( (string) $result['status'] )
 				);
 			} elseif ( ! empty( $result['id'] ) && isset( $result['processed'] ) && isset( $result['type'] ) && ! isset( $result['quoteUrl'] ) && ! isset( $result['invoiceType'] ) && ! isset( $result['checkoutUrls'] ) ) {
 				$message = sprintf(
 					/* translators: 1: event id, 2: processed state */
-					esc_html__( 'Event %1$s updated (%2$s).', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( 'Event %1$s updated (%2$s).', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) $result['id'] ),
-					! empty( $result['processed'] ) ? esc_html__( 'processed', 'vms-elements-fastspring-woo-payment' ) : esc_html__( 'unprocessed', 'vms-elements-fastspring-woo-payment' )
+					! empty( $result['processed'] ) ? esc_html__( 'processed', 'vms-elements-fastspring-payment-gateway' ) : esc_html__( 'unprocessed', 'vms-elements-fastspring-payment-gateway' )
 				);
 			} elseif ( ! empty( $result['events'] ) && isset( $result['total'] ) ) {
 				$message = sprintf(
 					/* translators: %d: event count */
-					esc_html( _n( '%d event loaded.', '%d events loaded.', (int) $result['total'], 'vms-elements-fastspring-woo-payment' ) ),
+					esc_html( _n( '%d event loaded.', '%d events loaded.', (int) $result['total'], 'vms-elements-fastspring-payment-gateway' ) ),
 					(int) $result['total']
 				);
 			} elseif ( ! empty( $result['id'] ) && ( ! empty( $result['checkoutUrls']['webcheckoutUrl'] ) || isset( $result['checkoutStatus'] ) ) ) {
 				$message = sprintf(
 					/* translators: 1: session id, 2: status */
-					esc_html__( 'Checkout session %1$s created (%2$s).', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( 'Checkout session %1$s created (%2$s).', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) $result['id'] ),
 					esc_html( (string) ( $result['status'] ?? $result['checkoutStatus'] ?? '' ) )
 				);
 			} elseif ( ! empty( $result['id'] ) && isset( $result['expires'] ) && empty( $result['invoiceType'] ) && empty( $result['quoteUrl'] ) ) {
 				$message = sprintf(
 					/* translators: %s: session id */
-					esc_html__( 'Session %s created successfully.', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( 'Session %s created successfully.', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) $result['id'] )
 				);
 			} elseif ( ! empty( $result['id'] ) && isset( $result['quoteUrl'] ) ) {
 				$message = sprintf(
 					/* translators: 1: quote id, 2: status */
-					esc_html__( 'Quote %1$s saved (%2$s).', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( 'Quote %1$s saved (%2$s).', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) $result['id'] ),
 					esc_html( (string) ( $result['status'] ?? '' ) )
 				);
 			} elseif ( ! empty( $result['id'] ) && ( isset( $result['status'] ) || isset( $result['invoiceType'] ) ) ) {
 				$message = sprintf(
 					/* translators: 1: invoice id, 2: status */
-					esc_html__( 'Invoice %1$s created (%2$s).', 'vms-elements-fastspring-woo-payment' ),
+					esc_html__( 'Invoice %1$s created (%2$s).', 'vms-elements-fastspring-payment-gateway' ),
 					esc_html( (string) $result['id'] ),
 					esc_html( (string) ( $result['status'] ?? '' ) )
 				);
@@ -277,9 +175,9 @@ class VMS_EFWP_Admin_Resource_Base {
 	public static function render_view_button( $row ) {
 		$json = wp_json_encode( $row, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
 		printf(
-			'<button type="button" class="button button-small vms-efwp-view-json" data-json="%s">%s</button>',
+			'<button type="button" class="button button-small vms-efpg-view-json" data-json="%s">%s</button>',
 			esc_attr( $json ),
-			esc_html__( 'View', 'vms-elements-fastspring-woo-payment' )
+			esc_html__( 'View', 'vms-elements-fastspring-payment-gateway' )
 		);
 	}
 
@@ -299,13 +197,13 @@ class VMS_EFWP_Admin_Resource_Base {
 	 * @return bool True if credentials exist (can render screen), false otherwise.
 	 */
 	public static function require_credentials() {
-		$settings = vms_efwp()->settings;
+		$settings = vms_efpg()->settings;
 		if ( ! $settings->has_credentials() ) {
 			printf(
 				'<div class="notice notice-warning"><p>%s <a href="%s">%s</a></p></div>',
-				esc_html__( 'FastSpring API credentials are not configured for the active mode.', 'vms-elements-fastspring-woo-payment' ),
-				esc_url( admin_url( 'admin.php?page=vms-efwp-settings' ) ),
-				esc_html__( 'Open settings', 'vms-elements-fastspring-woo-payment' )
+				esc_html__( 'FastSpring API credentials are not configured for the active mode.', 'vms-elements-fastspring-payment-gateway' ),
+				esc_url( admin_url( 'admin.php?page=vms-efpg-settings' ) ),
+				esc_html__( 'Open settings', 'vms-elements-fastspring-payment-gateway' )
 			);
 			return false;
 		}
@@ -320,19 +218,19 @@ class VMS_EFWP_Admin_Resource_Base {
 	 * @param array  $actions  HTML action buttons.
 	 */
 	public static function render_header( $title, $subtitle = '', $actions = array() ) {
-		$mode = vms_efwp()->settings->get_mode();
+		$mode = vms_efpg()->settings->get_mode();
 		?>
-		<div class="vms-efwp-header">
-			<div class="vms-efwp-header__title">
+		<div class="vms-efpg-header">
+			<div class="vms-efpg-header__title">
 				<h1><?php echo esc_html( $title ); ?></h1>
-				<span class="vms-efwp-mode-pill vms-efwp-mode-pill--<?php echo esc_attr( $mode ); ?>">
-					<?php echo 'live' === $mode ? esc_html__( 'LIVE', 'vms-elements-fastspring-woo-payment' ) : esc_html__( 'SANDBOX', 'vms-elements-fastspring-woo-payment' ); ?>
+				<span class="vms-efpg-mode-pill vms-efpg-mode-pill--<?php echo esc_attr( $mode ); ?>">
+					<?php echo 'live' === $mode ? esc_html__( 'LIVE', 'vms-elements-fastspring-payment-gateway' ) : esc_html__( 'SANDBOX', 'vms-elements-fastspring-payment-gateway' ); ?>
 				</span>
 				<?php if ( $subtitle ) : ?>
-					<span class="vms-efwp-subtitle"><?php echo esc_html( $subtitle ); ?></span>
+					<span class="vms-efpg-subtitle"><?php echo esc_html( $subtitle ); ?></span>
 				<?php endif; ?>
 			</div>
-			<div class="vms-efwp-header__actions">
+			<div class="vms-efpg-header__actions">
 				<?php foreach ( $actions as $action ) : ?>
 					<?php echo wp_kses_post( $action ); ?>
 				<?php endforeach; ?>
@@ -562,9 +460,32 @@ class VMS_EFWP_Admin_Resource_Base {
 	 * @return array
 	 */
 	public static function post_array( $key, $default = array() ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- verify_post() must run first; nested values sanitized by caller.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- verify_post() must run first; sanitized below.
 		$value = isset( $_POST[ $key ] ) ? wp_unslash( $_POST[ $key ] ) : $default;
-		return is_array( $value ) ? $value : $default;
+		if ( ! is_array( $value ) ) {
+			return $default;
+		}
+
+		return self::sanitize_post_array( $value );
+	}
+
+	/**
+	 * Recursively sanitize POST array values.
+	 *
+	 * @param array $array Raw array.
+	 * @return array
+	 */
+	private static function sanitize_post_array( array $array ) {
+		$sanitized = array();
+		foreach ( $array as $item_key => $item_value ) {
+			$key = is_int( $item_key ) ? $item_key : sanitize_key( (string) $item_key );
+			if ( is_array( $item_value ) ) {
+				$sanitized[ $key ] = self::sanitize_post_array( $item_value );
+			} elseif ( is_scalar( $item_value ) ) {
+				$sanitized[ $key ] = sanitize_text_field( (string) $item_value );
+			}
+		}
+		return $sanitized;
 	}
 
 	/**
@@ -599,7 +520,7 @@ class VMS_EFWP_Admin_Resource_Base {
 	 */
 	public static function render_lookup_form( $page, $field, $label, $placeholder = '', $value = '', $preserve = array() ) {
 		?>
-		<form method="get" class="vms-efwp-filters vms-efwp-filters--lookup">
+		<form method="get" class="vms-efpg-filters vms-efpg-filters--lookup">
 			<input type="hidden" name="page" value="<?php echo esc_attr( $page ); ?>" />
 			<?php foreach ( $preserve as $key => $preserve_value ) : ?>
 				<input type="hidden" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $preserve_value ); ?>" />
@@ -608,7 +529,7 @@ class VMS_EFWP_Admin_Resource_Base {
 				<?php echo esc_html( $label ); ?>
 				<input type="text" name="<?php echo esc_attr( $field ); ?>" value="<?php echo esc_attr( $value ); ?>" placeholder="<?php echo esc_attr( $placeholder ); ?>" class="regular-text" />
 			</label>
-			<button class="button button-primary"><?php esc_html_e( 'Lookup', 'vms-elements-fastspring-woo-payment' ); ?></button>
+			<button class="button button-primary"><?php esc_html_e( 'Lookup', 'vms-elements-fastspring-payment-gateway' ); ?></button>
 		</form>
 		<?php
 	}
@@ -630,15 +551,15 @@ class VMS_EFWP_Admin_Resource_Base {
 		}
 
 		if ( '' === $title ) {
-			$title = __( 'API response', 'vms-elements-fastspring-woo-payment' );
+			$title = __( 'API response', 'vms-elements-fastspring-payment-gateway' );
 		}
 		?>
-		<div class="vms-efwp-card vms-efwp-card--wide vms-efwp-api-detail">
-			<div class="vms-efwp-card__head">
+		<div class="vms-efpg-card vms-efpg-card--wide vms-efpg-api-detail">
+			<div class="vms-efpg-card__head">
 				<h2><?php echo esc_html( $title ); ?></h2>
 				<?php self::render_view_button( $result ); ?>
 			</div>
-			<pre class="vms-efwp-json vms-efwp-json--inline"><?php echo esc_html( wp_json_encode( $result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ); ?></pre>
+			<pre class="vms-efpg-json vms-efpg-json--inline"><?php echo esc_html( wp_json_encode( $result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) ); ?></pre>
 		</div>
 		<?php
 	}

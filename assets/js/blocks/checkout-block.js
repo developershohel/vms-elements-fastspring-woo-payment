@@ -5,11 +5,11 @@
 	var wp = window.wp;
 
 	if ( ! wc || ! wc.wcBlocksRegistry || ! wc.wcSettings ) {
-		console.error( '[VMS Elements Fastspring Woo Payment] wc.wcBlocksRegistry or wc.wcSettings is missing — Blocks JS deps did not load.' );
+		console.error( '[VMS Elements FastSpring Payment Gateway] wc.wcBlocksRegistry or wc.wcSettings is missing — Blocks JS deps did not load.' );
 		return;
 	}
 	if ( ! wp || ! wp.element ) {
-		console.error( '[VMS Elements Fastspring Woo Payment] wp.element is missing — Blocks JS deps did not load.' );
+		console.error( '[VMS Elements FastSpring Payment Gateway] wp.element is missing — Blocks JS deps did not load.' );
 		return;
 	}
 
@@ -18,10 +18,10 @@
 	var createElement = wp.element.createElement;
 	var decodeEntities = ( wp.htmlEntities && wp.htmlEntities.decodeEntities ) || function ( s ) { return s; };
 
-	var settings = getSetting( 'vms_efwp_data', null );
+	var settings = getSetting( 'vms_efpg_data', null );
 
 	if ( ! settings ) {
-		console.warn( '[VMS Elements Fastspring Woo Payment] No "vms_efwp_data" was injected into wc.wcSettings. The Blocks payment method type did not register on the server side.' );
+		console.warn( '[VMS Elements FastSpring Payment Gateway] No "vms_efpg_data" was injected into wc.wcSettings. The Blocks payment method type did not register on the server side.' );
 		return;
 	}
 
@@ -29,15 +29,15 @@
 	var description = decodeEntities( settings.description || '' );
 
 	var Label = function () {
-		return createElement( 'span', { className: 'vms-efwp-block-label' }, label );
+		return createElement( 'span', { className: 'vms-efpg-block-label' }, label );
 	};
 
 	var Content = function () {
-		return createElement( 'div', { className: 'vms-efwp-block-method' }, description );
+		return createElement( 'div', { className: 'vms-efpg-block-method' }, description );
 	};
 
 	registerPaymentMethod( {
-		name: 'vms_efwp',
+		name: 'vms_efpg',
 		label: createElement( Label, null ),
 		ariaLabel: label,
 		content: createElement( Content, null ),
@@ -63,7 +63,7 @@
 		if ( ! paymentStore || ! paymentStore.getActivePaymentMethod ) {
 			return false;
 		}
-		return 'vms_efwp' === paymentStore.getActivePaymentMethod();
+		return 'vms_efpg' === paymentStore.getActivePaymentMethod();
 	}
 
 	function clearBlocksRedirect( orderId ) {
@@ -92,16 +92,16 @@
 			return;
 		}
 
-		if ( ! window.VMS_EFWP_CheckoutApi ) {
+		if ( ! window.VMS_EFPG_CheckoutApi ) {
 			return;
 		}
 
 		openedForOrder[ orderId ] = true;
 
-		if ( window.VMS_EFWP_CheckoutApi.handlePendingFastSpring ) {
-			window.VMS_EFWP_CheckoutApi.handlePendingFastSpring( orderId );
-		} else if ( window.VMS_EFWP_CheckoutApi.openForOrder ) {
-			window.VMS_EFWP_CheckoutApi.openForOrder( orderId, '' );
+		if ( window.VMS_EFPG_CheckoutApi.handlePendingFastSpring ) {
+			window.VMS_EFPG_CheckoutApi.handlePendingFastSpring( orderId );
+		} else if ( window.VMS_EFPG_CheckoutApi.openForOrder ) {
+			window.VMS_EFPG_CheckoutApi.openForOrder( orderId, '' );
 		}
 	}
 
@@ -133,5 +133,5 @@
 		wasProcessing = processing;
 	} );
 
-	console.info( '[VMS Elements Fastspring Woo Payment] Registered Blocks payment method: vms_efwp' );
+	console.info( '[VMS Elements FastSpring Payment Gateway] Registered Blocks payment method: vms_efpg' );
 } )();

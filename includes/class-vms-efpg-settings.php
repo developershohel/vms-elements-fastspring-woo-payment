@@ -2,20 +2,20 @@
 /**
  * Settings store.
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class VMS_EFWP_Settings.
+ * Class VMS_EFPG_Settings.
  *
- * Lightweight wrapper around the vms_efwp_settings option that knows
+ * Lightweight wrapper around the vms_efpg_settings option that knows
  * how to expose the right credentials based on the active mode.
  */
-class VMS_EFWP_Settings {
+class VMS_EFPG_Settings {
 
-	const OPTION_KEY = 'vms_efwp_settings';
+	const OPTION_KEY = 'vms_efpg_settings';
 
 	/**
 	 * Default product path used for the auto-provisioned catch-all
@@ -75,8 +75,8 @@ class VMS_EFWP_Settings {
 			'popup_path'                 => '',
 			'sandbox_access_key'         => '',
 			'live_access_key'            => '',
-			'gateway_title'              => __( 'Pay with FastSpring', 'vms-elements-fastspring-woo-payment' ),
-			'gateway_description'        => __( 'Pay securely in a popup overlay powered by FastSpring.', 'vms-elements-fastspring-woo-payment' ),
+			'gateway_title'              => __( 'Pay with FastSpring', 'vms-elements-fastspring-payment-gateway' ),
+			'gateway_description'        => __( 'Pay securely in a popup checkout overlay.', 'vms-elements-fastspring-payment-gateway' ),
 			'pricing_strategy'           => 'single_custom_price',
 			'custom_price_product_path'  => '',
 			'checkout_page_id'           => 0,
@@ -92,16 +92,7 @@ class VMS_EFWP_Settings {
 	 */
 	public function pricing_strategy() {
 		$value = $this->get( 'pricing_strategy', 'single_custom_price' );
-		$value = in_array( $value, array( 'catalog', 'per_product_override', 'single_custom_price' ), true ) ? $value : 'single_custom_price';
-
-		if ( ! vms_efwp_is_pro() && 'catalog' === $value ) {
-			$value = 'single_custom_price';
-		}
-		if ( ! vms_efwp_is_pro() && 'per_product_override' === $value ) {
-			$value = 'single_custom_price';
-		}
-
-		return $value;
+		return in_array( $value, array( 'catalog', 'per_product_override', 'single_custom_price' ), true ) ? $value : 'single_custom_price';
 	}
 
 	/**
@@ -346,6 +337,6 @@ class VMS_EFWP_Settings {
 	 * @return string
 	 */
 	public function webhook_url() {
-		return add_query_arg( array( 'vms-efwp-webhook' => 1 ), home_url( '/' ) );
+		return add_query_arg( array( 'vms-efpg-webhook' => 1 ), home_url( '/' ) );
 	}
 }

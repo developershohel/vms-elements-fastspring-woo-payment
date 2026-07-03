@@ -1,0 +1,1580 @@
+# Copyright (C) 2026 VMS Elements
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: VMS Elements Payment Gateway with FastSpring for WooCommerce 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/vms-elements-fastspring-payment-gateway\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-06-29T15:24:16+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: vms-elements-fastspring-payment-gateway\n"
+
+#. Plugin Name of the plugin
+#: vms-elements-fastspring-payment-gateway.php
+msgid "VMS Elements Payment Gateway with FastSpring for WooCommerce"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: vms-elements-fastspring-payment-gateway.php
+msgid "https://vmselements.com/product/vms-elements-fastspring-payment-gateway"
+msgstr ""
+
+#. Description of the plugin
+#: vms-elements-fastspring-payment-gateway.php
+msgid "Connect WooCommerce to FastSpring checkout (classic and blocks), webhooks, and stored orders."
+msgstr ""
+
+#. Author of the plugin
+#: vms-elements-fastspring-payment-gateway.php
+msgid "VMS Elements"
+msgstr ""
+
+#. Author URI of the plugin
+#: vms-elements-fastspring-payment-gateway.php
+msgid "https://vmselements.com"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:49
+msgid "FastSpring Analytics"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:51
+#: includes/admin/class-vms-efpg-admin-resource-base.php:302
+msgid "LIVE"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:51
+#: includes/admin/class-vms-efpg-admin-resource-base.php:302
+msgid "SANDBOX"
+msgstr ""
+
+#. translators: 1: site name, 2: site URL, 3: stored order count
+#: includes/admin/class-vms-efpg-admin-dashboard.php:59
+#, php-format
+msgid "Site: %1$s — %2$s (%3$d orders)"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:71
+msgid "Include test orders"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:74
+msgid "Last 7 days"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:75
+msgid "Last 30 days"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:76
+msgid "Last 90 days"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:77
+msgid "Last 12 months"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:80
+#: includes/admin/class-vms-efpg-admin.php:69
+#: includes/admin/class-vms-efpg-admin.php:70
+#: includes/class-vms-efpg.php:188
+msgid "Settings"
+msgstr ""
+
+#. translators: %s: settings url
+#: includes/admin/class-vms-efpg-admin-dashboard.php:90
+#, php-format
+msgid "Add your FastSpring API credentials to start syncing data. <a href=\"%s\">Open settings</a>."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:99
+msgid "Today"
+msgstr ""
+
+#. translators: %d: number of orders today
+#. translators: %d: number of orders in the last 7 days
+#. translators: %d: number of orders in the last 30 days
+#. translators: %d: total number of orders
+#. translators: %d: order count
+#: includes/admin/class-vms-efpg-admin-dashboard.php:103
+#: includes/admin/class-vms-efpg-admin-dashboard.php:111
+#: includes/admin/class-vms-efpg-admin-dashboard.php:119
+#: includes/admin/class-vms-efpg-admin-dashboard.php:127
+#: includes/admin/class-vms-efpg-admin.php:228
+#, php-format
+msgid "%d order"
+msgid_plural "%d orders"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:107
+msgid "7 days"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:115
+msgid "30 days"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:123
+msgid "All time"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:131
+msgid "Active subscriptions"
+msgstr ""
+
+#. translators: %s: formatted MRR amounts
+#: includes/admin/class-vms-efpg-admin-dashboard.php:142
+#, php-format
+msgid "MRR: %s"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:145
+#: includes/admin/class-vms-efpg-admin.php:232
+msgid "No active recurring revenue yet."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:150
+msgid "Refunded (all time)"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:154
+msgid "Across all currencies (approx.)"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:161
+msgid "Revenue trend"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:166
+msgid "Revenue trend chart"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:172
+msgid "Subscriptions"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:175
+msgid "Subscription breakdown chart"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:181
+msgid "Top products"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:185
+#: includes/admin/class-vms-efpg-admin-resource-base.php:54
+msgid "Product"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:186
+msgid "Qty"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:187
+#: includes/admin/class-vms-efpg-admin-dashboard.php:201
+#: includes/admin/class-vms-efpg-admin.php:225
+msgid "Revenue"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:195
+msgid "Top countries"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:199
+msgid "Country"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:200
+#: includes/admin/class-vms-efpg-admin-orders.php:31
+#: includes/admin/class-vms-efpg-admin.php:60
+#: includes/admin/class-vms-efpg-admin.php:61
+#: includes/admin/class-vms-efpg-admin.php:226
+msgid "Orders"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:209
+msgid "Recent orders"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:210
+msgid "View all"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:214
+#: includes/admin/class-vms-efpg-admin-orders.php:99
+#: includes/admin/class-vms-efpg-admin-settings.php:638
+#: includes/class-vms-efpg-wc-gateway.php:422
+msgid "Order"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:215
+#: includes/admin/class-vms-efpg-admin-orders.php:100
+msgid "Customer"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:216
+#: includes/admin/class-vms-efpg-admin-orders.php:101
+msgid "Total"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:217
+#: includes/admin/class-vms-efpg-admin-orders.php:102
+msgid "Status"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-dashboard.php:218
+#: includes/admin/class-vms-efpg-admin-orders.php:103
+msgid "Date"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-invoice-actions.php:30
+msgid "Missing order or invoice ID for resend."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-invoice-actions.php:51
+msgid "Resend"
+msgstr ""
+
+#. translators: %s: site home URL
+#: includes/admin/class-vms-efpg-admin-orders.php:34
+#, php-format
+msgid "All FastSpring orders for this site (%s). Stored via webhooks and checkout completion."
+msgstr ""
+
+#. translators: 1: stored order count, 2: WooCommerce FastSpring order count, 3: site URL
+#: includes/admin/class-vms-efpg-admin-orders.php:76
+#, php-format
+msgid "Showing %1$d stored orders for %3$s (%2$d WooCommerce FastSpring payments). Each checkout tags orders with this site URL so ten sites sharing one FastSpring account stay isolated."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-orders.php:87
+msgid "All statuses"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-orders.php:92
+msgid "Search by email, order id..."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-orders.php:93
+msgid "Filter"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-orders.php:104
+msgid "Invoice"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-orders.php:105
+msgid "WC"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-orders.php:110
+msgid "No orders yet. Make a sale on FastSpring or trigger a test webhook."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-orders.php:132
+msgid "TEST"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-orders.php:145
+msgid "Payment invoice"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-orders.php:148
+msgid "Lookup receipt"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-orders.php:151
+#: includes/admin/class-vms-efpg-admin-resource-base.php:255
+msgid "View"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:24
+msgid "Details"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:25
+#: includes/admin/class-vms-efpg-admin-resource-base.php:29
+#: includes/admin/class-vms-efpg-admin-resource-base.php:47
+#: includes/admin/class-vms-efpg-admin-resource-base.php:90
+msgid "Close"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:30
+msgid "Copy JSON"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:46
+msgid "Overlay payment link"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:51
+msgid "Share the payment page link with customers. It opens your WordPress checkout page and launches the FastSpring popup overlay."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:58
+msgid "Payment page link"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:61
+#: includes/admin/class-vms-efpg-admin-resource-base.php:69
+#: includes/admin/class-vms-efpg-admin-resource-base.php:77
+#: includes/admin/class-vms-efpg-admin-resource-base.php:84
+#: includes/admin/class-vms-efpg-admin-settings.php:77
+#: includes/admin/class-vms-efpg-admin-settings.php:113
+msgid "Copy"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:62
+msgid "Open payment link"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:66
+msgid "FastSpring catalog URL (reference)"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:74
+msgid "Checkout session URL"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:81
+msgid "Embed HTML (Store Builder)"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:91
+msgid "Generate session link"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:130
+msgid "Operation completed successfully."
+msgstr ""
+
+#. translators: 1: FastSpring action, 2: coupon path
+#. translators: 1: FastSpring action, 2: product path
+#. translators: 1: FastSpring action, 2: subscription id
+#: includes/admin/class-vms-efpg-admin-resource-base.php:137
+#: includes/admin/class-vms-efpg-admin-resource-base.php:150
+#: includes/admin/class-vms-efpg-admin-resource-base.php:157
+#, php-format
+msgid "%1$s for %2$s completed successfully."
+msgstr ""
+
+#. translators: %s: coupon path
+#: includes/admin/class-vms-efpg-admin-resource-base.php:144
+#, php-format
+msgid "Coupon %s updated successfully."
+msgstr ""
+
+#. translators: %s: return id
+#: includes/admin/class-vms-efpg-admin-resource-base.php:164
+#, php-format
+msgid "Return %s created successfully."
+msgstr ""
+
+#. translators: %d: number of returns
+#: includes/admin/class-vms-efpg-admin-resource-base.php:170
+#, php-format
+msgid "%d return processed."
+msgid_plural "%d returns processed."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: job id, 2: status
+#: includes/admin/class-vms-efpg-admin-resource-base.php:176
+#, php-format
+msgid "Report job %1$s queued (%2$s)."
+msgstr ""
+
+#. translators: %d: row count
+#: includes/admin/class-vms-efpg-admin-resource-base.php:183
+#, php-format
+msgid "Report generated with %d row."
+msgid_plural "Report generated with %d rows."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: job count
+#: includes/admin/class-vms-efpg-admin-resource-base.php:189
+#, php-format
+msgid "%d job loaded."
+msgid_plural "%d jobs loaded."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: job id, 2: status
+#: includes/admin/class-vms-efpg-admin-resource-base.php:195
+#, php-format
+msgid "Report job %1$s (%2$s)."
+msgstr ""
+
+#. translators: 1: event id, 2: processed state
+#: includes/admin/class-vms-efpg-admin-resource-base.php:202
+#, php-format
+msgid "Event %1$s updated (%2$s)."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:204
+msgid "processed"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:204
+msgid "unprocessed"
+msgstr ""
+
+#. translators: %d: event count
+#: includes/admin/class-vms-efpg-admin-resource-base.php:209
+#, php-format
+msgid "%d event loaded."
+msgid_plural "%d events loaded."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: 1: session id, 2: status
+#: includes/admin/class-vms-efpg-admin-resource-base.php:215
+#, php-format
+msgid "Checkout session %1$s created (%2$s)."
+msgstr ""
+
+#. translators: %s: session id
+#: includes/admin/class-vms-efpg-admin-resource-base.php:222
+#, php-format
+msgid "Session %s created successfully."
+msgstr ""
+
+#. translators: 1: quote id, 2: status
+#: includes/admin/class-vms-efpg-admin-resource-base.php:228
+#, php-format
+msgid "Quote %1$s saved (%2$s)."
+msgstr ""
+
+#. translators: 1: invoice id, 2: status
+#: includes/admin/class-vms-efpg-admin-resource-base.php:235
+#, php-format
+msgid "Invoice %1$s created (%2$s)."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:279
+#: includes/class-vms-efpg-wc-gateway.php:401
+msgid "FastSpring API credentials are not configured for the active mode."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:281
+msgid "Open settings"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:607
+msgid "Lookup"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-resource-base.php:629
+msgid "API response"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:28
+msgid "FastSpring Settings"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:39
+msgid "Mode"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:40
+msgid "Switch between your FastSpring sandbox (test) and live environment. Each mode uses its own API credentials, storefront and webhook secret below."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:44
+msgid "Sandbox / Test"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:45
+msgid "Use test credentials and a *.test.onfastspring.com storefront. No real charges."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:49
+msgid "Live / Production"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:50
+msgid "Real customers, real charges, real revenue."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:57
+msgid "Sandbox credentials"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:60
+#: includes/admin/class-vms-efpg-admin-settings.php:96
+msgid "Storefront"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:64
+#: includes/admin/class-vms-efpg-admin-settings.php:100
+msgid "API Username"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:68
+#: includes/admin/class-vms-efpg-admin-settings.php:104
+msgid "API Password"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:72
+#: includes/admin/class-vms-efpg-admin-settings.php:108
+msgid "Webhook secret"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:76
+#: includes/admin/class-vms-efpg-admin-settings.php:112
+msgid "Generate"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:79
+msgid "Paste this same value into the HMAC SHA256 Secret box on FastSpring → Integrations → Webhooks."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:83
+#: includes/admin/class-vms-efpg-admin-settings.php:119
+msgid "Store Builder access key"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:86
+msgid "Required for custom WooCommerce prices in the popup. FastSpring App → Developer Tools → Store Builder Library → Access Key (sandbox)."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:93
+msgid "Live credentials"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:115
+msgid "Paste this same value into the HMAC SHA256 Secret box on FastSpring → Integrations → Webhooks (Live)."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:122
+msgid "Live Store Builder access key (same location as sandbox)."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:130
+msgid "Webhook endpoint"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:132
+msgid "Open FastSpring App → Integrations → Webhooks → Add Webhook."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:133
+msgid "Paste the URL below into the Webhook URL field."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:134
+msgid "In the HMAC SHA256 Secret box, paste the same secret you configured for the active mode above. FastSpring does not auto-generate one — use the Generate button next to the secret field if you don't have a value yet."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:135
+msgid "Tick the events you want to listen to (or \"All events\"), then save in FastSpring and here."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:139
+msgid "Enable webhook listener"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:144
+msgid "Pricing strategy"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:145
+msgid "Decides how WooCommerce sends prices to FastSpring at checkout. Pick the option that fits your catalog."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:154
+msgid "Single Custom Price product (recommended — works with any product)"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:156
+msgid "Every WooCommerce order is charged through ONE catch-all product in FastSpring, using the exact WooCommerce total (after coupons, sales, dynamic pricing). You do NOT need to recreate your WooCommerce catalog in FastSpring — any product can be sold as-is. The plugin auto-creates the catch-all product for you on the first checkout."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:161
+msgid "Per-product price override"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:163
+msgid "Each WC product maps to its own FastSpring product (matched by slug). The actual WC line price is sent as an override. Missing products are created in FastSpring automatically at checkout. Enable \"Allow Price Override\" on each FastSpring product (or let the plugin create them on first checkout)."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:168
+msgid "FastSpring catalog price"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:170
+msgid "Customer is charged the price configured in FastSpring for each product. WooCommerce price is ignored. Pick this only if FastSpring is your source of truth for pricing, and every product exists in your FastSpring catalog."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:177
+msgid "Catch-all product path"
+msgstr ""
+
+#. translators: %s: default product path
+#: includes/admin/class-vms-efpg-admin-settings.php:184
+#, php-format
+msgid "Leave blank to let the plugin auto-create and use \"%s\". The product price in FastSpring is irrelevant — each order overrides it with the real WooCommerce total. You can also paste the path of an existing FastSpring product here."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:196
+msgid "Create / verify catch-all product now"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:198
+msgid "Optional — checks the catch-all product exists in FastSpring (creating it if needed) so the first real checkout is instant."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:204
+msgid "WooCommerce integration"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:207
+msgid "Gateway title"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:211
+msgid "Gateway description"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:215
+msgid "Popup checkout path"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:219
+msgid "Required for checkout on classic and block pages via the FastSpring Store Builder Library (SBL 1.0.7). In FastSpring → Checkouts → Popup Checkouts → \"Place on your website\", copy the part AFTER the domain from data-storefront (example: vmsuniverse2026.test.onfastspring.com/popup-vmsuniverse2026 → enter popup-vmsuniverse2026). Whitelist your WordPress site under the checkout's \"Whitelisted websites\"."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:232
+msgid "Logging"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:234
+msgid "Record info-level events to the FastSpring log table"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:241
+msgid "Save settings"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:242
+msgid "Test connection"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:297
+msgid "WooCommerce is not active."
+msgstr ""
+
+#. translators: %s WC version
+#: includes/admin/class-vms-efpg-admin-settings.php:301
+#, php-format
+msgid "Your WooCommerce (%s) does not expose the Cart/Checkout Blocks API. Update WooCommerce to 6.9+ (8.0+ recommended) or install the \"WooCommerce Blocks\" plugin. The classic checkout still works."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:302
+msgid "unknown version"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:305
+msgid "Block API is available but the plugin's Blocks integration did not load. Try deactivating and reactivating VMS Elements Payment Gateway with FastSpring for WooCommerce."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:326
+msgid "WooCommerce active"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:328
+msgid "Install and activate WooCommerce."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:331
+msgid "FastSpring gateway enabled in WooCommerce"
+msgstr ""
+
+#. translators: %s URL
+#: includes/admin/class-vms-efpg-admin-settings.php:335
+#, php-format
+msgid "Open %s and toggle \"Enable FastSpring\"."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:340
+msgid "API credentials configured for active mode"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:342
+msgid "Fill in API username and password for the active mode below."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:345
+msgid "Storefront ID configured for active mode"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:347
+msgid "Add your *.onfastspring.com storefront domain for the active mode below (hostname only, e.g. vmsuniverse2026.test.onfastspring.com)."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:350
+msgid "Popup checkout path configured (Store Builder overlay)"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:352
+msgid "Set the Popup checkout path below (e.g. popup-vmsuniverse2026) from FastSpring → Checkouts → Popup Checkouts → Place on your website."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:355
+msgid "Block-based Checkout integration available"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:385
+msgid "The FastSpring toggle is OFF in WooCommerce → Settings → Payments → FastSpring."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:386
+msgid "The VMS Elements Payment Gateway with FastSpring for WooCommerce plugin failed to initialise. Try deactivating and reactivating it."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:387
+msgid "API username or password is empty for the active mode."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:388
+msgid "Storefront ID is empty for the active mode."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:389
+msgid "Popup checkout path is missing. Set it in WooCommerce integration below (e.g. popup-vmsuniverse2026)."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:393
+msgid "Checkout availability"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:395
+msgid "READY"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:397
+msgid "NEEDS ATTENTION"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:403
+msgid "Your Checkout page uses the WooCommerce Checkout block. The gateway needs the Blocks integration row below to be green for customers to see FastSpring."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:405
+msgid "Your Checkout page uses the classic [woocommerce_checkout] shortcode. The Blocks row can be ignored — the gateway will show as long as the first five rows are green."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:407
+msgid "If FastSpring isn't appearing on the checkout page, every required row below should be green."
+msgstr ""
+
+#. translators: 1: checkout page edit URL, 2: page id
+#: includes/admin/class-vms-efpg-admin-settings.php:439
+#, php-format
+msgid "Checkout page detected: <a href=\"%1$s\">edit page #%2$d</a>. Switching between the classic shortcode and the Checkout block here is the fastest way to verify the gateway appears."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:449
+msgid "Blocks Checkout registration"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:452
+msgid "FastSpring IS registered with the Cart/Checkout Blocks Payment Method Registry."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:453
+msgid "It will show on the block-based checkout. If it still doesn't appear, force-refresh the page (Ctrl+F5) and clear any caching plugin."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:457
+msgid "FastSpring is NOT registered with the Blocks Payment Method Registry."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:458
+msgid "This is why it does not appear on a block-based checkout. Deactivate and reactivate VMS Elements Payment Gateway with FastSpring for WooCommerce once to trigger registration, then revisit this page."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:462
+msgid "Show all Blocks-registered payment methods"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:465
+msgid "None — Blocks payment registry is empty."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:480
+msgid "Live availability test"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:482
+msgid "This runs WooCommerce's actual checkout pipeline right now. If FastSpring appears in the green list below, it will appear at checkout for shoppers in the same situation."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:486
+msgid "Could not query WooCommerce gateways from this admin page."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:489
+msgid "FastSpring is currently available at checkout."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:490
+msgid "If shoppers still don't see it, hard-refresh the page or clear caches."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:494
+msgid "FastSpring is currently HIDDEN at checkout."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:502
+msgid "The gateway passes all FastSpring-specific checks, so it is most likely being filtered out by your theme, another plugin, or by a cart-level rule (zero total, country/currency restriction, etc)."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:508
+msgid "Show all currently-available gateways"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:511
+msgid "No gateways are available right now."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:524
+msgid "Show all registered gateways (including hidden)"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:532
+msgid "(disabled)"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:548
+#: includes/admin/class-vms-efpg-admin-settings.php:627
+#: includes/admin/class-vms-efpg-admin.php:256
+#: includes/admin/class-vms-efpg-admin.php:307
+msgid "Unauthorized."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:614
+msgid "Settings saved."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin-settings.php:635
+msgid "Add your FastSpring API credentials for the active mode before creating the catch-all product."
+msgstr ""
+
+#. translators: 1: product path, 2: error message
+#: includes/admin/class-vms-efpg-admin-settings.php:646
+#, php-format
+msgid "Could not create the catch-all product \"%1$s\": %2$s"
+msgstr ""
+
+#. translators: %s: product path
+#: includes/admin/class-vms-efpg-admin-settings.php:659
+#, php-format
+msgid "Catch-all product \"%s\" is ready in FastSpring. Any WooCommerce product can now be checked out."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:40
+#: includes/admin/class-vms-efpg-admin.php:41
+#: includes/class-vms-efpg-wc-gateway.php:24
+msgid "FastSpring"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:51
+#: includes/admin/class-vms-efpg-admin.php:52
+#: includes/class-vms-efpg.php:187
+msgid "Dashboard"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:219
+#: includes/admin/class-vms-efpg-admin.php:313
+msgid "Connected to FastSpring successfully."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:220
+msgid "Connection failed."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:221
+msgid "Loading…"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:222
+msgid "No data yet."
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:223
+#: includes/admin/class-vms-efpg-admin.php:224
+msgid "Could not load chart data."
+msgstr ""
+
+#. translators: %d: order count
+#: includes/admin/class-vms-efpg-admin.php:230
+#, php-format
+msgid "%d orders"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:231
+msgid "MRR: "
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:233
+msgid "Active"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:234
+msgid "Paused"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:235
+msgid "Trial"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:236
+msgid "Overdue"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:237
+msgid "Canceled"
+msgstr ""
+
+#: includes/admin/class-vms-efpg-admin.php:238
+msgid "Deactivated"
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:47
+msgid "FastSpring API credentials are missing for the active mode."
+msgstr ""
+
+#. translators: %d: HTTP status code
+#: includes/class-vms-efpg-api.php:263
+#, php-format
+msgid "HTTP %d with no error detail returned by FastSpring."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:560
+msgid "FastSpring did not return an account management URL."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:801
+msgid "FastSpring did not return product details."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:1125
+msgid "No valid product payload to send."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:1182
+msgid "A valid product path is required."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:1189
+msgid "Order total"
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:1316
+msgid "FastSpring did not return order details."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:1338
+#: includes/class-vms-efpg-checkout-overlay.php:232
+msgid "FastSpring order id is required."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:1401
+msgid "FastSpring has not marked this order as completed yet. Please wait a moment and refresh."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:1610
+msgid "FastSpring did not return subscription details."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2176
+msgid "A FastSpring order ID is required to resend the invoice."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2196
+msgid "Could not load the order for invoice resend."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2204
+msgid "This order does not have an invoice URL yet. Try again after the order is completed."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2212
+msgid "No valid customer email address is available for this order."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2249
+msgid "An invoice ID is required to resend the invoice."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2266
+msgid "No valid recipient email address is available for this invoice."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2279
+msgid "This invoice does not include view, PDF, or payment links."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2311
+msgid "No valid recipient email address was provided."
+msgstr ""
+
+#. translators: %s: order or invoice reference
+#: includes/class-vms-efpg-api.php:2319
+#, php-format
+msgid "Your invoice for %s"
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2322
+msgid "Your invoice"
+msgstr ""
+
+#. translators: %s: customer name
+#: includes/class-vms-efpg-api.php:2327
+#, php-format
+msgid "Hello %s,"
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2330
+msgid "Hello,"
+msgstr ""
+
+#. translators: 1: currency code, 2: formatted total
+#: includes/class-vms-efpg-api.php:2336
+#, php-format
+msgid "Total: %1$s %2$s"
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2347
+msgid "View invoice"
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2354
+msgid "Download PDF"
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2361
+msgid "Pay invoice"
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2368
+msgid "No invoice links are available to include in the email."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2373
+msgid "Here are the links to your invoice:"
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2378
+msgid "If you did not request this message, you can ignore it."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2401
+msgid "WordPress could not send the invoice email. Check your site mail configuration."
+msgstr ""
+
+#. translators: %s: recipient email address
+#: includes/class-vms-efpg-api.php:2418
+#, php-format
+msgid "Invoice email sent to %s."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2448
+msgid "FastSpring did not return invoice details."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2498
+msgid "Enter an invoice ID or FastSpring order ID."
+msgstr ""
+
+#. translators: %s: lookup value
+#: includes/class-vms-efpg-api.php:2522
+#, php-format
+msgid "\"%s\" was not found as a payment invoice (GET /invoices) or as an order (GET /orders). Checkout orders use the order ID — not GET /invoices."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2618
+msgid "FastSpring did not return quote details."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2785
+msgid "FastSpring did not return any return details."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2840
+msgid "A return ID is required."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2867
+msgid "FastSpring did not return return details."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2901
+msgid "A checkout path (storeId/checkoutId) is required for the Sessions API."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2909
+msgid "Checkout path must be in the format storeId/checkoutId."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2930
+msgid "Configure storefront and popup checkout path in settings, or provide a checkout path."
+msgstr ""
+
+#: includes/class-vms-efpg-api.php:2954
+#: includes/class-vms-efpg-api.php:2984
+msgid "FastSpring did not return session details."
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:64
+msgid "FastSpring checkout could not open. Confirm your popup checkout path is configured and your site domain is whitelisted in FastSpring."
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:65
+msgid "FastSpring popup checkout path is not configured in FastSpring → Settings."
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:66
+msgid "FastSpring Store Builder access key is required for custom WooCommerce pricing. Add it in FastSpring → Settings (Developer Tools → Store Builder Library in the FastSpring app)."
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:67
+msgid "FastSpring Store Builder did not load. Check your popup checkout path and whitelisted domains."
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:68
+msgid "FastSpring checkout failed to open."
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:69
+msgid "Checkout closed without completing payment."
+msgstr ""
+
+#. translators: 1: error code, 2: error message
+#: includes/class-vms-efpg-assets.php:71
+#, php-format
+msgid "SBL error: %1$s — %2$s"
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:72
+msgid "Payment confirm pending — redirecting to thank-you page to finish."
+msgstr ""
+
+#. translators: %s: error message
+#: includes/class-vms-efpg-assets.php:74
+#, php-format
+msgid "Payment confirm failed: %s"
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:75
+msgid "Overlay REST fetch failed."
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:76
+msgid "Blocked navigation to order-received while popup is pending."
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:77
+msgid "Blocked pushState to order-received while popup is pending."
+msgstr ""
+
+#. translators: %s: navigation method name
+#: includes/class-vms-efpg-assets.php:79
+#, php-format
+msgid "Blocked %s to order-received while popup is pending."
+msgstr ""
+
+#. translators: %s: order ID or "unknown"
+#: includes/class-vms-efpg-assets.php:81
+#, php-format
+msgid "Opening popup for order %s"
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:82
+msgid "Finalizing your payment…"
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:83
+msgid "unknown"
+msgstr ""
+
+#: includes/class-vms-efpg-assets.php:84
+#: includes/class-vms-efpg-assets.php:186
+#: includes/class-vms-efpg-checkout-loader.php:174
+#: includes/class-vms-efpg-checkout-loader.php:196
+msgid "FastSpring checkout"
+msgstr ""
+
+#: includes/class-vms-efpg-checkout-loader.php:445
+msgid "Opening secure checkout…"
+msgstr ""
+
+#: includes/class-vms-efpg-checkout-loader.php:446
+msgid "Return to checkout"
+msgstr ""
+
+#: includes/class-vms-efpg-checkout-loader.php:454
+msgid "Redirecting to secure checkout"
+msgstr ""
+
+#: includes/class-vms-efpg-checkout-overlay.php:184
+#: includes/class-vms-efpg-checkout-overlay.php:241
+msgid "Order not found."
+msgstr ""
+
+#: includes/class-vms-efpg-checkout-overlay.php:189
+msgid "FastSpring session not found for this order."
+msgstr ""
+
+#: includes/class-vms-efpg-checkout-overlay.php:260
+#: includes/class-vms-efpg-checkout-overlay.php:311
+msgid "FastSpring API client is not available."
+msgstr ""
+
+#: includes/class-vms-efpg-checkout-overlay.php:341
+msgid "This FastSpring order belongs to a different website."
+msgstr ""
+
+#: includes/class-vms-efpg-checkout-overlay.php:350
+msgid "This FastSpring order is linked to a different WooCommerce order."
+msgstr ""
+
+#: includes/class-vms-efpg-checkout-overlay.php:388
+#: includes/class-vms-efpg-webhook.php:651
+msgid "Payment captured by FastSpring."
+msgstr ""
+
+#: includes/class-vms-efpg-install.php:378
+#: includes/class-vms-efpg-settings.php:78
+#: includes/class-vms-efpg-wc-blocks.php:105
+#: includes/class-vms-efpg-wc-gateway.php:38
+#: includes/class-vms-efpg-wc-gateway.php:93
+msgid "Pay with FastSpring"
+msgstr ""
+
+#: includes/class-vms-efpg-install.php:379
+msgid "Secure checkout with FastSpring."
+msgstr ""
+
+#: includes/class-vms-efpg-settings.php:79
+#: includes/class-vms-efpg-wc-blocks.php:109
+#: includes/class-vms-efpg-wc-gateway.php:41
+#: includes/class-vms-efpg-wc-gateway.php:100
+msgid "Pay securely in a popup checkout overlay."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:25
+msgid "Accept credit cards, PayPal, Apple Pay, Google Pay and more via FastSpring popup overlay checkout (Store Builder Library)."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:84
+msgid "Enable/Disable"
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:86
+msgid "Enable FastSpring"
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:90
+msgid "Title"
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:92
+msgid "Title shown to customers at checkout."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:97
+msgid "Description"
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:99
+msgid "Description shown to customers at checkout."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:191
+msgid "Admin-only notice: FastSpring API credentials are missing for the active mode."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:194
+msgid "Admin-only notice: FastSpring storefront ID is empty. Customers will not see this gateway until you set it."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:197
+msgid "Admin-only notice: FastSpring popup checkout path is missing. Set it in FastSpring → Settings (e.g. popup-vmsuniverse2026)."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:393
+msgid "Order could not be loaded."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:404
+msgid "FastSpring storefront ID is empty. Please configure it before accepting payments."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:407
+msgid "FastSpring popup checkout path is not configured. In FastSpring → Settings, set the Popup checkout path (e.g. popup-vmsuniverse2026) from Checkouts → Popup Checkouts → Place on your website."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:412
+msgid "FastSpring Store Builder access key is required for custom WooCommerce pricing. Add it in FastSpring → Settings (copy from FastSpring App → Developer Tools → Store Builder Library)."
+msgstr ""
+
+#. translators: 1: product path, 2: API error
+#: includes/class-vms-efpg-wc-gateway.php:432
+#, php-format
+msgid "Could not prepare the FastSpring checkout product \"%1$s\" automatically. Create a one-time product with exactly this path in FastSpring App → Products (any price — it is overridden per order), then try again. Details: %2$s"
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:461
+msgid "No cart items could be matched to FastSpring products."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:517
+msgid "FastSpring returned an empty session id. Please try again."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:521
+msgid "Awaiting FastSpring payment."
+msgstr ""
+
+#. translators: %s currency code
+#: includes/class-vms-efpg-wc-gateway.php:575
+#, php-format
+msgid "FastSpring rejected the currency \"%s\". Add this currency to your storefront (FastSpring App → Storefronts → Currencies) or switch WooCommerce to a supported one (USD/EUR/GBP are always supported)."
+msgstr ""
+
+#. translators: %s product paths
+#: includes/class-vms-efpg-wc-gateway.php:582
+#, php-format
+msgid "FastSpring could not find the product(s): %s. Create them in FastSpring App → Products with the matching path."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:587
+msgid "FastSpring rejected the price override. Open the affected product in FastSpring App → Products and enable \"Allow Price Override\" (or change the pricing strategy in FastSpring → Settings to \"FastSpring catalog price\")."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:590
+msgid "FastSpring rejected the price on your Custom Price product. Confirm the product is configured as Type = Custom Price and has the order's currency enabled."
+msgstr ""
+
+#: includes/class-vms-efpg-wc-gateway.php:593
+msgid "FastSpring API authentication failed. Double-check the API username/password for the active mode in FastSpring → Settings."
+msgstr ""
+
+#. translators: %s product path
+#: includes/class-vms-efpg-wc-gateway.php:600
+#, php-format
+msgid "FastSpring rejected the checkout session (409 conflict). Confirm your Custom Price product \"%s\" exists, is set to Type = Custom Price, has \"Allow Price Override\" enabled, and supports the order currency."
+msgstr ""
+
+#. translators: %s product paths
+#: includes/class-vms-efpg-wc-gateway.php:607
+#, php-format
+msgid "FastSpring rejected the checkout session (409 conflict). Each product (%s) must allow price overrides in FastSpring. The plugin auto-creates missing products at checkout — open the product in FastSpring App → Products and enable \"Allow Price Override\" if this error persists."
+msgstr ""
+
+#. translators: %s product paths
+#: includes/class-vms-efpg-wc-gateway.php:613
+#, php-format
+msgid "FastSpring rejected the checkout session (409 conflict). Make sure the product(s) %s exist in your FastSpring catalog and the order currency is enabled for your storefront."
+msgstr ""
+
+#. translators: %s raw error message
+#: includes/class-vms-efpg-wc-gateway.php:620
+#, php-format
+msgid "FastSpring rejected the checkout session: %s"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:57
+msgid "Order completed"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:60
+msgid "Completes linked WooCommerce orders and stores revenue."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:63
+msgid "Order canceled"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:66
+msgid "Cancels linked WooCommerce orders."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:69
+msgid "Order approval pending"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:72
+msgid "Stores pending invoice orders."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:75
+msgid "Order payment pending"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:78
+msgid "Stores orders awaiting payment."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:81
+msgid "Return created"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:84
+msgid "Marks orders refunded in WooCommerce."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:87
+msgid "Order refund"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:90
+msgid "Legacy refund event — marks orders refunded."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:93
+msgid "Subscription activated"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:96
+msgid "Stores new subscriptions."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:99
+msgid "Subscription charge completed"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:102
+msgid "Updates subscription rebill data."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:105
+msgid "Subscription updated"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:108
+msgid "Syncs subscription edits."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:111
+msgid "Subscription trial reminder"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:114
+msgid "Syncs trial reminder notifications."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:117
+msgid "Subscription payment overdue"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:120
+msgid "Syncs overdue payment notifications."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:123
+msgid "Subscription payment reminder"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:126
+msgid "Syncs renewal reminder notifications."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:129
+msgid "Subscription canceled"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:132
+msgid "Marks subscriptions canceled."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:135
+msgid "Subscription deactivated"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:138
+msgid "Marks subscriptions deactivated."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:141
+msgid "Account created"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:144
+#: includes/class-vms-efpg-webhook-permissions.php:150
+#: includes/class-vms-efpg-webhook-permissions.php:156
+msgid "Acknowledged — no local persistence."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:147
+msgid "Account updated"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:153
+msgid "Mailing list updated"
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:180
+msgid "Add FastSpring API credentials before syncing webhook permissions."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook-permissions.php:193
+msgid "No FastSpring webhook endpoint matches this plugin receiver URL. Add the URL under FastSpring → Integrations → Webhooks first."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook.php:266
+msgid "Could not decode the payload query parameter as JSON."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook.php:282
+msgid "Provide webhook JSON via POST body, the payload query parameter, or url/source to fetch JSON from."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook.php:325
+msgid "The source URL must use http or https."
+msgstr ""
+
+#. translators: %s: error message
+#: includes/class-vms-efpg-webhook.php:344
+#, php-format
+msgid "Could not fetch webhook JSON from URL: %s"
+msgstr ""
+
+#. translators: %d: HTTP status code
+#: includes/class-vms-efpg-webhook.php:356
+#, php-format
+msgid "Source URL returned HTTP %d."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook.php:367
+msgid "The source URL did not return valid webhook JSON."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook.php:384
+msgid "Webhook payload must be a JSON object."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook.php:398
+msgid "Webhook JSON must contain an events array or a single event object."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook.php:670
+msgid "FastSpring reported the order was canceled."
+msgstr ""
+
+#: includes/class-vms-efpg-webhook.php:700
+msgid "Refund issued via FastSpring."
+msgstr ""
+
+#: includes/class-vms-efpg.php:175
+msgid "VMS Elements Payment Gateway with FastSpring for WooCommerce works best with WooCommerce. The dashboard will still operate, but the WooCommerce payment gateway is disabled until WooCommerce is activated."
+msgstr ""

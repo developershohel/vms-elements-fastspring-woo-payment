@@ -2,15 +2,15 @@
 /**
  * Loads the WooCommerce payment gateway, only when WooCommerce is active.
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Loads FastSpring popup overlay checkout + WooCommerce Blocks integration (free core).
+ * Loads FastSpring popup overlay checkout + WooCommerce Blocks integration.
  */
-class VMS_EFWP_Checkout_Loader {
+class VMS_EFPG_Checkout_Loader {
 
 	/**
 	 * Store Builder Library script URL (popup overlay checkout).
@@ -70,7 +70,7 @@ class VMS_EFWP_Checkout_Loader {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only flag for asset loading.
-		if ( ! empty( $_GET['vms_efwp_fs_order'] ) ) {
+		if ( ! empty( $_GET['vms_efpg_fs_order'] ) ) {
 			return true;
 		}
 
@@ -82,7 +82,7 @@ class VMS_EFWP_Checkout_Loader {
 
 		$order = wc_get_order( $order_id );
 		return $order instanceof WC_Order
-			&& 'vms_efwp' === $order->get_payment_method()
+			&& 'vms_efpg' === $order->get_payment_method()
 			&& $order->needs_payment();
 	}
 
@@ -95,10 +95,10 @@ class VMS_EFWP_Checkout_Loader {
 		}
 
 		wp_register_style(
-			'vms-efwp-checkout-popup',
-			vms_efwp_asset_url( 'assets/css/checkout-popup.css' ),
+			'vms-efpg-checkout-popup',
+			vms_efpg_asset_url( 'assets/css/checkout-popup.css' ),
 			array(),
-			VMS_EFWP_VERSION
+			VMS_EFPG_VERSION
 		);
 
 		wp_register_script(
@@ -110,26 +110,26 @@ class VMS_EFWP_Checkout_Loader {
 		);
 
 		wp_register_script(
-			'vms-efwp-overlay-shell',
-			vms_efwp_asset_url( 'assets/js/overlay-shell.js' ),
+			'vms-efpg-overlay-shell',
+			vms_efpg_asset_url( 'assets/js/overlay-shell.js' ),
 			array(),
-			VMS_EFWP_VERSION,
+			VMS_EFPG_VERSION,
 			true
 		);
 
 		wp_register_script(
-			'vms-efwp-checkout-popup',
-			vms_efwp_asset_url( 'assets/js/checkout-popup.js' ),
-			array( 'jquery', 'fastspring-builder', 'wp-api-fetch', 'vms-efwp-overlay-shell' ),
-			VMS_EFWP_VERSION,
+			'vms-efpg-checkout-popup',
+			vms_efpg_asset_url( 'assets/js/checkout-popup.js' ),
+			array( 'jquery', 'fastspring-builder', 'wp-api-fetch', 'vms-efpg-overlay-shell' ),
+			VMS_EFPG_VERSION,
 			true
 		);
 
 		wp_register_script(
-			'vms-efwp-payment-complete',
-			vms_efwp_asset_url( 'assets/js/checkout-popup.js' ),
+			'vms-efpg-payment-complete',
+			vms_efpg_asset_url( 'assets/js/checkout-popup.js' ),
 			array(),
-			VMS_EFWP_VERSION,
+			VMS_EFPG_VERSION,
 			true
 		);
 	}
@@ -141,11 +141,11 @@ class VMS_EFWP_Checkout_Loader {
 		if ( ! $this->should_load_checkout_assets() ) {
 			return;
 		}
-		if ( ! function_exists( 'vms_efwp' ) || ! vms_efwp()->settings ) {
+		if ( ! function_exists( 'vms_efpg' ) || ! vms_efpg()->settings ) {
 			return;
 		}
 
-		$settings = vms_efwp()->settings;
+		$settings = vms_efpg()->settings;
 		if ( ! $settings->has_popup_checkout() ) {
 			return;
 		}
@@ -155,60 +155,60 @@ class VMS_EFWP_Checkout_Loader {
 			'hostedDomain'    => $settings->storefront(),
 			'accessKey'       => $settings->access_key(),
 			'checkoutUrl'     => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : home_url( '/' ),
-			'restUrl'         => rest_url( 'vms-efwp/v1/overlay/' ),
-			'completeRestUrl' => rest_url( 'vms-efwp/v1/complete/' ),
+			'restUrl'         => rest_url( 'vms-efpg/v1/overlay/' ),
+			'completeRestUrl' => rest_url( 'vms-efpg/v1/complete/' ),
 			'restNonce'       => wp_create_nonce( 'wp_rest' ),
 			'debug'           => defined( 'WP_DEBUG' ) && WP_DEBUG,
-			'i18n'            => VMS_EFWP_Assets::checkout_js_i18n(),
+			'i18n'            => VMS_EFPG_Assets::checkout_js_i18n(),
 		);
 
 		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
-			wp_enqueue_style( 'vms-efwp-checkout-popup' );
+			wp_enqueue_style( 'vms-efpg-checkout-popup' );
 			wp_enqueue_script( 'fastspring-builder' );
-			wp_enqueue_script( 'vms-efwp-overlay-shell' );
+			wp_enqueue_script( 'vms-efpg-overlay-shell' );
 			wp_localize_script(
-				'vms-efwp-overlay-shell',
-				'VMS_EFWP_OverlayShell',
+				'vms-efpg-overlay-shell',
+				'VMS_EFPG_OverlayShell',
 				array(
 					'i18n' => array(
-						'checkoutAriaLabel' => __( 'FastSpring checkout', 'vms-elements-fastspring-woo-payment' ),
+						'checkoutAriaLabel' => __( 'FastSpring checkout', 'vms-elements-fastspring-payment-gateway' ),
 					),
 				)
 			);
-			wp_enqueue_script( 'vms-efwp-checkout-popup' );
-			wp_localize_script( 'vms-efwp-checkout-popup', 'VMS_EFWP_Checkout', $localize );
+			wp_enqueue_script( 'vms-efpg-checkout-popup' );
+			wp_localize_script( 'vms-efpg-checkout-popup', 'VMS_EFPG_Checkout', $localize );
 			if ( function_exists( 'wp_set_script_translations' ) ) {
-				wp_set_script_translations( 'vms-efwp-checkout-popup', 'vms-elements-fastspring-woo-payment' );
-				wp_set_script_translations( 'vms-efwp-overlay-shell', 'vms-elements-fastspring-woo-payment' );
+				wp_set_script_translations( 'vms-efpg-checkout-popup', 'vms-elements-fastspring-payment-gateway' );
+				wp_set_script_translations( 'vms-efpg-overlay-shell', 'vms-elements-fastspring-payment-gateway' );
 			}
 			return;
 		}
 
 		if ( function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'order-pay' ) ) {
-			wp_enqueue_style( 'vms-efwp-checkout-popup' );
+			wp_enqueue_style( 'vms-efpg-checkout-popup' );
 			wp_enqueue_script( 'fastspring-builder' );
-			wp_enqueue_script( 'vms-efwp-overlay-shell' );
+			wp_enqueue_script( 'vms-efpg-overlay-shell' );
 			wp_localize_script(
-				'vms-efwp-overlay-shell',
-				'VMS_EFWP_OverlayShell',
+				'vms-efpg-overlay-shell',
+				'VMS_EFPG_OverlayShell',
 				array(
 					'i18n' => array(
-						'checkoutAriaLabel' => __( 'FastSpring checkout', 'vms-elements-fastspring-woo-payment' ),
+						'checkoutAriaLabel' => __( 'FastSpring checkout', 'vms-elements-fastspring-payment-gateway' ),
 					),
 				)
 			);
-			wp_enqueue_script( 'vms-efwp-checkout-popup' );
-			wp_localize_script( 'vms-efwp-checkout-popup', 'VMS_EFWP_Checkout', $localize );
+			wp_enqueue_script( 'vms-efpg-checkout-popup' );
+			wp_localize_script( 'vms-efpg-checkout-popup', 'VMS_EFPG_Checkout', $localize );
 			if ( function_exists( 'wp_set_script_translations' ) ) {
-				wp_set_script_translations( 'vms-efwp-checkout-popup', 'vms-elements-fastspring-woo-payment' );
-				wp_set_script_translations( 'vms-efwp-overlay-shell', 'vms-elements-fastspring-woo-payment' );
+				wp_set_script_translations( 'vms-efpg-checkout-popup', 'vms-elements-fastspring-payment-gateway' );
+				wp_set_script_translations( 'vms-efpg-overlay-shell', 'vms-elements-fastspring-payment-gateway' );
 			}
 			return;
 		}
 
-		wp_enqueue_style( 'vms-efwp-checkout-popup' );
-		wp_enqueue_script( 'vms-efwp-payment-complete' );
-		wp_localize_script( 'vms-efwp-payment-complete', 'VMS_EFWP_Checkout', $localize );
+		wp_enqueue_style( 'vms-efpg-checkout-popup' );
+		wp_enqueue_script( 'vms-efpg-payment-complete' );
+		wp_localize_script( 'vms-efpg-payment-complete', 'VMS_EFPG_Checkout', $localize );
 	}
 
 	/**
@@ -223,25 +223,25 @@ class VMS_EFWP_Checkout_Loader {
 		if ( 'fastspring-builder' !== $handle ) {
 			return $tag;
 		}
-		if ( ! function_exists( 'vms_efwp' ) || ! vms_efwp()->settings ) {
+		if ( ! function_exists( 'vms_efpg' ) || ! vms_efpg()->settings ) {
 			return $tag;
 		}
 
-		$popup_storefront = vms_efwp()->settings->popup_storefront();
+		$popup_storefront = vms_efpg()->settings->popup_storefront();
 		if ( '' === $popup_storefront ) {
 			return $tag;
 		}
 
-		$access_key = vms_efwp()->settings->access_key();
+		$access_key = vms_efpg()->settings->access_key();
 
-		return VMS_EFWP_Assets::enhance_sbl_script_tag(
+		return VMS_EFPG_Assets::enhance_sbl_script_tag(
 			$tag,
 			$handle,
 			'fastspring-builder',
 			$popup_storefront,
 			array(
-				'popup_closed'   => 'VMS_EFWP_PopupClosed',
-				'error_callback' => 'VMS_EFWP_ErrorCallback',
+				'popup_closed'   => 'VMS_EFPG_PopupClosed',
+				'error_callback' => 'VMS_EFPG_ErrorCallback',
 				'access_key'     => $access_key,
 			)
 		);
@@ -254,15 +254,15 @@ class VMS_EFWP_Checkout_Loader {
 	 * @return array
 	 */
 	private function build_overlay_for_order( WC_Order $order ) {
-		$session_id   = (string) $order->get_meta( '_vms_efwp_session_id' );
+		$session_id   = (string) $order->get_meta( '_vms_efpg_session_id' );
 		$push_payload = null;
 		$use_secure   = false;
 
 		if ( function_exists( 'WC' ) && WC()->payment_gateways() ) {
 			$gateways = WC()->payment_gateways()->payment_gateways();
-			if ( isset( $gateways['vms_efwp'] ) && $gateways['vms_efwp'] instanceof VMS_EFWP_WC_Gateway ) {
-				/** @var VMS_EFWP_WC_Gateway $gateway */
-				$gateway      = $gateways['vms_efwp'];
+			if ( isset( $gateways['vms_efpg'] ) && $gateways['vms_efpg'] instanceof VMS_EFPG_WC_Gateway ) {
+				/** @var VMS_EFPG_WC_Gateway $gateway */
+				$gateway      = $gateways['vms_efpg'];
 				$push_payload = $gateway->build_sbl_checkout_payload( $order );
 				$use_secure   = $gateway->uses_sbl_secure();
 			}
@@ -276,11 +276,11 @@ class VMS_EFWP_Checkout_Loader {
 			'orderKey'    => $order->get_order_key(),
 			'pushPayload' => $push_payload,
 			'useSecure'   => $use_secure,
-			'tags'        => VMS_EFWP_Data_Store::build_session_tags( $order ),
+			'tags'        => VMS_EFPG_Data_Store::build_session_tags( $order ),
 		);
 
-		if ( class_exists( 'VMS_EFWP_Checkout_Overlay' ) ) {
-			$overlay = VMS_EFWP_Checkout_Overlay::stash( $order->get_id(), $overlay );
+		if ( class_exists( 'VMS_EFPG_Checkout_Overlay' ) ) {
+			$overlay = VMS_EFPG_Checkout_Overlay::stash( $order->get_id(), $overlay );
 		}
 
 		return $overlay;
@@ -295,16 +295,16 @@ class VMS_EFWP_Checkout_Loader {
 	 */
 	public function inject_overlay_payment_data( $result, $order_id ) {
 		$order = wc_get_order( $order_id );
-		if ( ! $order || 'vms_efwp' !== $order->get_payment_method() ) {
+		if ( ! $order || 'vms_efpg' !== $order->get_payment_method() ) {
 			return $result;
 		}
 
-		if ( ! function_exists( 'vms_efwp' ) || ! vms_efwp()->settings ) {
+		if ( ! function_exists( 'vms_efpg' ) || ! vms_efpg()->settings ) {
 			return $result;
 		}
 
-		$settings   = vms_efwp()->settings;
-		$session_id = (string) $order->get_meta( '_vms_efwp_session_id' );
+		$settings   = vms_efpg()->settings;
+		$session_id = (string) $order->get_meta( '_vms_efpg_session_id' );
 
 		if ( '' === $session_id || ! $settings->has_popup_checkout() ) {
 			return $result;
@@ -314,11 +314,11 @@ class VMS_EFWP_Checkout_Loader {
 
 		// Popup-only: stay on checkout — JS opens the FastSpring overlay (no order-received redirect).
 		$result['redirect']           = false;
-		$result['vms_efwp_overlay']   = $overlay;
+		$result['vms_efpg_overlay']   = $overlay;
 		$result['payment_details']    = isset( $result['payment_details'] ) && is_array( $result['payment_details'] )
 			? $result['payment_details']
 			: array();
-		$result['payment_details']['vms_efwp_overlay'] = $overlay;
+		$result['payment_details']['vms_efpg_overlay'] = $overlay;
 
 		return $result;
 	}
@@ -331,15 +331,15 @@ class VMS_EFWP_Checkout_Loader {
 	 * @return array
 	 */
 	public function inject_store_api_payment_result( $payment_result, $order ) {
-		if ( ! $order instanceof WC_Order || 'vms_efwp' !== $order->get_payment_method() ) {
+		if ( ! $order instanceof WC_Order || 'vms_efpg' !== $order->get_payment_method() ) {
 			return $payment_result;
 		}
 
-		if ( ! function_exists( 'vms_efwp' ) || ! vms_efwp()->settings || ! vms_efwp()->settings->has_popup_checkout() ) {
+		if ( ! function_exists( 'vms_efpg' ) || ! vms_efpg()->settings || ! vms_efpg()->settings->has_popup_checkout() ) {
 			return $payment_result;
 		}
 
-		$session_id = (string) $order->get_meta( '_vms_efwp_session_id' );
+		$session_id = (string) $order->get_meta( '_vms_efpg_session_id' );
 		if ( '' === $session_id ) {
 			return $payment_result;
 		}
@@ -350,7 +350,7 @@ class VMS_EFWP_Checkout_Loader {
 		if ( ! isset( $payment_result['payment_details'] ) || ! is_array( $payment_result['payment_details'] ) ) {
 			$payment_result['payment_details'] = array();
 		}
-		$payment_result['payment_details']['vms_efwp_overlay'] = $overlay;
+		$payment_result['payment_details']['vms_efpg_overlay'] = $overlay;
 
 		return $payment_result;
 	}
@@ -368,7 +368,7 @@ class VMS_EFWP_Checkout_Loader {
 		}
 
 		$method = isset( $context->payment_method ) ? $context->payment_method : '';
-		if ( 'vms_efwp' !== $method ) {
+		if ( 'vms_efpg' !== $method ) {
 			return;
 		}
 
@@ -379,18 +379,18 @@ class VMS_EFWP_Checkout_Loader {
 
 	/**
 	 * Render the FastSpring popup bridge when the buyer is sent to
-	 * /?vms_efwp_pay=<order_id>&key=<order_key> after placing an order.
+	 * /?vms_efpg_pay=<order_id>&key=<order_key> after placing an order.
 	 */
 	public function maybe_render_checkout_bridge() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Order key acts as the nonce.
-		if ( empty( $_GET['vms_efwp_pay'] ) ) {
+		if ( empty( $_GET['vms_efpg_pay'] ) ) {
 			return;
 		}
-		if ( ! function_exists( 'wc_get_order' ) || ! function_exists( 'vms_efwp' ) ) {
+		if ( ! function_exists( 'wc_get_order' ) || ! function_exists( 'vms_efpg' ) ) {
 			return;
 		}
 
-		$order_id = absint( $_GET['vms_efwp_pay'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$order_id = absint( $_GET['vms_efpg_pay'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$key      = isset( $_GET['key'] ) ? sanitize_text_field( wp_unslash( $_GET['key'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$order    = $order_id ? wc_get_order( $order_id ) : null;
 
@@ -406,8 +406,8 @@ class VMS_EFWP_Checkout_Loader {
 			exit;
 		}
 
-		$settings    = vms_efwp()->settings;
-		$session_id  = (string) $order->get_meta( '_vms_efwp_session_id' );
+		$settings    = vms_efpg()->settings;
+		$session_id  = (string) $order->get_meta( '_vms_efpg_session_id' );
 		$popup_store = $settings ? $settings->popup_storefront() : '';
 		$domain      = $settings ? $settings->storefront() : '';
 
@@ -440,140 +440,51 @@ class VMS_EFWP_Checkout_Loader {
 	 */
 	private function render_bridge_html( $popup_storefront, $overlay, $success_url, $cancel_url ) {
 		nocache_headers();
-		$settings    = function_exists( 'vms_efwp' ) ? vms_efwp()->settings : null;
+		$settings    = function_exists( 'vms_efpg' ) ? vms_efpg()->settings : null;
 		$access_key  = $settings ? $settings->access_key() : '';
-		$loading     = esc_html__( 'Opening secure checkout…', 'vms-elements-fastspring-woo-payment' );
-		$retry       = esc_html__( 'Return to checkout', 'vms-elements-fastspring-woo-payment' );
-		$complete_url = rest_url( 'vms-efwp/v1/complete/' );
-		$rest_nonce   = wp_create_nonce( 'wp_rest' );
+		$loading     = esc_html__( 'Opening secure checkout…', 'vms-elements-fastspring-payment-gateway' );
+		$retry       = esc_html__( 'Return to checkout', 'vms-elements-fastspring-payment-gateway' );
 		?>
 <!DOCTYPE html>
-<html <?php language_attributes(); ?> class="vms-efwp-fastspring-checkout">
+<html <?php language_attributes(); ?> class="vms-efpg-fastspring-checkout">
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="robots" content="noindex,nofollow" />
-	<title><?php echo esc_html__( 'Redirecting to secure checkout', 'vms-elements-fastspring-woo-payment' ); ?></title>
+	<title><?php echo esc_html__( 'Redirecting to secure checkout', 'vms-elements-fastspring-payment-gateway' ); ?></title>
 	<?php
-		VMS_EFWP_Assets::print_standalone_head_assets(
+		VMS_EFPG_Assets::print_standalone_head_assets(
 			array(
 				'popup_storefront' => $popup_storefront,
 				'access_key'       => $access_key,
-				'popup_closed'     => 'VMS_EFWP_Closed',
-				'error_callback'   => 'VMS_EFWP_ErrorCallback',
+				'popup_closed'     => 'VMS_EFPG_Closed',
+				'error_callback'   => 'VMS_EFPG_ErrorCallback',
 			)
 		);
 		?>
 </head>
-<body class="vms-efwp-fastspring-checkout">
-	<main id="vms-efwp-fastspring-overlay-root" class="vms-efwp-fastspring-overlay-root" aria-live="polite">
-		<div class="vms-efwp-checkout-shell vms-efwp-checkout-shell--loading">
-			<div class="vms-efwp-spinner" aria-hidden="true"></div>
+<body class="vms-efpg-fastspring-checkout">
+	<main id="vms-efpg-fastspring-overlay-root" class="vms-efpg-fastspring-overlay-root" aria-live="polite">
+		<div class="vms-efpg-checkout-shell vms-efpg-checkout-shell--loading">
+			<div class="vms-efpg-spinner" aria-hidden="true"></div>
 			<p><?php echo $loading; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above. ?></p>
-			<p><a id="vms-efwp-fallback" href="<?php echo esc_url( $cancel_url ); ?>"><?php echo $retry; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above. ?></a></p>
+			<p><a id="vms-efpg-fallback" href="<?php echo esc_url( $cancel_url ); ?>"><?php echo $retry; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above. ?></a></p>
 		</div>
 	</main>
-	<script>
-	(function(){
-		var OVERLAY = <?php echo wp_json_encode( $overlay ); ?>;
-		var SUCCESS = <?php echo wp_json_encode( $success_url ); ?>;
-		var CANCEL  = <?php echo wp_json_encode( $cancel_url ); ?>;
-		var COMPLETE_URL = <?php echo wp_json_encode( $complete_url ); ?>;
-		var REST_NONCE = <?php echo wp_json_encode( $rest_nonce ); ?>;
-		var opened = false, done = false, tries = 0;
-
-		function appendQueryParam( url, key, value ) {
-			try {
-				var target = new URL( url, window.location.origin );
-				target.searchParams.set( key, value );
-				return target.toString();
-			} catch ( e ) {
-				var join = url.indexOf( '?' ) === -1 ? '?' : '&';
-				return url + join + encodeURIComponent( key ) + '=' + encodeURIComponent( value );
-			}
-		}
-
-		function confirmPaymentAndRedirect( orderId, orderKey, fsOrderId ) {
-			if ( ! orderId || ! fsOrderId || ! SUCCESS ) {
-				window.location.replace( SUCCESS || CANCEL );
-				return;
-			}
-
-			window.location.replace( appendQueryParam( SUCCESS, 'vms_efwp_fs_order', fsOrderId ) );
-		}
-
-		window.VMS_EFWP_ErrorCallback = function( code, message ) {
-			console.error( '[VMS FastSpring]', code, message );
-		};
-
-		window.VMS_EFWP_Closed = function( data ){
-			if ( done ) { return; }
-			done = true;
-			if ( window.VMS_EFWP_OverlayApi && typeof window.VMS_EFWP_OverlayApi.deactivate === 'function' ) {
-				window.VMS_EFWP_OverlayApi.deactivate();
-			}
-			if ( window.fastspring && window.fastspring.builder && typeof window.fastspring.builder.reset === 'function' ) {
-				try { window.fastspring.builder.reset(); } catch ( e ) {}
-			}
-			if ( data && data.id ) {
-				confirmPaymentAndRedirect(
-					OVERLAY.orderId || 0,
-					OVERLAY.orderKey || '',
-					data.id
-				);
-			} else {
-				window.location.replace( CANCEL );
-			}
-		};
-
-		function ready(){
-			return window.fastspring && window.fastspring.builder && typeof window.fastspring.builder.checkout === 'function';
-		}
-
-		function launch(){
-			if ( opened || ! ready() || ! OVERLAY ) { return; }
-			opened = true;
-			if ( window.VMS_EFWP_OverlayApi && typeof window.VMS_EFWP_OverlayApi.activate === 'function' ) {
-				window.VMS_EFWP_OverlayApi.activate();
-			}
-			try {
-				window.fastspring.builder.reset();
-				if ( OVERLAY.tags ) {
-					window.fastspring.builder.tag( OVERLAY.tags );
-				}
-				if ( OVERLAY.pushPayload ) {
-					if ( OVERLAY.useSecure ) {
-						window.fastspring.builder.secure( OVERLAY.pushPayload, '' );
-					} else {
-						window.fastspring.builder.push( {
-							reset: true,
-							products: ( OVERLAY.pushPayload.items || [] ).map( function( item ) {
-								return { path: item.product, quantity: item.quantity || 1 };
-							} ),
-							paymentContact: OVERLAY.pushPayload.contact || {},
-							country: OVERLAY.pushPayload.country,
-							language: ( OVERLAY.pushPayload.language || 'EN' ).toLowerCase()
-						} );
-					}
-				}
-				window.fastspring.builder.checkout();
-				if ( window.VMS_EFWP_OverlayApi && typeof window.VMS_EFWP_OverlayApi.mount === 'function' ) {
-					window.VMS_EFWP_OverlayApi.mount();
-					setTimeout( function() { window.VMS_EFWP_OverlayApi.mount(); }, 100 );
-					setTimeout( function() { window.VMS_EFWP_OverlayApi.mount(); }, 500 );
-				}
-			} catch ( e ) {
-				window.location.replace( CANCEL );
-			}
-		}
-
-		var timer = setInterval(function(){
-			tries++;
-			if ( ready() ) { clearInterval( timer ); launch(); }
-			else if ( tries > 100 ) { clearInterval( timer ); window.location.replace( CANCEL ); }
-		}, 100);
-	})();
-	</script>
+	<?php
+		VMS_EFPG_Assets::register_checkout_assets();
+		wp_localize_script(
+			'vms-efpg-checkout-bridge',
+			'VMS_EFPG_CheckoutBridge',
+			array(
+				'overlay'    => $overlay,
+				'successUrl' => $success_url,
+				'cancelUrl'  => $cancel_url,
+			)
+		);
+		wp_enqueue_script( 'vms-efpg-checkout-bridge' );
+		wp_print_scripts( array( 'vms-efpg-checkout-bridge' ) );
+		?>
 </body>
 </html>
 		<?php
@@ -591,19 +502,19 @@ class VMS_EFWP_Checkout_Loader {
 		if ( ! class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
 			return;
 		}
-		if ( ! class_exists( 'VMS_EFWP_WC_Blocks', false ) ) {
-			require_once VMS_EFWP_PATH . 'includes/class-vms-efwp-wc-blocks.php';
+		if ( ! class_exists( 'VMS_EFPG_WC_Blocks', false ) ) {
+			require_once VMS_EFPG_PATH . 'includes/class-vms-efpg-wc-blocks.php';
 		}
-		if ( ! class_exists( 'VMS_EFWP_WC_Blocks', false ) ) {
+		if ( ! class_exists( 'VMS_EFPG_WC_Blocks', false ) ) {
 			return;
 		}
 		if ( method_exists( $registry, 'get_all_registered' ) ) {
 			$registered = $registry->get_all_registered();
-			if ( is_array( $registered ) && isset( $registered['vms_efwp'] ) ) {
+			if ( is_array( $registered ) && isset( $registered['vms_efpg'] ) ) {
 				return;
 			}
 		}
-		$registry->register( new VMS_EFWP_WC_Blocks() );
+		$registry->register( new VMS_EFPG_WC_Blocks() );
 	}
 }
 

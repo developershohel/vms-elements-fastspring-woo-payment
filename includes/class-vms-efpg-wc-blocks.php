@@ -6,7 +6,7 @@
  * the block-based Checkout (the default since WooCommerce 8.x, and required
  * to be visible on WC 10.x).
  *
- * @package VMS_EFWP
+ * @package VMS_EFPG
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -18,22 +18,22 @@ if ( ! class_exists( AbstractPaymentMethodType::class ) ) {
 }
 
 /**
- * Class VMS_EFWP_WC_Blocks.
+ * Class VMS_EFPG_WC_Blocks.
  */
-final class VMS_EFWP_WC_Blocks extends AbstractPaymentMethodType {
+final class VMS_EFPG_WC_Blocks extends AbstractPaymentMethodType {
 
 	/**
 	 * Payment method name (must match gateway id).
 	 *
 	 * @var string
 	 */
-	protected $name = 'vms_efwp';
+	protected $name = 'vms_efpg';
 
 	/**
 	 * Initialize: load the gateway-level WC settings.
 	 */
 	public function initialize() {
-		$this->settings = get_option( 'woocommerce_vms_efwp_settings', array() );
+		$this->settings = get_option( 'woocommerce_vms_efpg_settings', array() );
 		if ( ! is_array( $this->settings ) ) {
 			$this->settings = array();
 		}
@@ -61,9 +61,9 @@ final class VMS_EFWP_WC_Blocks extends AbstractPaymentMethodType {
 	 * @return array
 	 */
 	public function get_payment_method_script_handles() {
-		$handle = 'vms-efwp-blocks';
+		$handle = 'vms-efpg-blocks';
 
-		$asset_path = vms_efwp_asset_url( 'assets/js/blocks/checkout-block.js' );
+		$asset_path = vms_efpg_asset_url( 'assets/js/blocks/checkout-block.js' );
 
 		if ( ! wp_script_is( $handle, 'registered' ) ) {
 			wp_register_script(
@@ -76,13 +76,13 @@ final class VMS_EFWP_WC_Blocks extends AbstractPaymentMethodType {
 					'wp-html-entities',
 					'wp-i18n',
 				),
-				VMS_EFWP_VERSION,
+				VMS_EFPG_VERSION,
 				true
 			);
 		}
 
 		if ( function_exists( 'wp_set_script_translations' ) ) {
-			wp_set_script_translations( $handle, 'vms-elements-fastspring-woo-payment' );
+			wp_set_script_translations( $handle, 'vms-elements-fastspring-payment-gateway' );
 		}
 
 		return array( $handle );
@@ -90,23 +90,23 @@ final class VMS_EFWP_WC_Blocks extends AbstractPaymentMethodType {
 
 	/**
 	 * Data passed to the block payment method (exposed as
-	 * `wc.wcSettings.getSetting( 'vms_efwp_data' )` in JS).
+	 * `wc.wcSettings.getSetting( 'vms_efpg_data' )` in JS).
 	 *
 	 * @return array
 	 */
 	public function get_payment_method_data() {
-		$plugin_settings_raw = get_option( 'vms_efwp_settings', array() );
+		$plugin_settings_raw = get_option( 'vms_efpg_settings', array() );
 		if ( ! is_array( $plugin_settings_raw ) ) {
 			$plugin_settings_raw = array();
 		}
 
 		$title = ! empty( $this->settings['title'] )
 			? $this->settings['title']
-			: ( ! empty( $plugin_settings_raw['gateway_title'] ) ? $plugin_settings_raw['gateway_title'] : __( 'Pay with FastSpring', 'vms-elements-fastspring-woo-payment' ) );
+			: ( ! empty( $plugin_settings_raw['gateway_title'] ) ? $plugin_settings_raw['gateway_title'] : __( 'Pay with FastSpring', 'vms-elements-fastspring-payment-gateway' ) );
 
 		$description = ! empty( $this->settings['description'] )
 			? $this->settings['description']
-			: ( ! empty( $plugin_settings_raw['gateway_description'] ) ? $plugin_settings_raw['gateway_description'] : __( 'Pay securely in a popup overlay powered by FastSpring.', 'vms-elements-fastspring-woo-payment' ) );
+			: ( ! empty( $plugin_settings_raw['gateway_description'] ) ? $plugin_settings_raw['gateway_description'] : __( 'Pay securely in a popup checkout overlay.', 'vms-elements-fastspring-payment-gateway' ) );
 
 		return array(
 			'title'       => $title,
@@ -127,16 +127,16 @@ final class VMS_EFWP_WC_Blocks extends AbstractPaymentMethodType {
 			return false;
 		}
 
-		if ( ! class_exists( 'VMS_EFWP_WC_Gateway' ) || ! function_exists( 'WC' ) ) {
+		if ( ! class_exists( 'VMS_EFPG_WC_Gateway' ) || ! function_exists( 'WC' ) ) {
 			return false;
 		}
 
 		$gateways = WC()->payment_gateways()->payment_gateways();
-		if ( empty( $gateways['vms_efwp'] ) || ! $gateways['vms_efwp'] instanceof VMS_EFWP_WC_Gateway ) {
+		if ( empty( $gateways['vms_efpg'] ) || ! $gateways['vms_efpg'] instanceof VMS_EFPG_WC_Gateway ) {
 			return false;
 		}
 
-		return empty( $gateways['vms_efwp']->get_availability_issues() );
+		return empty( $gateways['vms_efpg']->get_availability_issues() );
 	}
 
 	/**
@@ -145,11 +145,11 @@ final class VMS_EFWP_WC_Blocks extends AbstractPaymentMethodType {
 	 * @return array
 	 */
 	public function get_supported_features() {
-		$features = array( 'products', 'refunds' );
-		if ( class_exists( 'VMS_EFWP_WC_Gateway' ) ) {
+		$features = array( 'products' );
+		if ( class_exists( 'VMS_EFPG_WC_Gateway' ) ) {
 			$gateways = WC()->payment_gateways()->payment_gateways();
-			if ( isset( $gateways['vms_efwp'] ) && is_array( $gateways['vms_efwp']->supports ) ) {
-				$features = $gateways['vms_efwp']->supports;
+			if ( isset( $gateways['vms_efpg'] ) && is_array( $gateways['vms_efpg']->supports ) ) {
+				$features = $gateways['vms_efpg']->supports;
 			}
 		}
 		return $features;
